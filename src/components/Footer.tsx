@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center mb-4">
               <Library className="h-8 w-8 text-blue-400 mr-3" />
-              <span className="text-2xl font-bold">Librarica</span>
+              <span className="text-2xl font-bold">Neolibrary</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md">
               A comprehensive library management system designed to streamline operations 
@@ -49,7 +49,7 @@ const Footer = () => {
               </div>
               <div className="flex items-center">
                 <Mail className="h-4 w-4 text-blue-400 mr-2" />
-                <span className="text-gray-300 text-sm">info@librarica.edu</span>
+                <span className="text-gray-300 text-sm">info@neolibrary.edu</span>
               </div>
             </div>
           </div>
@@ -58,7 +58,7 @@ const Footer = () => {
         {/* Bottom Section */}
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © 2024 Librarica. All rights reserved.
+            © 2024 Neolibrary. All rights reserved.
           </p>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-blue-400 text-sm transition-colors">Privacy Policy</a>

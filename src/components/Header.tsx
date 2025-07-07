@@ -33,7 +33,7 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
           >
             <Library className="h-8 w-8 text-blue-600 mr-3" />
             <div>
-              <span className="text-2xl font-bold text-gray-900">Librarica</span>
+              <span className="text-2xl font-bold text-gray-900">Neolibrary</span>
               <div className="text-xs text-blue-600 font-medium">High School Edition</div>
             </div>
           </div>

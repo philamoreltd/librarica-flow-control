@@ -81,7 +81,7 @@ const HomePage = ({ setActiveView }: { setActiveView: (view: string) => void }) 
         <div className="flex items-center justify-center mb-6">
           <Library className="h-16 w-16 text-blue-600 mr-4" />
           <div>
-            <h1 className="text-5xl font-bold text-gray-900">Librarica</h1>
+            <h1 className="text-5xl font-bold text-gray-900">Neolibrary</h1>
             <p className="text-lg text-blue-600 font-medium">High School Library System</p>
           </div>
         </div>
