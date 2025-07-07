@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Library, Search, Bell, User, Menu, X } from "lucide-react";
+import { Library, Search, Bell, User, Menu, X, QrCode, GraduationCap } from "lucide-react";
 
 interface HeaderProps {
   activeView: string;
@@ -16,7 +16,9 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
   const navItems = [
     { id: "home", label: "Home", icon: Library },
     { id: "catalog", label: "Catalog", icon: Search },
-    { id: "dashboard", label: "My Account", icon: User },
+    { id: "student", label: "My Books", icon: GraduationCap },
+    { id: "scanner", label: "Scanner", icon: QrCode },
+    { id: "dashboard", label: "Staff Portal", icon: User },
     { id: "admin", label: "Admin", icon: Bell },
   ];
 
@@ -30,11 +32,14 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
             onClick={() => setActiveView("home")}
           >
             <Library className="h-8 w-8 text-blue-600 mr-3" />
-            <span className="text-2xl font-bold text-gray-900">Librarica</span>
+            <div>
+              <span className="text-2xl font-bold text-gray-900">Librarica</span>
+              <div className="text-xs text-blue-600 font-medium">High School Edition</div>
+            </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
               <button
                 key={item.id}
@@ -63,7 +68,7 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
             <div className="relative">
               <Bell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-gray-900" />
               <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-4 w-4 flex items-center justify-center rounded-full p-0">
-                3
+                2
               </Badge>
             </div>
             <Button variant="outline" size="sm">
