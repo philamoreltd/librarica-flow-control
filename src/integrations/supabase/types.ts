@@ -14,7 +14,195 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      books: {
+        Row: {
+          author: string
+          available_copies: number | null
+          category: string
+          cover_image: string | null
+          created_at: string | null
+          description: string | null
+          grade_level: string | null
+          id: string
+          isbn: string | null
+          points: number | null
+          title: string
+          total_copies: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          author: string
+          available_copies?: number | null
+          category: string
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          isbn?: string | null
+          points?: number | null
+          title: string
+          total_copies?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string
+          available_copies?: number | null
+          category?: string
+          cover_image?: string | null
+          created_at?: string | null
+          description?: string | null
+          grade_level?: string | null
+          id?: string
+          isbn?: string | null
+          points?: number | null
+          title?: string
+          total_copies?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      borrowing_records: {
+        Row: {
+          book_id: string
+          borrowed_at: string | null
+          created_at: string | null
+          due_date: string
+          fine_amount: number | null
+          id: string
+          returned_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          borrowed_at?: string | null
+          created_at?: string | null
+          due_date: string
+          fine_amount?: number | null
+          id?: string
+          returned_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          borrowed_at?: string | null
+          created_at?: string | null
+          due_date?: string
+          fine_amount?: number | null
+          id?: string
+          returned_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "borrowing_records_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "borrowing_records_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          grade_level: string | null
+          id: string
+          last_name: string | null
+          points: number | null
+          role: string | null
+          student_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          grade_level?: string | null
+          id: string
+          last_name?: string | null
+          points?: number | null
+          role?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          grade_level?: string | null
+          id?: string
+          last_name?: string | null
+          points?: number | null
+          role?: string | null
+          student_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      reservations: {
+        Row: {
+          book_id: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          reserved_at: string | null
+          status: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          book_id: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          reserved_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          book_id?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          reserved_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

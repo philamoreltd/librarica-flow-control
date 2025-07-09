@@ -3,7 +3,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Library, Search, Bell, User, Menu, X, QrCode, GraduationCap } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Library, Search, Bell, User, Menu, X, QrCode, GraduationCap, LogOut, Settings } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 interface HeaderProps {
   activeView: string;
@@ -12,6 +16,8 @@ interface HeaderProps {
 
 const Header = ({ activeView, setActiveView }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const navItems = [
     { id: "home", label: "Home", icon: Library },
@@ -21,6 +27,15 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
     { id: "dashboard", label: "Staff Portal", icon: User },
     { id: "admin", label: "Admin", icon: Bell },
   ];
+
+  const handleSignOut = async () => {
+    await signOut();
+    setActiveView("home");
+  };
+
+  const getInitials = (firstName?: string, lastName?: string) => {
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
+  };
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -71,9 +86,44 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
                 2
               </Badge>
             </div>
-            <Button variant="outline" size="sm">
-              Sign In
-            </Button>
+            
+            {user && profile ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {getInitials(profile.first_name, profile.last_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{profile.first_name} {profile.last_name}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {profile.email}
+                      </p>
+                      <p className="text-xs text-blue-600 capitalize">{profile.role}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Settings className="mr-2 h-4 w-4" />
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
+                Sign In
+              </Button>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -112,9 +162,29 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
                 placeholder="Search books, authors..."
                 className="mb-3"
               />
-              <Button variant="outline" size="sm" className="w-full">
-                Sign In
-              </Button>
+              {user && profile ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="text-xs">
+                        {getInitials(profile.first_name, profile.last_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-sm">{profile.first_name} {profile.last_name}</p>
+                      <p className="text-xs text-blue-600 capitalize">{profile.role}</p>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" className="w-full" onClick={() => navigate('/auth')}>
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         )}
