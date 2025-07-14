@@ -17,6 +17,7 @@ import {
   DollarSign,
   Clock
 } from "lucide-react";
+import { BulkImport } from "./BulkImport";
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -151,11 +152,12 @@ const AdminPanel = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="overdue">Overdue Items</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          <TabsTrigger value="bulk-import">Bulk Import</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -363,6 +365,10 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="bulk-import">
+          <BulkImport />
         </TabsContent>
       </Tabs>
     </div>
