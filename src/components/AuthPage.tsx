@@ -1,6 +1,7 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,8 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Library, User, Mail, Lock, GraduationCap, UserPlus } from 'lucide-react';
 
 const AuthPage = () => {
-  const { signIn, signUp, loading } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
 
   const [signInForm, setSignInForm] = useState({
     email: '',
@@ -31,14 +40,20 @@ const AuthPage = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await signIn(signInForm.email, signInForm.password);
+    const { error } = await signIn(signInForm.email, signInForm.password);
+    if (!error) {
+      navigate('/');
+    }
     setIsLoading(false);
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await signUp(signUpForm.email, signUpForm.password, signUpForm.firstName, signUpForm.lastName);
+    const { error } = await signUp(signUpForm.email, signUpForm.password, signUpForm.firstName, signUpForm.lastName, signUpForm.role);
+    if (!error) {
+      // Don't redirect immediately on signup as user might need to verify email
+    }
     setIsLoading(false);
   };
 

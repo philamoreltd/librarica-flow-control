@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import BookCatalogReal from "@/components/BookCatalogReal";
 import StudentDashboard from "@/components/StudentDashboard";
 import MemberDashboard from "@/components/MemberDashboard";
+import AdminPanel from "@/components/AdminPanel";
 import HomePage from "@/components/HomePage";
 
 const Index = () => {
@@ -61,12 +62,7 @@ const Index = () => {
             </div>
           );
         }
-        return (
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Admin Panel</h1>
-            <p className="text-gray-600">Admin functionality coming soon...</p>
-          </div>
-        );
+        return <AdminPanel />;
       case "scanner":
         return (
           <div className="container mx-auto px-4 py-8">
