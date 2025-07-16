@@ -18,6 +18,8 @@ import {
   Clock
 } from "lucide-react";
 import { BulkImport } from "./BulkImport";
+import BookManager from "./BookManager";
+import StudentManager from "./StudentManager";
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -152,8 +154,10 @@ const AdminPanel = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="books">Books</TabsTrigger>
+          <TabsTrigger value="students">Students</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
           <TabsTrigger value="overdue">Overdue Items</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
@@ -217,6 +221,14 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="books">
+          <BookManager />
+        </TabsContent>
+
+        <TabsContent value="students">
+          <StudentManager />
         </TabsContent>
 
         <TabsContent value="transactions">
