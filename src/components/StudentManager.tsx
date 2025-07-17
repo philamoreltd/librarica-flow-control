@@ -14,8 +14,9 @@ import { Plus, Edit, UserX, Users, Search, Eye } from "lucide-react";
 interface Student {
   id: string;
   first_name: string;
+  middle_name?: string;
   last_name: string;
-  email: string;
+  email?: string;
   student_id?: string;
   grade_level?: string;
   points: number;
@@ -63,6 +64,7 @@ const StudentManager = () => {
 
   const [formData, setFormData] = useState({
     first_name: "",
+    middle_name: "",
     last_name: "",
     email: "",
     student_id: "",
@@ -139,6 +141,7 @@ const StudentManager = () => {
   const resetForm = () => {
     setFormData({
       first_name: "",
+      middle_name: "",
       last_name: "",
       email: "",
       student_id: "",
@@ -276,8 +279,9 @@ const StudentManager = () => {
     setEditingStudent(student);
     setFormData({
       first_name: student.first_name,
+      middle_name: student.middle_name || "",
       last_name: student.last_name,
-      email: student.email,
+      email: student.email || "",
       student_id: student.student_id || "",
       grade_level: student.grade_level || "",
       points: student.points.toString(),
@@ -288,8 +292,9 @@ const StudentManager = () => {
 
   const filteredStudents = students.filter(student => {
     const matchesSearch = student.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         student.middle_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         student.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         student.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.student_id?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGrade = selectedGrade === "all" || student.grade_level === selectedGrade;
     
@@ -298,7 +303,7 @@ const StudentManager = () => {
 
   const StudentForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <Label htmlFor="first_name">First Name *</Label>
           <Input
@@ -307,6 +312,15 @@ const StudentManager = () => {
             onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
             placeholder="First name"
             required
+          />
+        </div>
+        <div>
+          <Label htmlFor="middle_name">Middle Name</Label>
+          <Input
+            id="middle_name"
+            value={formData.middle_name}
+            onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
+            placeholder="Middle name"
           />
         </div>
         <div>
@@ -322,20 +336,19 @@ const StudentManager = () => {
       </div>
       
       <div>
-        <Label htmlFor="email">Email *</Label>
+        <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="student@email.com"
-          required
+          placeholder="student@email.com (optional)"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="student_id">Student ID</Label>
+          <Label htmlFor="student_id">Student Adm No</Label>
           <Input
             id="student_id"
             value={formData.student_id}
@@ -427,7 +440,7 @@ const StudentManager = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search by name, email, or student ID..."
+            placeholder="Search by name, email, or student Adm No..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -490,10 +503,10 @@ const StudentManager = () => {
               </div>
               <div>
                 <CardTitle className="text-lg leading-tight mb-1">
-                  {student.first_name} {student.last_name}
+                  {student.first_name} {student.middle_name && `${student.middle_name} `}{student.last_name}
                 </CardTitle>
-                <p className="text-sm text-gray-600 mb-1">{student.email}</p>
-                <p className="text-xs text-gray-500">ID: {student.student_id || "N/A"}</p>
+                <p className="text-sm text-gray-600 mb-1">{student.email || "No email"}</p>
+                <p className="text-xs text-gray-500">Adm No: {student.student_id || "N/A"}</p>
               </div>
             </CardHeader>
             <CardContent className="pt-0">
