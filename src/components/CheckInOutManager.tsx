@@ -23,6 +23,8 @@ const CheckInOutManager = () => {
   const [students, setStudents] = useState<Profile[]>([]);
   const [borrowedBooks, setBorrowedBooks] = useState<BookWithBorrower[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
+  const [bookSearchQuery, setBookSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState("");
   const [selectedBook, setSelectedBook] = useState("");
   const [loading, setLoading] = useState(false);
@@ -130,6 +132,26 @@ const CheckInOutManager = () => {
     }
   };
 
+  const filteredStudents = students.filter(student => {
+    const searchLower = studentSearchQuery.toLowerCase();
+    return (
+      student.first_name?.toLowerCase().includes(searchLower) ||
+      student.last_name?.toLowerCase().includes(searchLower) ||
+      student.student_id?.toLowerCase().includes(searchLower) ||
+      student.email?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const filteredBooks = books.filter(book => {
+    const searchLower = bookSearchQuery.toLowerCase();
+    return (
+      book.title?.toLowerCase().includes(searchLower) ||
+      book.author?.toLowerCase().includes(searchLower) ||
+      book.isbn?.toLowerCase().includes(searchLower) ||
+      book.category?.toLowerCase().includes(searchLower)
+    );
+  });
+
   const filteredBorrowedBooks = borrowedBooks.filter(record => {
     const searchLower = searchQuery.toLowerCase();
     return (
@@ -159,40 +181,79 @@ const CheckInOutManager = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Student</label>
-              <Select value={selectedStudent} onValueChange={setSelectedStudent}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose student..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.first_name} {student.last_name} ({student.student_id})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Student</label>
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="Search students..."
+                      value={studentSearchQuery}
+                      onChange={(e) => setStudentSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={selectedStudent} onValueChange={setSelectedStudent}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose student..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredStudents.length === 0 ? (
+                        <div className="p-2 text-sm text-gray-500">No students found</div>
+                      ) : (
+                        filteredStudents.map((student) => (
+                          <SelectItem key={student.id} value={student.id}>
+                            {student.first_name} {student.last_name} ({student.student_id})
+                            {student.email && <span className="text-gray-500 text-xs block">{student.email}</span>}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
             
-            <div>
-              <label className="text-sm font-medium mb-2 block">Select Book</label>
-              <Select value={selectedBook} onValueChange={setSelectedBook}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose book..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {books.map((book) => (
-                    <SelectItem key={book.id} value={book.id}>
-                      {book.title} by {book.author} ({book.available_copies} available)
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Book</label>
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    <Input
+                      placeholder="Search books..."
+                      value={bookSearchQuery}
+                      onChange={(e) => setBookSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                  <Select value={selectedBook} onValueChange={setSelectedBook}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choose book..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filteredBooks.length === 0 ? (
+                        <div className="p-2 text-sm text-gray-500">No books found</div>
+                      ) : (
+                        filteredBooks.map((book) => (
+                          <SelectItem key={book.id} value={book.id}>
+                            <div>
+                              <div className="font-medium">{book.title}</div>
+                              <div className="text-sm text-gray-500">
+                                by {book.author} • {book.available_copies} available
+                                {book.category && ` • ${book.category}`}
+                              </div>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
 
-            <div className="flex items-end">
               <Button 
                 onClick={checkOutBook} 
                 disabled={loading || !selectedBook || !selectedStudent}
