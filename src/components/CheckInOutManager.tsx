@@ -28,6 +28,7 @@ const CheckInOutManager = () => {
   const [selectedStudent, setSelectedStudent] = useState("");
   const [selectedBook, setSelectedBook] = useState("");
   const [loading, setLoading] = useState(false);
+  const [summarySearchQuery, setSummarySearchQuery] = useState("");
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -162,6 +163,29 @@ const CheckInOutManager = () => {
     );
   });
 
+  // Group borrowed books by student for summary
+  const studentBookSummary = borrowedBooks.reduce((acc, record) => {
+    const studentKey = record.user_id;
+    if (!acc[studentKey]) {
+      acc[studentKey] = {
+        student: record.profile,
+        books: []
+      };
+    }
+    acc[studentKey].books.push(record);
+    return acc;
+  }, {} as Record<string, { student: Profile, books: BookWithBorrower[] }>);
+
+  const filteredStudentSummary = Object.values(studentBookSummary).filter(item => {
+    const searchLower = summarySearchQuery.toLowerCase();
+    return (
+      item.student?.first_name?.toLowerCase().includes(searchLower) ||
+      item.student?.last_name?.toLowerCase().includes(searchLower) ||
+      item.student?.student_id?.toLowerCase().includes(searchLower) ||
+      item.student?.email?.toLowerCase().includes(searchLower)
+    );
+  });
+
   const isOverdue = (dueDate: string) => {
     return new Date(dueDate) < new Date();
   };
@@ -267,12 +291,105 @@ const CheckInOutManager = () => {
         </CardContent>
       </Card>
 
-      {/* Check In Section */}
+      {/* Student Book Summary */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center">
+            <UserCheck className="h-5 w-5 mr-2" />
+            Books by Student Summary ({Object.keys(studentBookSummary).length} students)
+          </CardTitle>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search students..."
+              value={summarySearchQuery}
+              onChange={(e) => setSummarySearchQuery(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {filteredStudentSummary.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <UserCheck className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No students with borrowed books found</p>
+              </div>
+            ) : (
+              filteredStudentSummary.map((item) => (
+                <div key={item.student?.id} className="border rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <h3 className="font-medium text-lg">
+                        {item.student?.first_name} {item.student?.last_name}
+                      </h3>
+                      <div className="flex items-center gap-4 text-sm text-gray-600">
+                        {item.student?.student_id && (
+                          <span>ID: {item.student.student_id}</span>
+                        )}
+                        {item.student?.email && (
+                          <span>Email: {item.student.email}</span>
+                        )}
+                        {item.student?.grade_level && (
+                          <span>Grade: {item.student.grade_level}</span>
+                        )}
+                      </div>
+                    </div>
+                    <Badge variant="outline">
+                      {item.books.length} book{item.books.length !== 1 ? 's' : ''}
+                    </Badge>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {item.books.map((record) => (
+                      <div 
+                        key={record.id} 
+                        className={`flex items-center justify-between p-3 rounded border ${
+                          isOverdue(record.due_date) ? 'bg-red-50 border-red-200' : 'bg-gray-50'
+                        }`}
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{record.book?.title}</span>
+                            {isOverdue(record.due_date) && (
+                              <Badge className="bg-red-100 text-red-800">
+                                <Clock className="h-3 w-3 mr-1" />
+                                Overdue
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            by {record.book?.author} • 
+                            Borrowed: {new Date(record.borrowed_at || '').toLocaleDateString()} • 
+                            <span className={isOverdue(record.due_date) ? 'text-red-600 font-medium' : ''}>
+                              Due: {new Date(record.due_date).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                        <Button 
+                          onClick={() => checkInBook(record.id)} 
+                          disabled={loading}
+                          variant="outline"
+                          size="sm"
+                        >
+                          Check In
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Individual Book Records */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="flex items-center">
             <Calendar className="h-5 w-5 mr-2" />
-            Currently Checked Out Books ({borrowedBooks.length})
+            All Borrowed Books ({borrowedBooks.length})
           </CardTitle>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
