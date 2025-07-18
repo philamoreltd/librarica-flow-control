@@ -17,6 +17,7 @@ interface Student {
   middle_name?: string;
   last_name: string;
   email?: string;
+  phone_number?: string;
   student_id?: string;
   grade_level?: string;
   points: number;
@@ -67,6 +68,7 @@ const StudentManager = () => {
     middle_name: "",
     last_name: "",
     email: "",
+    phone_number: "",
     student_id: "",
     grade_level: "",
     points: "0",
@@ -144,17 +146,12 @@ const StudentManager = () => {
       middle_name: "",
       last_name: "",
       email: "",
+      phone_number: "",
       student_id: "",
       grade_level: "",
       points: "0",
       password: ""
     });
-  };
-
-  const generateStudentId = () => {
-    const year = new Date().getFullYear();
-    const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    return `STU${year}${randomNum}`;
   };
 
   const handleAddStudent = async () => {
@@ -165,8 +162,7 @@ const StudentManager = () => {
       }
 
       const studentData = {
-        ...formData,
-        student_id: formData.student_id || generateStudentId()
+        ...formData
       };
 
       const response = await supabase.functions.invoke('manage-students', {
@@ -282,6 +278,7 @@ const StudentManager = () => {
       middle_name: student.middle_name || "",
       last_name: student.last_name,
       email: student.email || "",
+      phone_number: student.phone_number || "",
       student_id: student.student_id || "",
       grade_level: student.grade_level || "",
       points: student.points.toString(),
@@ -295,6 +292,7 @@ const StudentManager = () => {
                          student.middle_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         student.phone_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          student.student_id?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesGrade = selectedGrade === "all" || student.grade_level === selectedGrade;
     
@@ -335,25 +333,38 @@ const StudentManager = () => {
         </div>
       </div>
       
-      <div>
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="student@email.com (optional)"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <Input
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            placeholder="student@email.com (optional)"
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone_number">Phone Number</Label>
+          <Input
+            id="phone_number"
+            type="tel"
+            value={formData.phone_number}
+            onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
+            placeholder="Phone number"
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="student_id">Student Adm No</Label>
+          <Label htmlFor="student_id">Student Adm No *</Label>
           <Input
             id="student_id"
             value={formData.student_id}
             onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
-            placeholder="Auto-generated if empty"
+            placeholder="Enter admission number"
+            required
           />
         </div>
         <div>
@@ -440,7 +451,7 @@ const StudentManager = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
-            placeholder="Search by name, email, or student Adm No..."
+            placeholder="Search by name, email, phone, or student Adm No..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
