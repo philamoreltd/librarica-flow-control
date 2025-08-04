@@ -55,7 +55,7 @@ export const BulkImport = () => {
 
     setIsLoading(true);
     try {
-      const requiredHeaders = ['first_name', 'last_name', 'email', 'student_id', 'grade_level'];
+      const requiredHeaders = ['first_name', 'last_name', 'student_id', 'grade_level'];
       const parsed = parseCSVData(studentsData, requiredHeaders);
       
       if (parsed.error) {
@@ -69,21 +69,62 @@ export const BulkImport = () => {
 
       const studentsToInsert = parsed.data!.map((row: any) => ({
         first_name: row.first_name,
+        middle_name: row.middle_name || '',
         last_name: row.last_name,
-        email: row.email,
+        email: row.email || '',
+        phone_number: row.phone_number || '',
         student_id: row.student_id,
         grade_level: row.grade_level,
         role: row.role || 'student',
         points: parseInt(row.points) || 0,
+        password: row.password || ''
       }));
 
-      toast({
-        title: "Demo Mode",
-        description: `Parsed ${studentsToInsert.length} student records. In production, this would create user accounts and profiles.`,
-        variant: "default",
+      // Validate that each student has either email or phone
+      const invalidStudents = studentsToInsert.filter(student => 
+        !student.email.trim() && !student.phone_number.trim()
+      );
+
+      if (invalidStudents.length > 0) {
+        toast({
+          title: "Validation Error",
+          description: `${invalidStudents.length} students are missing both email and phone number. At least one is required.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await supabase.functions.invoke('bulk-import', {
+        body: { 
+          type: 'students',
+          data: studentsToInsert
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
       });
 
-      console.log('Student data structure:', studentsToInsert);
+      if (response.error) {
+        throw new Error(response.error.message);
+      }
+
+      const result = response.data;
+      
+      toast({
+        title: "Import Complete",
+        description: `Successfully imported ${result.successful} students. ${result.failed} failed.`,
+        variant: result.failed > 0 ? "destructive" : "default",
+      });
+
+      if (result.failed > 0 && result.errors?.length > 0) {
+        console.error('Import errors:', result.errors);
+      }
+
       setStudentsData("");
 
     } catch (error: any) {
@@ -169,7 +210,7 @@ export const BulkImport = () => {
   };
 
   const downloadStudentTemplate = () => {
-    const template = "first_name,last_name,email,student_id,grade_level,role,points\nJohn,Doe,john.doe@email.com,STU001,9,student,0\nJane,Smith,jane.smith@email.com,STU002,10,student,0";
+    const template = "first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password\nJohn,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,\nJane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,";
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -221,7 +262,7 @@ export const BulkImport = () => {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Upload CSV data with headers: first_name, last_name, email, student_id, grade_level, role (optional), points (optional)
+                  Upload CSV data with required headers: first_name, last_name, student_id, grade_level. Optional: middle_name, email, phone_number, role, points, password. Note: At least one of email or phone_number must be provided.
                 </AlertDescription>
               </Alert>
 
@@ -240,9 +281,9 @@ export const BulkImport = () => {
                 <Label htmlFor="student-csv">Student Data (CSV format)</Label>
                 <Textarea
                   id="student-csv"
-                  placeholder="first_name,last_name,email,student_id,grade_level,role,points
-John,Doe,john.doe@email.com,STU001,9,student,0
-Jane,Smith,jane.smith@email.com,STU002,10,student,0"
+                  placeholder="first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password
+John,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,
+Jane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,"
                   value={studentsData}
                   onChange={(e) => setStudentsData(e.target.value)}
                   rows={8}

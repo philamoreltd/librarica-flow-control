@@ -130,36 +130,57 @@ async function importStudents(supabaseClient: any, students: any[]) {
   for (const student of students) {
     try {
       // Validate required fields
-      if (!student.email || !student.first_name || !student.last_name) {
+      if (!student.first_name || !student.last_name || !student.student_id) {
         results.failed++
-        results.errors.push(`Student missing required fields: ${student.email || 'Unknown'}`)
+        results.errors.push(`Student missing required fields: ${student.first_name || ''} ${student.last_name || ''}`)
         continue
       }
 
-      // Check for existing user by email
-      const { data: existingUser } = await supabaseClient.auth.admin.listUsers()
-      const userExists = existingUser.users.some((u: any) => u.email === student.email)
-
-      if (userExists) {
+      // Validate that at least email or phone is provided
+      if (!student.email?.trim() && !student.phone_number?.trim()) {
         results.failed++
-        results.errors.push(`User with email ${student.email} already exists`)
+        results.errors.push(`Student ${student.first_name} ${student.last_name} missing both email and phone number`)
         continue
       }
 
-      // Create user account
-      const { data: newUser, error: authError } = await supabaseClient.auth.admin.createUser({
-        email: student.email,
+      console.log('Adding student:', student)
+
+      // Prepare auth data with either email or phone
+      const authData: any = {
         password: student.password || 'TempPassword123!',
         email_confirm: true,
         user_metadata: {
           first_name: student.first_name,
+          middle_name: student.middle_name || '',
           last_name: student.last_name
         }
-      })
+      }
+
+      if (student.email?.trim()) {
+        authData.email = student.email.trim()
+        
+        // Check for existing user by email
+        const { data: existingUser } = await supabaseClient.auth.admin.listUsers()
+        const userExists = existingUser.users.some((u: any) => u.email === student.email)
+
+        if (userExists) {
+          results.failed++
+          results.errors.push(`User with email ${student.email} already exists`)
+          continue
+        }
+      }
+
+      if (student.phone_number?.trim()) {
+        authData.phone = student.phone_number.trim()
+      }
+
+      // Create user account
+      const { data: newUser, error: authError } = await supabaseClient.auth.admin.createUser(authData)
 
       if (authError || !newUser.user) {
+        console.error('Auth user creation error:', authError)
         results.failed++
-        results.errors.push(`Failed to create account for ${student.email}: ${authError?.message}`)
+        results.errors.push(`Failed to create account for ${student.first_name} ${student.last_name}: ${authError?.message}`)
         continue
       }
 
@@ -167,21 +188,24 @@ async function importStudents(supabaseClient: any, students: any[]) {
       const { error: profileError } = await supabaseClient
         .from('profiles')
         .update({
+          middle_name: student.middle_name || null,
+          phone_number: student.phone_number || null,
           role: student.role || 'student',
           grade_level: student.grade_level || null,
-          student_id: student.student_id || null
+          student_id: student.student_id || null,
+          points: parseInt(student.points) || 0
         })
         .eq('id', newUser.user.id)
 
       if (profileError) {
         results.failed++
-        results.errors.push(`Failed to update profile for ${student.email}: ${profileError.message}`)
+        results.errors.push(`Failed to update profile for ${student.first_name} ${student.last_name}: ${profileError.message}`)
       } else {
         results.successful++
       }
     } catch (error) {
       results.failed++
-      results.errors.push(`Error processing student "${student.email}": ${error.message}`)
+      results.errors.push(`Error processing student "${student.first_name} ${student.last_name}": ${error.message}`)
     }
   }
 
