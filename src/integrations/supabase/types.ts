@@ -124,6 +124,8 @@ export type Database = {
           grade_level: string | null
           id: string
           last_name: string | null
+          middle_name: string | null
+          phone_number: string | null
           points: number | null
           role: string | null
           student_id: string | null
@@ -136,6 +138,8 @@ export type Database = {
           grade_level?: string | null
           id: string
           last_name?: string | null
+          middle_name?: string | null
+          phone_number?: string | null
           points?: number | null
           role?: string | null
           student_id?: string | null
@@ -148,6 +152,8 @@ export type Database = {
           grade_level?: string | null
           id?: string
           last_name?: string | null
+          middle_name?: string | null
+          phone_number?: string | null
           points?: number | null
           role?: string | null
           student_id?: string | null
