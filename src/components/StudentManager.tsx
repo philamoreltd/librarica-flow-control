@@ -75,7 +75,7 @@ const StudentManager = () => {
     password: ""
   });
 
-  const gradeLevels = ["K", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
+  const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
 
   useEffect(() => {
     fetchStudents();
@@ -376,7 +376,7 @@ const StudentManager = () => {
             <SelectContent>
               {gradeLevels.map((grade) => (
                 <SelectItem key={grade} value={grade}>
-                  Grade {grade}
+                  {grade}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -465,7 +465,7 @@ const StudentManager = () => {
             <SelectItem value="all">All Grades</SelectItem>
             {gradeLevels.map((grade) => (
               <SelectItem key={grade} value={grade}>
-                Grade {grade}
+                {grade}
               </SelectItem>
             ))}
           </SelectContent>
@@ -479,7 +479,7 @@ const StudentManager = () => {
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start mb-2">
                 <Badge className="bg-blue-100 text-blue-800">
-                  Grade {student.grade_level || "N/A"}
+                  {student.grade_level || "N/A"}
                 </Badge>
                 <div className="flex gap-1">
                   <Button size="sm" variant="outline" onClick={() => fetchStudentActivity(student.id)}>
