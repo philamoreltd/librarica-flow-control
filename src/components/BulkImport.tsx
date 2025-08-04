@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,14 +6,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Upload, Users, BookOpen, Download, AlertCircle } from "lucide-react";
+import { Upload, Users, BookOpen, Download, AlertCircle, FileUp } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 
 export const BulkImport = () => {
   const [studentsData, setStudentsData] = useState("");
   const [booksData, setBooksData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const studentFileInputRef = useRef<HTMLInputElement>(null);
+  const bookFileInputRef = useRef<HTMLInputElement>(null);
 
   const parseCSVData = (csvText: string, expectedHeaders: string[]) => {
     const lines = csvText.trim().split('\n');
@@ -231,6 +234,48 @@ export const BulkImport = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  const handleStudentFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select a CSV file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setStudentsData(content);
+    };
+    reader.readAsText(file);
+  };
+
+  const handleBookFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      toast({
+        title: "Invalid File Type",
+        description: "Please select a CSV file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target?.result as string;
+      setBooksData(content);
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
@@ -275,6 +320,21 @@ export const BulkImport = () => {
                   <Download className="h-4 w-4" />
                   Download Template
                 </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => studentFileInputRef.current?.click()}
+                  className="flex items-center gap-2"
+                >
+                  <FileUp className="h-4 w-4" />
+                  Upload CSV File
+                </Button>
+                <Input
+                  ref={studentFileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleStudentFileUpload}
+                  className="hidden"
+                />
               </div>
 
               <div>
@@ -328,6 +388,21 @@ Jane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,"
                   <Download className="h-4 w-4" />
                   Download Template
                 </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => bookFileInputRef.current?.click()}
+                  className="flex items-center gap-2"
+                >
+                  <FileUp className="h-4 w-4" />
+                  Upload CSV File
+                </Button>
+                <Input
+                  ref={bookFileInputRef}
+                  type="file"
+                  accept=".csv"
+                  onChange={handleBookFileUpload}
+                  className="hidden"
+                />
               </div>
 
               <div>
