@@ -22,6 +22,7 @@ interface Student {
   grade_level?: string;
   points: number;
   role: string;
+  institution?: string;
   created_at: string;
   updated_at: string;
 }
@@ -72,7 +73,8 @@ const StudentManager = () => {
     student_id: "",
     grade_level: "",
     points: "0",
-    password: ""
+    password: "",
+    institution: ""
   });
 
   const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
@@ -150,7 +152,8 @@ const StudentManager = () => {
       student_id: "",
       grade_level: "",
       points: "0",
-      password: ""
+      password: "",
+      institution: ""
     });
   };
 
@@ -282,7 +285,8 @@ const StudentManager = () => {
       student_id: student.student_id || "",
       grade_level: student.grade_level || "",
       points: student.points.toString(),
-      password: ""
+      password: "",
+      institution: student.institution || ""
     });
     setIsEditDialogOpen(true);
   };
@@ -382,6 +386,16 @@ const StudentManager = () => {
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="institution">Institution</Label>
+        <Input
+          id="institution"
+          value={formData.institution}
+          onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+          placeholder="School/Institution name"
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-4">

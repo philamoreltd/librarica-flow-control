@@ -35,6 +35,7 @@ const AuthPage = () => {
     role: 'student',
     gradeLevel: '',
     studentId: '',
+    institution: '',
   });
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -50,7 +51,7 @@ const AuthPage = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const { error } = await signUp(signUpForm.email, signUpForm.password, signUpForm.firstName, signUpForm.lastName, signUpForm.role);
+    const { error } = await signUp(signUpForm.email, signUpForm.password, signUpForm.firstName, signUpForm.lastName, signUpForm.role, signUpForm.institution);
     if (!error) {
       // Don't redirect immediately on signup as user might need to verify email
     }
@@ -195,6 +196,15 @@ const AuthPage = () => {
                         required
                       />
                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-institution">Institution</Label>
+                    <Input
+                      id="signup-institution"
+                      placeholder="School/Institution Name"
+                      value={signUpForm.institution}
+                      onChange={(e) => setSignUpForm({ ...signUpForm, institution: e.target.value })}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-role">Role</Label>

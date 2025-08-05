@@ -80,7 +80,8 @@ export const BulkImport = () => {
         grade_level: row.grade_level,
         role: row.role || 'student',
         points: parseInt(row.points) || 0,
-        password: row.password || ''
+        password: row.password || '',
+        institution: row.institution || ''
       }));
 
 
@@ -200,7 +201,7 @@ export const BulkImport = () => {
   };
 
   const downloadStudentTemplate = () => {
-    const template = "first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password\nJohn,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,\nJane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,";
+    const template = "first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password,institution\nJohn,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,,ABC High School\nJane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,,XYZ Academy";
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -294,7 +295,7 @@ export const BulkImport = () => {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Upload CSV data with required headers: first_name, last_name, student_id, grade_level. Optional: middle_name, email, phone_number, role, points, password.
+                  Upload CSV data with required headers: first_name, last_name, student_id, grade_level. Optional: middle_name, email, phone_number, role, points, password, institution.
                 </AlertDescription>
               </Alert>
 
@@ -328,9 +329,9 @@ export const BulkImport = () => {
                 <Label htmlFor="student-csv">Student Data (CSV format)</Label>
                 <Textarea
                   id="student-csv"
-                  placeholder="first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password
-John,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,
-Jane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,"
+                  placeholder="first_name,middle_name,last_name,email,phone_number,student_id,grade_level,role,points,password,institution
+John,,Doe,john.doe@email.com,,STU001,Grade 10,student,0,,ABC High School
+Jane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,,XYZ Academy"
                   value={studentsData}
                   onChange={(e) => setStudentsData(e.target.value)}
                   rows={8}
