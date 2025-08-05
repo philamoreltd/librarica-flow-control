@@ -123,6 +123,7 @@ export type Database = {
           first_name: string | null
           grade_level: string | null
           id: string
+          institution: string | null
           last_name: string | null
           middle_name: string | null
           phone_number: string | null
@@ -137,6 +138,7 @@ export type Database = {
           first_name?: string | null
           grade_level?: string | null
           id: string
+          institution?: string | null
           last_name?: string | null
           middle_name?: string | null
           phone_number?: string | null
@@ -151,6 +153,7 @@ export type Database = {
           first_name?: string | null
           grade_level?: string | null
           id?: string
+          institution?: string | null
           last_name?: string | null
           middle_name?: string | null
           phone_number?: string | null
