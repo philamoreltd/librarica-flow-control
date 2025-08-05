@@ -83,19 +83,6 @@ export const BulkImport = () => {
         password: row.password || ''
       }));
 
-      // Validate that each student has either email or phone
-      const invalidStudents = studentsToInsert.filter(student => 
-        !student.email.trim() && !student.phone_number.trim()
-      );
-
-      if (invalidStudents.length > 0) {
-        toast({
-          title: "Validation Error",
-          description: `${invalidStudents.length} students are missing both email and phone number. At least one is required.`,
-          variant: "destructive",
-        });
-        return;
-      }
 
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.access_token) {
@@ -307,7 +294,7 @@ export const BulkImport = () => {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  Upload CSV data with required headers: first_name, last_name, student_id, grade_level. Optional: middle_name, email, phone_number, role, points, password. Note: At least one of email or phone_number must be provided.
+                  Upload CSV data with required headers: first_name, last_name, student_id, grade_level. Optional: middle_name, email, phone_number, role, points, password.
                 </AlertDescription>
               </Alert>
 

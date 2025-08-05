@@ -136,12 +136,6 @@ async function importStudents(supabaseClient: any, students: any[]) {
         continue
       }
 
-      // Validate that at least email or phone is provided
-      if (!student.email?.trim() && !student.phone_number?.trim()) {
-        results.failed++
-        results.errors.push(`Student ${student.first_name} ${student.last_name} missing both email and phone number`)
-        continue
-      }
 
       console.log('Adding student:', student)
 
