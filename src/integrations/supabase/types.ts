@@ -21,6 +21,7 @@ export type Database = {
           category: string
           cover_image: string | null
           created_at: string | null
+          department_id: string | null
           description: string | null
           grade_level: string | null
           id: string
@@ -36,6 +37,7 @@ export type Database = {
           category: string
           cover_image?: string | null
           created_at?: string | null
+          department_id?: string | null
           description?: string | null
           grade_level?: string | null
           id?: string
@@ -51,6 +53,7 @@ export type Database = {
           category?: string
           cover_image?: string | null
           created_at?: string | null
+          department_id?: string | null
           description?: string | null
           grade_level?: string | null
           id?: string
@@ -60,13 +63,22 @@ export type Database = {
           total_copies?: number | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "books_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       borrowing_records: {
         Row: {
           book_id: string
           borrowed_at: string | null
           created_at: string | null
+          department_id: string | null
           due_date: string
           fine_amount: number | null
           id: string
@@ -79,6 +91,7 @@ export type Database = {
           book_id: string
           borrowed_at?: string | null
           created_at?: string | null
+          department_id?: string | null
           due_date: string
           fine_amount?: number | null
           id?: string
@@ -91,6 +104,7 @@ export type Database = {
           book_id?: string
           borrowed_at?: string | null
           created_at?: string | null
+          department_id?: string | null
           due_date?: string
           fine_amount?: number | null
           id?: string
@@ -108,6 +122,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "borrowing_records_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "borrowing_records_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -116,9 +137,49 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          address: string | null
+          code: string
+          created_at: string
+          description: string | null
+          email: string | null
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
+          department_id: string | null
           email: string | null
           first_name: string | null
           grade_level: string | null
@@ -134,6 +195,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          department_id?: string | null
           email?: string | null
           first_name?: string | null
           grade_level?: string | null
@@ -149,6 +211,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          department_id?: string | null
           email?: string | null
           first_name?: string | null
           grade_level?: string | null
@@ -162,12 +225,21 @@ export type Database = {
           student_id?: string | null
           updated_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reservations: {
         Row: {
           book_id: string
           created_at: string | null
+          department_id: string | null
           expires_at: string
           id: string
           reserved_at: string | null
@@ -178,6 +250,7 @@ export type Database = {
         Insert: {
           book_id: string
           created_at?: string | null
+          department_id?: string | null
           expires_at: string
           id?: string
           reserved_at?: string | null
@@ -188,6 +261,7 @@ export type Database = {
         Update: {
           book_id?: string
           created_at?: string | null
+          department_id?: string | null
           expires_at?: string
           id?: string
           reserved_at?: string | null
@@ -204,6 +278,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "reservations_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "reservations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -217,9 +298,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_current_user_department: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_current_user_role: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      is_department_admin: {
+        Args: { dept_id: string }
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
