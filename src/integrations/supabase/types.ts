@@ -23,6 +23,7 @@ export type Database = {
           created_at: string | null
           department_id: string | null
           description: string | null
+          featured: boolean
           grade_level: string | null
           id: string
           isbn: string | null
@@ -39,6 +40,7 @@ export type Database = {
           created_at?: string | null
           department_id?: string | null
           description?: string | null
+          featured?: boolean
           grade_level?: string | null
           id?: string
           isbn?: string | null
@@ -55,6 +57,7 @@ export type Database = {
           created_at?: string | null
           department_id?: string | null
           description?: string | null
+          featured?: boolean
           grade_level?: string | null
           id?: string
           isbn?: string | null

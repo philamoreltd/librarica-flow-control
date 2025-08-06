@@ -4,38 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, TrendingUp, Star, Clock, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useFeaturedBooks } from "@/hooks/useFeaturedBooks";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const { user, profile } = useAuth();
+  const { featuredBooks, loading: booksLoading } = useFeaturedBooks();
   const navigate = useNavigate();
 
-  const featuredBooks = [
-    {
-      id: 1,
-      title: "The Hunger Games",
-      author: "Suzanne Collins",
-      cover: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200",
-      rating: 4.8,
-      available: true
-    },
-    {
-      id: 2,
-      title: "Wonder",
-      author: "R.J. Palacio",
-      cover: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=200",
-      rating: 4.9,
-      available: true
-    },
-    {
-      id: 3,
-      title: "The Hate U Give",
-      author: "Angie Thomas",
-      cover: "https://images.unsplash.com/photo-1495446815901-a7297e633e8d?w=200",
-      rating: 4.7,
-      available: false
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -117,40 +93,54 @@ const HomePage = () => {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Books</h2>
-          <p className="text-xl text-gray-600">Discover the most popular books among your peers</p>
+          <p className="text-xl text-gray-600">Discover the most popular books in our collection</p>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          {featuredBooks.map((book) => (
-            <Card key={book.id} className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <img
-                  src={book.cover}
-                  alt={book.title}
-                  className="w-full h-48 object-cover rounded-lg mb-4"
-                />
-                <h3 className="font-semibold text-lg mb-2">{book.title}</h3>
-                <p className="text-gray-600 mb-3">by {book.author}</p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm text-gray-600">{book.rating}</span>
-                  </div>
-                  <Badge className={book.available ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                    {book.available ? "Available" : "Reserved"}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-        
-        <div className="text-center">
-          <Button size="lg" variant="outline">
-            View All Books
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </div>
+        {booksLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          </div>
+        ) : featuredBooks.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+              {featuredBooks.slice(0, 3).map((book) => (
+                <Card key={book.id} className="hover:shadow-lg transition-shadow">
+                  <CardContent className="p-6">
+                    <img
+                      src={book.cover_image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=200"}
+                      alt={book.title}
+                      className="w-full h-48 object-cover rounded-lg mb-4"
+                    />
+                    <h3 className="font-semibold text-lg mb-2">{book.title}</h3>
+                    <p className="text-gray-600 mb-3">by {book.author}</p>
+                    <p className="text-sm text-gray-500 mb-3 line-clamp-2">{book.description}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
+                        <span className="text-sm text-gray-600">{book.points} pts</span>
+                      </div>
+                      <Badge className={book.available_copies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                        {book.available_copies > 0 ? `${book.available_copies} Available` : "Out of Stock"}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+            <div className="text-center">
+              <Button size="lg" variant="outline" onClick={() => navigate('/catalog')}>
+                View All Books
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-12">
+            <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No featured books yet</h3>
+            <p className="text-gray-600">Featured books will appear here once they are selected by librarians.</p>
+          </div>
+        )}
       </section>
 
       {/* Features Section */}

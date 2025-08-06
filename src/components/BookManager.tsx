@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, BookOpen, Search } from "lucide-react";
+import { Plus, Edit, Trash2, BookOpen, Search, Star } from "lucide-react";
 
 interface Book {
   id: string;
@@ -24,6 +24,7 @@ interface Book {
   total_copies: number;
   available_copies: number;
   cover_image?: string;
+  featured: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -48,7 +49,8 @@ const BookManager = () => {
     points: "1",
     total_copies: "1",
     available_copies: "1",
-    cover_image: ""
+    cover_image: "",
+    featured: false
   });
 
   const categories = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Poetry", "Drama", "Reference"];
@@ -98,7 +100,8 @@ const BookManager = () => {
       points: "1",
       total_copies: "1",
       available_copies: "1",
-      cover_image: ""
+      cover_image: "",
+      featured: false
     });
   };
 
@@ -227,9 +230,46 @@ const BookManager = () => {
       points: book.points.toString(),
       total_copies: book.total_copies.toString(),
       available_copies: book.available_copies.toString(),
-      cover_image: book.cover_image || ""
+      cover_image: book.cover_image || "",
+      featured: book.featured || false
     });
     setIsEditDialogOpen(true);
+  };
+
+  const toggleFeatured = async (book: Book) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await supabase.functions.invoke('manage-books', {
+        body: { 
+          action: 'update_book',
+          bookId: book.id,
+          bookData: { ...book, featured: !book.featured }
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: `Book ${book.featured ? 'removed from' : 'added to'} featured list`,
+      });
+
+      fetchBooks();
+    } catch (error: any) {
+      console.error('Toggle featured error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update featured status",
+        variant: "destructive",
+      });
+    }
   };
 
   const filteredBooks = books.filter(book => {
@@ -359,6 +399,17 @@ const BookManager = () => {
         />
       </div>
 
+      <div className="flex items-center space-x-2">
+        <input
+          type="checkbox"
+          id="featured"
+          checked={formData.featured}
+          onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
+          className="rounded border-gray-300"
+        />
+        <Label htmlFor="featured">Mark as Featured Book</Label>
+      </div>
+
       <Button onClick={onSubmit} className="w-full">
         {submitLabel}
       </Button>
@@ -428,10 +479,26 @@ const BookManager = () => {
           <Card key={book.id} className="hover:shadow-lg transition-shadow">
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start mb-2">
-                <Badge className={book.available_copies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                  {book.available_copies > 0 ? "Available" : "Out of Stock"}
-                </Badge>
+                <div className="flex gap-2">
+                  <Badge className={book.available_copies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
+                    {book.available_copies > 0 ? "Available" : "Out of Stock"}
+                  </Badge>
+                  {book.featured && (
+                    <Badge className="bg-yellow-100 text-yellow-800">
+                      <Star className="h-3 w-3 mr-1" />
+                      Featured
+                    </Badge>
+                  )}
+                </div>
                 <div className="flex gap-1">
+                  <Button 
+                    size="sm" 
+                    variant={book.featured ? "default" : "outline"} 
+                    onClick={() => toggleFeatured(book)}
+                    title={book.featured ? "Remove from featured" : "Add to featured"}
+                  >
+                    <Star className={`h-3 w-3 ${book.featured ? 'fill-current' : ''}`} />
+                  </Button>
                   <Button size="sm" variant="outline" onClick={() => openEditDialog(book)}>
                     <Edit className="h-3 w-3" />
                   </Button>
