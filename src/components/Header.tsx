@@ -59,7 +59,17 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
             {navItems.map((item) => (
               <button
                 key={item.id}
-                onClick={() => setActiveView(item.id)}
+                onClick={() => {
+                  if (item.id === "elearning") {
+                    if (user) {
+                      window.open("https://philamoreltd.github.io/e-Learning/Video%20and%20Animations.html", "_blank");
+                    } else {
+                      navigate('/auth');
+                    }
+                  } else {
+                    setActiveView(item.id);
+                  }
+                }}
                 className={`flex items-center px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                   activeView === item.id
                     ? "bg-blue-100 text-blue-700"
@@ -144,7 +154,15 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
                 <button
                   key={item.id}
                   onClick={() => {
-                    setActiveView(item.id);
+                    if (item.id === "elearning") {
+                      if (user) {
+                        window.open("https://philamoreltd.github.io/e-Learning/Video%20and%20Animations.html", "_blank");
+                      } else {
+                        navigate('/auth');
+                      }
+                    } else {
+                      setActiveView(item.id);
+                    }
                     setIsMenuOpen(false);
                   }}
                   className={`flex items-center w-full px-3 py-2 rounded-md text-sm font-medium transition-colors ${
