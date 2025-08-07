@@ -24,6 +24,7 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
     { id: "catalog", label: "Catalog", icon: Search },
     { id: "student", label: "My Books", icon: GraduationCap },
     { id: "scanner", label: "Scanner", icon: QrCode },
+    { id: "elearning", label: "eLearning", icon: GraduationCap },
     { id: "dashboard", label: "Staff Portal", icon: User },
     { id: "admin", label: "Admin", icon: Bell },
   ];
