@@ -1,10 +1,14 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Scan, BookOpen, User, Check, X } from "lucide-react";
+import { QrCode, Scan, BookOpen, User, Check, X, Download } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useQRCode } from "@/hooks/useQRCode";
+import { toast } from "sonner";
 
 interface ScanResult {
   type: 'book' | 'student';
@@ -14,62 +18,180 @@ interface ScanResult {
   studentName?: string;
   grade?: string;
   available?: boolean;
+  isbn?: string;
+  email?: string;
+  qrCode?: string;
 }
 
 const BarcodeScanner = () => {
   const [scanInput, setScanInput] = useState("");
   const [scanResult, setScanResult] = useState<ScanResult | null>(null);
   const [isScanning, setIsScanning] = useState(false);
+  const [books, setBooks] = useState<any[]>([]);
+  const { user } = useAuth();
+  const { generateBookQRCode, generateStudentQRCode, loading: qrLoading } = useQRCode();
 
-  // Mock scan results for demonstration
-  const mockScanResults: Record<string, ScanResult> = {
-    "978-0-7432-7356-5": {
-      type: 'book',
-      id: "978-0-7432-7356-5",
-      title: "The Great Gatsby",
-      author: "F. Scott Fitzgerald",
-      available: true
-    },
-    "978-0-06-112008-4": {
-      type: 'book',
-      id: "978-0-06-112008-4",
-      title: "To Kill a Mockingbird",
-      author: "Harper Lee",
-      available: false
-    },
-    "HS2024-1847": {
-      type: 'student',
-      id: "HS2024-1847",
-      studentName: "Alex Johnson",
-      grade: "11th Grade"
-    },
-    "HS2024-0923": {
-      type: 'student',
-      id: "HS2024-0923",
-      studentName: "Emma Davis",
-      grade: "10th Grade"
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const fetchBooks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .order('title');
+      
+      if (error) throw error;
+      setBooks(data || []);
+    } catch (error) {
+      console.error('Error fetching books:', error);
+      toast.error('Failed to fetch books');
     }
   };
 
-  const handleScan = () => {
-    setIsScanning(true);
-    
-    // Simulate scanning delay
-    setTimeout(() => {
-      const result = mockScanResults[scanInput];
-      setScanResult(result || null);
-      setIsScanning(false);
-    }, 1000);
+  const searchByCode = async (code: string): Promise<ScanResult | null> => {
+    try {
+      // Try to parse as JSON first (QR code data)
+      try {
+        const qrData = JSON.parse(code);
+        if (qrData.type === 'book') {
+          const { data: book } = await supabase
+            .from('books')
+            .select('*')
+            .eq('id', qrData.id)
+            .single();
+          
+          if (book) {
+            return {
+              type: 'book',
+              id: book.id,
+              title: book.title,
+              author: book.author,
+              isbn: book.isbn,
+              available: book.available_copies > 0
+            };
+          }
+        } else if (qrData.type === 'student') {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', qrData.id)
+            .single();
+          
+          if (profile) {
+            return {
+              type: 'student',
+              id: profile.id,
+              studentName: `${profile.first_name} ${profile.last_name}`,
+              email: profile.email,
+              grade: profile.grade_level
+            };
+          }
+        }
+      } catch {
+        // Not JSON, continue with other searches
+      }
+
+      // Search by ISBN
+      const { data: bookByISBN } = await supabase
+        .from('books')
+        .select('*')
+        .eq('isbn', code)
+        .single();
+      
+      if (bookByISBN) {
+        return {
+          type: 'book',
+          id: bookByISBN.id,
+          title: bookByISBN.title,
+          author: bookByISBN.author,
+          isbn: bookByISBN.isbn,
+          available: bookByISBN.available_copies > 0
+        };
+      }
+
+      // Search by student ID
+      const { data: studentById } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('student_id', code)
+        .single();
+      
+      if (studentById) {
+        return {
+          type: 'student',
+          id: studentById.id,
+          studentName: `${studentById.first_name} ${studentById.last_name}`,
+          email: studentById.email,
+          grade: studentById.grade_level
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error('Error searching:', error);
+      return null;
+    }
   };
 
-  const handleManualInput = (value: string) => {
+  const handleScan = async () => {
+    if (!scanInput.trim()) return;
+    
+    setIsScanning(true);
+    try {
+      const result = await searchByCode(scanInput.trim());
+      setScanResult(result);
+      if (!result) {
+        toast.error('No matching book or student found');
+      }
+    } catch (error) {
+      console.error('Scan error:', error);
+      toast.error('Error during scan');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleManualInput = async (value: string) => {
     setScanInput(value);
     if (value.length > 5) {
-      const result = mockScanResults[value];
-      setScanResult(result || null);
+      const result = await searchByCode(value);
+      setScanResult(result);
     } else {
       setScanResult(null);
     }
+  };
+
+  const generateQRForResult = async () => {
+    if (!scanResult) return;
+    
+    try {
+      let qrCodeDataURL: string | null = null;
+      
+      if (scanResult.type === 'book') {
+        qrCodeDataURL = await generateBookQRCode(scanResult.id, scanResult.title || '');
+      } else if (scanResult.type === 'student') {
+        qrCodeDataURL = await generateStudentQRCode(scanResult.id, scanResult.studentName || '');
+      }
+      
+      if (qrCodeDataURL) {
+        setScanResult({ ...scanResult, qrCode: qrCodeDataURL });
+        toast.success('QR code generated successfully');
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      toast.error('Failed to generate QR code');
+    }
+  };
+
+  const downloadQRCode = () => {
+    if (!scanResult?.qrCode) return;
+    
+    const link = document.createElement('a');
+    link.download = `${scanResult.type}-${scanResult.id}-qr.png`;
+    link.href = scanResult.qrCode;
+    link.click();
   };
 
   const resetScan = () => {
@@ -125,21 +247,23 @@ const BarcodeScanner = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               <Button 
                 variant="outline" 
                 onClick={() => handleManualInput("978-0-7432-7356-5")}
                 size="sm"
               >
-                Test Book Scan
+                Test ISBN Scan
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => handleManualInput("HS2024-1847")}
-                size="sm"
-              >
-                Test Student ID
-              </Button>
+              {books.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  onClick={() => handleManualInput(books[0].isbn || books[0].id)}
+                  size="sm"
+                >
+                  Test Real Book
+                </Button>
+              )}
               <Button 
                 variant="outline" 
                 onClick={resetScan}
@@ -177,7 +301,9 @@ const BarcodeScanner = () => {
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">{scanResult.title}</h3>
                     <p className="text-gray-600">by {scanResult.author}</p>
-                    <p className="text-sm text-gray-500">ISBN: {scanResult.id}</p>
+                    <p className="text-sm text-gray-500">
+                      {scanResult.isbn ? `ISBN: ${scanResult.isbn}` : `ID: ${scanResult.id}`}
+                    </p>
                   </div>
                   <Badge className={scanResult.available ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
                     {scanResult.available ? (
@@ -193,12 +319,38 @@ const BarcodeScanner = () => {
                     )}
                   </Badge>
                 </div>
-                <div className="flex gap-2">
+                
+                {scanResult.qrCode && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">QR Code</h4>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadQRCode}
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                    <img src={scanResult.qrCode} alt="QR Code" className="mx-auto" />
+                  </div>
+                )}
+                
+                <div className="flex gap-2 flex-wrap">
                   <Button disabled={!scanResult.available}>
                     Check Out Book
                   </Button>
                   <Button variant="outline" disabled={scanResult.available}>
                     Process Return
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={generateQRForResult}
+                    disabled={qrLoading}
+                  >
+                    <QrCode className="h-4 w-4 mr-1" />
+                    Generate QR
                   </Button>
                 </div>
               </div>
@@ -212,6 +364,9 @@ const BarcodeScanner = () => {
                     <h3 className="font-semibold text-lg">{scanResult.studentName}</h3>
                     <p className="text-gray-600">{scanResult.grade}</p>
                     <p className="text-sm text-gray-500">ID: {scanResult.id}</p>
+                    {scanResult.email && (
+                      <p className="text-sm text-gray-500">Email: {scanResult.email}</p>
+                    )}
                   </div>
                   <Badge className="bg-green-100 text-green-800">
                     <Check className="h-3 w-3 mr-1" />
@@ -231,9 +386,35 @@ const BarcodeScanner = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                
+                {scanResult.qrCode && (
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="font-medium">Student QR Code</h4>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={downloadQRCode}
+                      >
+                        <Download className="h-4 w-4 mr-1" />
+                        Download
+                      </Button>
+                    </div>
+                    <img src={scanResult.qrCode} alt="Student QR Code" className="mx-auto" />
+                  </div>
+                )}
+                
+                <div className="flex gap-2 flex-wrap">
                   <Button>View Full Profile</Button>
                   <Button variant="outline">Send Reminder</Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={generateQRForResult}
+                    disabled={qrLoading}
+                  >
+                    <QrCode className="h-4 w-4 mr-1" />
+                    Generate QR
+                  </Button>
                 </div>
               </div>
             )}

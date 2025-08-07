@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQRCode } from "@/hooks/useQRCode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, Trash2, BookOpen, Search, Star } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { QrCode, BookOpen, Search, Plus, Edit2, Trash2, Star, Download } from "lucide-react";
 
 interface Book {
   id: string;
@@ -24,13 +26,22 @@ interface Book {
   total_copies: number;
   available_copies: number;
   cover_image?: string;
-  featured: boolean;
+  qrCode?: string;
   created_at: string;
   updated_at: string;
+  featured: boolean;
+}
+
+interface Department {
+  id: string;
+  name: string;
 }
 
 const BookManager = () => {
+  const { generateBookQRCode, loading: qrLoading } = useQRCode();
+  const { user, profile } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -50,7 +61,8 @@ const BookManager = () => {
     total_copies: "1",
     available_copies: "1",
     cover_image: "",
-    featured: false
+    qrCode: "",
+    featured: false,
   });
 
   const categories = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Poetry", "Drama", "Reference"];
@@ -58,6 +70,7 @@ const BookManager = () => {
 
   useEffect(() => {
     fetchBooks();
+    fetchDepartments();
   }, []);
 
   const fetchBooks = async () => {
@@ -89,6 +102,20 @@ const BookManager = () => {
     }
   };
 
+  const fetchDepartments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('departments')
+        .select('id, name')
+        .order('name');
+      
+      if (error) throw error;
+      setDepartments(data || []);
+    } catch (error) {
+      console.error('Error fetching departments:', error);
+    }
+  };
+
   const resetForm = () => {
     setFormData({
       title: "",
@@ -101,7 +128,8 @@ const BookManager = () => {
       total_copies: "1",
       available_copies: "1",
       cover_image: "",
-      featured: false
+      qrCode: "",
+      featured: false,
     });
   };
 
@@ -218,7 +246,7 @@ const BookManager = () => {
     }
   };
 
-  const openEditDialog = (book: Book) => {
+  const editBook = (book: Book) => {
     setEditingBook(book);
     setFormData({
       title: book.title,
@@ -231,9 +259,46 @@ const BookManager = () => {
       total_copies: book.total_copies.toString(),
       available_copies: book.available_copies.toString(),
       cover_image: book.cover_image || "",
+      qrCode: book.qrCode || "",
       featured: book.featured || false
     });
     setIsEditDialogOpen(true);
+  };
+
+  const deleteBook = (bookId: string) => {
+    handleDeleteBook(bookId);
+  };
+
+  const generateQRForBook = async (book: Book) => {
+    try {
+      const qrCodeDataURL = await generateBookQRCode(book.id, book.title);
+      if (qrCodeDataURL) {
+        const updatedBooks = books.map(b => 
+          b.id === book.id ? { ...b, qrCode: qrCodeDataURL } : b
+        );
+        setBooks(updatedBooks);
+        toast({
+          title: "Success",
+          description: "QR code generated successfully",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate QR code",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadQRCode = (book: Book) => {
+    if (!book.qrCode) return;
+    
+    const link = document.createElement('a');
+    link.download = `book-${book.id}-qr.png`;
+    link.href = book.qrCode;
+    link.click();
   };
 
   const toggleFeatured = async (book: Book) => {
@@ -476,82 +541,114 @@ const BookManager = () => {
       {/* Books Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredBooks.map((book) => (
-          <Card key={book.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex gap-2">
-                  <Badge className={book.available_copies > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}>
-                    {book.available_copies > 0 ? "Available" : "Out of Stock"}
-                  </Badge>
-                  {book.featured && (
-                    <Badge className="bg-yellow-100 text-yellow-800">
-                      <Star className="h-3 w-3 mr-1" />
-                      Featured
-                    </Badge>
-                  )}
-                </div>
-                <div className="flex gap-1">
-                  <Button 
-                    size="sm" 
-                    variant={book.featured ? "default" : "outline"} 
-                    onClick={() => toggleFeatured(book)}
-                    title={book.featured ? "Remove from featured" : "Add to featured"}
-                  >
-                    <Star className={`h-3 w-3 ${book.featured ? 'fill-current' : ''}`} />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => openEditDialog(book)}>
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Book</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete "{book.title}"? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteBook(book.id)}>
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <img
-                  src={book.cover_image || "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300"}
-                  alt={book.title}
-                  className="w-16 h-20 object-cover rounded"
-                />
+          <Card key={book.id} className="relative">
+            <CardHeader className="pb-2">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <CardTitle className="text-lg leading-tight mb-1">
-                    {book.title}
-                  </CardTitle>
-                  <p className="text-sm text-gray-600 mb-1">by {book.author}</p>
-                  <p className="text-xs text-gray-500">{book.category} • {book.grade_level}</p>
+                  <CardTitle className="text-lg line-clamp-2">{book.title}</CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">by {book.author}</p>
                 </div>
+                {book.featured && (
+                  <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                    <Star className="h-3 w-3 mr-1 fill-current" />
+                    Featured
+                  </Badge>
+                )}
               </div>
             </CardHeader>
-            <CardContent className="pt-0">
-              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                {book.description}
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">
-                  {book.available_copies} of {book.total_copies} available
-                </span>
-                <span className="text-xs text-gray-500">
-                  {book.points} pts
-                </span>
+            <CardContent className="space-y-3">
+              {book.cover_image && (
+                <img
+                  src={book.cover_image}
+                  alt={book.title}
+                  className="w-full h-40 object-cover rounded-md"
+                />
+              )}
+              
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Category:</span>
+                  <Badge variant="outline">{book.category}</Badge>
+                </div>
+                
+                {book.isbn && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">ISBN:</span>
+                    <span className="font-mono text-xs">{book.isbn}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Available:</span>
+                  <span className={`font-medium ${book.available_copies > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {book.available_copies}/{book.total_copies}
+                  </span>
+                </div>
+                
+                {book.grade_level && (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Grade:</span>
+                    <Badge variant="outline">{book.grade_level}</Badge>
+                  </div>
+                )}
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-gray-600">Points:</span>
+                  <span className="font-medium">{book.points}</span>
+                </div>
               </div>
+
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => generateQRForBook(book)}
+                  disabled={qrLoading}
+                >
+                  <QrCode className="h-4 w-4 mr-1" />
+                  QR
+                </Button>
+                {book.qrCode && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadQRCode(book)}
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => toggleFeatured(book)}
+                  className={book.featured ? "bg-yellow-100 text-yellow-800" : ""}
+                >
+                  <Star className={`h-4 w-4 mr-1 ${book.featured ? "fill-current" : ""}`} />
+                  {book.featured ? "Featured" : "Feature"}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => editBook(book)}
+                >
+                  <Edit2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => deleteBook(book.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {book.qrCode && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">QR Code:</p>
+                  <img src={book.qrCode} alt="Book QR Code" className="w-24 h-24" />
+                </div>
+              )}
             </CardContent>
           </Card>
         ))}
@@ -559,9 +656,13 @@ const BookManager = () => {
 
       {filteredBooks.length === 0 && (
         <div className="text-center py-12">
-          <BookOpen className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">No books found</h3>
-          <p className="text-gray-600">Try adjusting your search criteria or add new books.</p>
+          <p className="text-gray-600">
+            {searchQuery || selectedCategory !== "all" 
+              ? "Try adjusting your search criteria" 
+              : "Get started by adding your first book"}
+          </p>
         </div>
       )}
 
