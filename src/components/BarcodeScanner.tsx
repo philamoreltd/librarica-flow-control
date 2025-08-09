@@ -236,15 +236,21 @@ const BarcodeScanner = () => {
 
   const generateBulkLabels = async () => {
     try {
-      const selectedBooks = books.slice(0, 5); // Generate labels for first 5 books
+      if (books.length === 0) {
+        toast.error('No books available to generate labels');
+        return;
+      }
+      
+      toast.info(`Generating labels for ${books.length} books...`);
+      
       const qrCodes = await Promise.all(
-        selectedBooks.map(book => generateBookQRCode(book.id, book.title))
+        books.map(book => generateBookQRCode(book.id, book.title))
       );
       
       qrCodes.forEach((qrCode, index) => {
         if (qrCode) {
           const link = document.createElement('a');
-          link.download = `book-${selectedBooks[index].id}-label.png`;
+          link.download = `book-${books[index].id}-label.png`;
           link.href = qrCode;
           link.click();
         }
@@ -583,15 +589,19 @@ const BarcodeScanner = () => {
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-sm text-gray-600">
-                    Generate QR code labels for the first 5 books in your catalog.
+                    Generate QR code labels for all {books.length} books in your catalog.
                   </p>
-                  <div className="space-y-2">
-                    {books.slice(0, 5).map((book) => (
-                      <div key={book.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                        <span className="text-sm font-medium">{book.title}</span>
-                        <Badge variant="secondary">Label Ready</Badge>
-                      </div>
-                    ))}
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {books.length > 0 ? (
+                      books.map((book) => (
+                        <div key={book.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                          <span className="text-sm font-medium">{book.title}</span>
+                          <Badge variant="secondary">Ready</Badge>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center text-gray-500 py-4">No books available</p>
+                    )}
                   </div>
                   <Button 
                     onClick={generateBulkLabels} 
