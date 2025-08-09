@@ -346,140 +346,148 @@ const BookManager = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+  const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
+    const handleInputChange = (field: string, value: string | boolean) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    };
+
+    const handleTotalCopiesChange = (value: string) => {
+      const total = value;
+      setFormData(prev => ({ 
+        ...prev, 
+        total_copies: total,
+        available_copies: prev.available_copies > total ? total : prev.available_copies
+      }));
+    };
+
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="Book title"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="author">Author *</Label>
+            <Input
+              id="author"
+              value={formData.author}
+              onChange={(e) => handleInputChange('author', e.target.value)}
+              placeholder="Author name"
+              required
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="category">Category *</Label>
+            <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="isbn">ISBN</Label>
+            <Input
+              id="isbn"
+              value={formData.isbn}
+              onChange={(e) => handleInputChange('isbn', e.target.value)}
+              placeholder="ISBN number"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="grade_level">Grade Level</Label>
+            <Select value={formData.grade_level} onValueChange={(value) => handleInputChange('grade_level', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select grade" />
+              </SelectTrigger>
+              <SelectContent>
+                {gradeLevels.map((grade) => (
+                  <SelectItem key={grade} value={grade}>
+                    {grade}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="points">Points</Label>
+            <Input
+              id="points"
+              type="number"
+              value={formData.points}
+              onChange={(e) => handleInputChange('points', e.target.value)}
+              min="1"
+            />
+          </div>
+          <div>
+            <Label htmlFor="total_copies">Total Copies</Label>
+            <Input
+              id="total_copies"
+              type="number"
+              value={formData.total_copies}
+              onChange={(e) => handleTotalCopiesChange(e.target.value)}
+              min="1"
+            />
+          </div>
+        </div>
+
         <div>
-          <Label htmlFor="title">Title *</Label>
-          <Input
-            id="title"
-            value={formData.title}
-            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-            placeholder="Book title"
-            required
+          <Label htmlFor="description">Description</Label>
+          <Textarea
+            id="description"
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+            placeholder="Book description"
+            rows={3}
           />
         </div>
+
         <div>
-          <Label htmlFor="author">Author *</Label>
+          <Label htmlFor="cover_image">Cover Image URL</Label>
           <Input
-            id="author"
-            value={formData.author}
-            onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-            placeholder="Author name"
-            required
+            id="cover_image"
+            value={formData.cover_image}
+            onChange={(e) => handleInputChange('cover_image', e.target.value)}
+            placeholder="https://example.com/cover.jpg"
           />
         </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="category">Category *</Label>
-          <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="isbn">ISBN</Label>
-          <Input
-            id="isbn"
-            value={formData.isbn}
-            onChange={(e) => setFormData({ ...formData, isbn: e.target.value })}
-            placeholder="ISBN number"
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="featured"
+            checked={formData.featured}
+            onChange={(e) => handleInputChange('featured', e.target.checked)}
+            className="rounded border-gray-300"
           />
+          <Label htmlFor="featured">Mark as Featured Book</Label>
         </div>
-      </div>
 
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="grade_level">Grade Level</Label>
-          <Select value={formData.grade_level} onValueChange={(value) => setFormData({ ...formData, grade_level: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select grade" />
-            </SelectTrigger>
-            <SelectContent>
-              {gradeLevels.map((grade) => (
-                <SelectItem key={grade} value={grade}>
-                  {grade}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <Label htmlFor="points">Points</Label>
-          <Input
-            id="points"
-            type="number"
-            value={formData.points}
-            onChange={(e) => setFormData({ ...formData, points: e.target.value })}
-            min="1"
-          />
-        </div>
-        <div>
-          <Label htmlFor="total_copies">Total Copies</Label>
-          <Input
-            id="total_copies"
-            type="number"
-            value={formData.total_copies}
-            onChange={(e) => {
-              const total = e.target.value;
-              setFormData({ 
-                ...formData, 
-                total_copies: total,
-                available_copies: formData.available_copies > total ? total : formData.available_copies
-              });
-            }}
-            min="1"
-          />
-        </div>
+        <Button onClick={onSubmit} className="w-full">
+          {submitLabel}
+        </Button>
       </div>
-
-      <div>
-        <Label htmlFor="description">Description</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          placeholder="Book description"
-          rows={3}
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="cover_image">Cover Image URL</Label>
-        <Input
-          id="cover_image"
-          value={formData.cover_image}
-          onChange={(e) => setFormData({ ...formData, cover_image: e.target.value })}
-          placeholder="https://example.com/cover.jpg"
-        />
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <input
-          type="checkbox"
-          id="featured"
-          checked={formData.featured}
-          onChange={(e) => setFormData({ ...formData, featured: e.target.checked })}
-          className="rounded border-gray-300"
-        />
-        <Label htmlFor="featured">Mark as Featured Book</Label>
-      </div>
-
-      <Button onClick={onSubmit} className="w-full">
-        {submitLabel}
-      </Button>
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (

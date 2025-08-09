@@ -303,131 +303,137 @@ const StudentManager = () => {
     return matchesSearch && matchesGrade;
   });
 
-  const StudentForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="first_name">First Name *</Label>
-          <Input
-            id="first_name"
-            value={formData.first_name}
-            onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-            placeholder="First name"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="middle_name">Middle Name</Label>
-          <Input
-            id="middle_name"
-            value={formData.middle_name}
-            onChange={(e) => setFormData({ ...formData, middle_name: e.target.value })}
-            placeholder="Middle name"
-          />
-        </div>
-        <div>
-          <Label htmlFor="last_name">Last Name *</Label>
-          <Input
-            id="last_name"
-            value={formData.last_name}
-            onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-            placeholder="Last name"
-            required
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            placeholder="student@email.com (optional)"
-          />
-        </div>
-        <div>
-          <Label htmlFor="phone_number">Phone Number</Label>
-          <Input
-            id="phone_number"
-            type="tel"
-            value={formData.phone_number}
-            onChange={(e) => setFormData({ ...formData, phone_number: e.target.value })}
-            placeholder="Phone number"
-          />
-        </div>
-      </div>
+  const StudentForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
+    const handleInputChange = (field: string, value: string) => {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    };
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="student_id">Student Adm No *</Label>
-          <Input
-            id="student_id"
-            value={formData.student_id}
-            onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
-            placeholder="Enter admission number"
-            required
-          />
-        </div>
-        <div>
-          <Label htmlFor="grade_level">Grade Level</Label>
-          <Select value={formData.grade_level} onValueChange={(value) => setFormData({ ...formData, grade_level: value })}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select grade" />
-            </SelectTrigger>
-            <SelectContent>
-              {gradeLevels.map((grade) => (
-                <SelectItem key={grade} value={grade}>
-                  {grade}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="institution">Institution</Label>
-        <Input
-          id="institution"
-          value={formData.institution}
-          onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
-          placeholder="School/Institution name"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="points">Points</Label>
-          <Input
-            id="points"
-            type="number"
-            value={formData.points}
-            onChange={(e) => setFormData({ ...formData, points: e.target.value })}
-            min="0"
-          />
-        </div>
-        {!editingStudent && (
+    return (
+      <div className="space-y-4">
+        <div className="grid grid-cols-3 gap-4">
           <div>
-            <Label htmlFor="password">Password (leave empty for auto-generated)</Label>
+            <Label htmlFor="first_name">First Name *</Label>
             <Input
-              id="password"
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder="Auto-generated if empty"
+              id="first_name"
+              value={formData.first_name}
+              onChange={(e) => handleInputChange('first_name', e.target.value)}
+              placeholder="First name"
+              required
             />
           </div>
-        )}
-      </div>
+          <div>
+            <Label htmlFor="middle_name">Middle Name</Label>
+            <Input
+              id="middle_name"
+              value={formData.middle_name}
+              onChange={(e) => handleInputChange('middle_name', e.target.value)}
+              placeholder="Middle name"
+            />
+          </div>
+          <div>
+            <Label htmlFor="last_name">Last Name *</Label>
+            <Input
+              id="last_name"
+              value={formData.last_name}
+              onChange={(e) => handleInputChange('last_name', e.target.value)}
+              placeholder="Last name"
+              required
+            />
+          </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="student@email.com (optional)"
+            />
+          </div>
+          <div>
+            <Label htmlFor="phone_number">Phone Number</Label>
+            <Input
+              id="phone_number"
+              type="tel"
+              value={formData.phone_number}
+              onChange={(e) => handleInputChange('phone_number', e.target.value)}
+              placeholder="Phone number"
+            />
+          </div>
+        </div>
 
-      <Button onClick={onSubmit} className="w-full">
-        {submitLabel}
-      </Button>
-    </div>
-  );
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="student_id">Student Adm No *</Label>
+            <Input
+              id="student_id"
+              value={formData.student_id}
+              onChange={(e) => handleInputChange('student_id', e.target.value)}
+              placeholder="Enter admission number"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="grade_level">Grade Level</Label>
+            <Select value={formData.grade_level} onValueChange={(value) => handleInputChange('grade_level', value)}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select grade" />
+              </SelectTrigger>
+              <SelectContent>
+                {gradeLevels.map((grade) => (
+                  <SelectItem key={grade} value={grade}>
+                    {grade}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="institution">Institution</Label>
+          <Input
+            id="institution"
+            value={formData.institution}
+            onChange={(e) => handleInputChange('institution', e.target.value)}
+            placeholder="School/Institution name"
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="points">Points</Label>
+            <Input
+              id="points"
+              type="number"
+              value={formData.points}
+              onChange={(e) => handleInputChange('points', e.target.value)}
+              min="0"
+            />
+          </div>
+          {!editingStudent && (
+            <div>
+              <Label htmlFor="password">Password (leave empty for auto-generated)</Label>
+              <Input
+                id="password"
+                type="password"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                placeholder="Auto-generated if empty"
+              />
+            </div>
+          )}
+        </div>
+
+        <Button onClick={onSubmit} className="w-full">
+          {submitLabel}
+        </Button>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
