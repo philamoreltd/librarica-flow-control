@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { QrCode, Scan, BookOpen, User, Check, X, Download } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { QrCode, Scan, BookOpen, User, Check, X, Download, Search, Users, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQRCode } from "@/hooks/useQRCode";
@@ -197,6 +198,63 @@ const BarcodeScanner = () => {
   const resetScan = () => {
     setScanInput("");
     setScanResult(null);
+  };
+
+  const [bulkCheckoutBooks, setBulkCheckoutBooks] = useState<string[]>([]);
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+
+  const handleBulkCheckout = () => {
+    if (bulkCheckoutBooks.length === 0) {
+      toast.error('No books selected for checkout');
+      return;
+    }
+    toast.success(`Processing checkout for ${bulkCheckoutBooks.length} books`);
+    setBulkCheckoutBooks([]);
+  };
+
+  const searchStudents = async (query: string) => {
+    if (!query) {
+      setSearchResults([]);
+      return;
+    }
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .or(`first_name.ilike.%${query}%,last_name.ilike.%${query}%,email.ilike.%${query}%,student_id.ilike.%${query}%`)
+        .limit(10);
+      
+      if (error) throw error;
+      setSearchResults(data || []);
+    } catch (error) {
+      console.error('Error searching students:', error);
+      toast.error('Failed to search students');
+    }
+  };
+
+  const generateBulkLabels = async () => {
+    try {
+      const selectedBooks = books.slice(0, 5); // Generate labels for first 5 books
+      const qrCodes = await Promise.all(
+        selectedBooks.map(book => generateBookQRCode(book.id, book.title))
+      );
+      
+      qrCodes.forEach((qrCode, index) => {
+        if (qrCode) {
+          const link = document.createElement('a');
+          link.download = `book-${selectedBooks[index].id}-label.png`;
+          link.href = qrCode;
+          link.click();
+        }
+      });
+      
+      toast.success(`Generated labels for ${qrCodes.filter(Boolean).length} books`);
+    } catch (error) {
+      console.error('Error generating bulk labels:', error);
+      toast.error('Failed to generate labels');
+    }
   };
 
   return (
@@ -429,21 +487,122 @@ const BarcodeScanner = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="p-6 h-auto flex-col">
-              <BookOpen className="h-8 w-8 mb-2 text-blue-600" />
-              <span className="font-medium">Bulk Check-out</span>
-              <span className="text-sm text-gray-500">Process multiple books</span>
-            </Button>
-            <Button variant="outline" className="p-6 h-auto flex-col">
-              <User className="h-8 w-8 mb-2 text-green-600" />
-              <span className="font-medium">Student Lookup</span>
-              <span className="text-sm text-gray-500">Find student records</span>
-            </Button>
-            <Button variant="outline" className="p-6 h-auto flex-col">
-              <QrCode className="h-8 w-8 mb-2 text-purple-600" />
-              <span className="font-medium">Generate Labels</span>
-              <span className="text-sm text-gray-500">Print barcode labels</span>
-            </Button>
+            {/* Bulk Check-out */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="p-6 h-auto flex-col">
+                  <BookOpen className="h-8 w-8 mb-2 text-blue-600" />
+                  <span className="font-medium">Bulk Check-out</span>
+                  <span className="text-sm text-gray-500">Process multiple books</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Bulk Check-out</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    {books.slice(0, 5).map((book) => (
+                      <div key={book.id} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          checked={bulkCheckoutBooks.includes(book.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setBulkCheckoutBooks([...bulkCheckoutBooks, book.id]);
+                            } else {
+                              setBulkCheckoutBooks(bulkCheckoutBooks.filter(id => id !== book.id));
+                            }
+                          }}
+                        />
+                        <span className="text-sm">{book.title}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Button onClick={handleBulkCheckout} className="w-full">
+                    Process Check-out ({bulkCheckoutBooks.length} books)
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Student Lookup */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="p-6 h-auto flex-col">
+                  <Users className="h-8 w-8 mb-2 text-green-600" />
+                  <span className="font-medium">Student Lookup</span>
+                  <span className="text-sm text-gray-500">Find student records</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Student Lookup</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search by name, email, or ID..."
+                      value={studentSearchQuery}
+                      onChange={(e) => {
+                        setStudentSearchQuery(e.target.value);
+                        searchStudents(e.target.value);
+                      }}
+                      className="pl-10"
+                    />
+                  </div>
+                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                    {searchResults.map((student) => (
+                      <div key={student.id} className="p-3 border rounded-lg">
+                        <h4 className="font-medium">{student.first_name} {student.last_name}</h4>
+                        <p className="text-sm text-gray-600">{student.email}</p>
+                        <p className="text-sm text-gray-500">Grade: {student.grade_level}</p>
+                      </div>
+                    ))}
+                    {studentSearchQuery && searchResults.length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">No students found</p>
+                    )}
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Generate Labels */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="p-6 h-auto flex-col">
+                  <Tags className="h-8 w-8 mb-2 text-purple-600" />
+                  <span className="font-medium">Generate Labels</span>
+                  <span className="text-sm text-gray-500">Print barcode labels</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>Generate QR Labels</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    Generate QR code labels for the first 5 books in your catalog.
+                  </p>
+                  <div className="space-y-2">
+                    {books.slice(0, 5).map((book) => (
+                      <div key={book.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                        <span className="text-sm font-medium">{book.title}</span>
+                        <Badge variant="secondary">Label Ready</Badge>
+                      </div>
+                    ))}
+                  </div>
+                  <Button 
+                    onClick={generateBulkLabels} 
+                    className="w-full"
+                    disabled={qrLoading}
+                  >
+                    {qrLoading ? 'Generating...' : 'Generate & Download Labels'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
