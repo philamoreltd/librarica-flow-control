@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQRCode } from "@/hooks/useQRCode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -347,18 +347,18 @@ const BookManager = () => {
   });
 
   const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
-    const handleInputChange = (field: string, value: string | boolean) => {
+    const handleInputChange = useCallback((field: string, value: string | boolean) => {
       setFormData(prev => ({ ...prev, [field]: value }));
-    };
+    }, []);
 
-    const handleTotalCopiesChange = (value: string) => {
+    const handleTotalCopiesChange = useCallback((value: string) => {
       const total = value;
       setFormData(prev => ({ 
         ...prev, 
         total_copies: total,
         available_copies: prev.available_copies > total ? total : prev.available_copies
       }));
-    };
+    }, []);
 
     return (
       <div className="space-y-4">
