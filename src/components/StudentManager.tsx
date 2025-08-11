@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -304,9 +304,9 @@ const StudentManager = () => {
   });
 
   const StudentForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
-    const handleInputChange = (field: string, value: string) => {
+    const handleInputChange = useCallback((field: string, value: string) => {
       setFormData(prev => ({ ...prev, [field]: value }));
-    };
+    }, []);
 
     return (
       <div className="space-y-4">
