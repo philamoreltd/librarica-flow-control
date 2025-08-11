@@ -53,6 +53,18 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
             </div>
           </div>
 
+          {/* School Profile - Only for logged in users */}
+          {user && profile?.institution && (
+            <div className="hidden md:flex items-center space-x-3 px-4 py-2 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-sm">
+                  {profile.institution.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <span className="text-blue-900 font-medium text-sm">{profile.institution}</span>
+            </div>
+          )}
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
             {navItems.map((item) => (
