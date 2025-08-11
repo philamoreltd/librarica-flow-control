@@ -22,7 +22,6 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
   const navItems = [
     { id: "home", label: "Home", icon: Library },
     { id: "catalog", label: "Catalog", icon: Search },
-    { id: "student", label: "My Books", icon: GraduationCap },
     { id: "scanner", label: "Scanner", icon: QrCode },
     { id: "elearning", label: "eLearning", icon: GraduationCap },
     { id: "dashboard", label: "Staff Portal", icon: User },
@@ -84,13 +83,6 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
 
           {/* Right Side Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-              <Input
-                placeholder="Search books, authors..."
-                className="pl-10 pr-4 w-64"
-              />
-            </div>
             <div className="relative">
               <Bell className="h-5 w-5 text-gray-600 cursor-pointer hover:text-gray-900" />
               <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs h-4 w-4 flex items-center justify-center rounded-full p-0">
@@ -177,10 +169,6 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
               ))}
             </nav>
             <div className="mt-4 pt-4 border-t">
-              <Input
-                placeholder="Search books, authors..."
-                className="mb-3"
-              />
               {user && profile ? (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 p-2 bg-gray-50 rounded">
