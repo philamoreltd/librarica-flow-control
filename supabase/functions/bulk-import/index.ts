@@ -172,7 +172,21 @@ async function importStudents(supabaseClient: any, students: any[]) {
       }
 
       if (student.phone_number?.trim()) {
-        authData.phone = student.phone_number.trim()
+        // Format phone number to E.164 format
+        let phone = student.phone_number.trim();
+        // Remove any spaces, dashes, or parentheses
+        phone = phone.replace(/[\s\-\(\)]/g, '');
+        
+        // Convert Kenyan format to E.164
+        if (phone.startsWith('0')) {
+          phone = '+254' + phone.substring(1);
+        } else if (phone.startsWith('254')) {
+          phone = '+' + phone;
+        } else if (!phone.startsWith('+')) {
+          phone = '+254' + phone;
+        }
+        
+        authData.phone = phone;
       }
 
       // Create user account using admin client
