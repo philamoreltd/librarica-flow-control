@@ -78,9 +78,16 @@ serve(async (req) => {
 async function addStudent(supabaseClient: any, studentData: any) {
   console.log('Adding student:', studentData);
   
+  // Validate that either email or phone is provided
+  if (!studentData.email && !studentData.phone_number) {
+    return new Response(
+      JSON.stringify({ error: 'Either email or phone number is required' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
   // Create auth user first
-  const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser({
-    email: studentData.email,
+  const authUserData: any = {
     password: studentData.password || 'TempPass123!',
     email_confirm: true,
     user_metadata: {
@@ -88,7 +95,16 @@ async function addStudent(supabaseClient: any, studentData: any) {
       last_name: studentData.last_name,
       role: 'student'
     }
-  });
+  };
+
+  // Use email if provided, otherwise use phone
+  if (studentData.email) {
+    authUserData.email = studentData.email;
+  } else {
+    authUserData.phone = studentData.phone_number;
+  }
+
+  const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser(authUserData);
 
   if (authError) {
     console.error('Auth user creation error:', authError);
