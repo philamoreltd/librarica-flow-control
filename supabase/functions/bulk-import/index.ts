@@ -12,10 +12,17 @@ serve(async (req) => {
   }
 
   try {
+    // Use regular client for authentication check
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: req.headers.get('Authorization')! } } }
+    )
+
+    // Create admin client for user creation
+    const supabaseAdmin = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
@@ -42,7 +49,7 @@ serve(async (req) => {
     if (type === 'books') {
       return await importBooks(supabaseClient, data)
     } else if (type === 'students') {
-      return await importStudents(supabaseClient, data)
+      return await importStudents(supabaseAdmin, data)
     } else {
       return new Response(JSON.stringify({ error: 'Invalid import type' }), {
         status: 400,
@@ -168,7 +175,7 @@ async function importStudents(supabaseClient: any, students: any[]) {
         authData.phone = student.phone_number.trim()
       }
 
-      // Create user account
+      // Create user account using admin client
       const { data: newUser, error: authError } = await supabaseClient.auth.admin.createUser(authData)
 
       if (authError || !newUser.user) {
@@ -178,7 +185,7 @@ async function importStudents(supabaseClient: any, students: any[]) {
         continue
       }
 
-      // Update profile with additional information
+      // Update profile with additional information using admin client
       const { error: profileError } = await supabaseClient
         .from('profiles')
         .update({
