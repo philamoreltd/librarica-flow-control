@@ -86,6 +86,25 @@ async function addStudent(supabaseClient: any, studentData: any) {
     );
   }
   
+  // Format phone number to E.164 format if provided
+  let formattedPhone = null;
+  if (studentData.phone_number) {
+    let phone = studentData.phone_number.trim();
+    // Remove any spaces, dashes, or parentheses
+    phone = phone.replace(/[\s\-\(\)]/g, '');
+    
+    // Convert Kenyan format to E.164
+    if (phone.startsWith('0')) {
+      phone = '+254' + phone.substring(1);
+    } else if (phone.startsWith('254')) {
+      phone = '+' + phone;
+    } else if (!phone.startsWith('+')) {
+      phone = '+254' + phone;
+    }
+    
+    formattedPhone = phone;
+  }
+  
   // Create auth user first
   const authUserData: any = {
     password: studentData.password || 'TempPass123!',
@@ -97,11 +116,11 @@ async function addStudent(supabaseClient: any, studentData: any) {
     }
   };
 
-  // Use email if provided, otherwise use phone
+  // Use email if provided, otherwise use formatted phone
   if (studentData.email) {
     authUserData.email = studentData.email;
   } else {
-    authUserData.phone = studentData.phone_number;
+    authUserData.phone = formattedPhone;
   }
 
   const { data: authUser, error: authError } = await supabaseClient.auth.admin.createUser(authUserData);
