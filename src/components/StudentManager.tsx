@@ -304,6 +304,23 @@ const StudentManager = () => {
     return matchesSearch && matchesGrade;
   });
 
+  // Group students by grade level
+  const groupedStudents = filteredStudents.reduce((groups: { [key: string]: Student[] }, student) => {
+    const grade = student.grade_level || "Unassigned";
+    if (!groups[grade]) {
+      groups[grade] = [];
+    }
+    groups[grade].push(student);
+    return groups;
+  }, {});
+
+  // Sort grade levels
+  const sortedGrades = Object.keys(groupedStudents).sort((a, b) => {
+    if (a === "Unassigned") return 1;
+    if (b === "Unassigned") return -1;
+    return a.localeCompare(b);
+  });
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -366,65 +383,80 @@ const StudentManager = () => {
         </Select>
       </div>
 
-      {/* Students Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredStudents.map((student) => (
-          <Card key={student.id} className="hover:shadow-lg transition-shadow">
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start mb-2">
-                <Badge className="bg-blue-100 text-blue-800">
-                  {student.grade_level || "N/A"}
+      {/* Students Grouped by Grade Level */}
+      <div className="space-y-6">
+        {sortedGrades.map((grade) => (
+          <div key={grade} className="space-y-4">
+            <div className="flex items-center justify-between bg-muted/50 p-4 rounded-lg">
+              <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                {grade}
+                <Badge variant="secondary" className="ml-2">
+                  {groupedStudents[grade].length} student{groupedStudents[grade].length !== 1 ? 's' : ''}
                 </Badge>
-                <div className="flex gap-1">
-                  <Button size="sm" variant="outline" onClick={() => fetchStudentActivity(student.id)}>
-                    <Eye className="h-3 w-3" />
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => openEditDialog(student)}>
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="outline">
-                        <UserX className="h-3 w-3" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Deactivate Student</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to deactivate {student.first_name} {student.last_name}? 
-                          This will prevent them from borrowing books and cancel active reservations.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeactivateStudent(student.id)}>
-                          Deactivate
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </div>
-              <div>
-                <CardTitle className="text-lg leading-tight mb-1">
-                  {student.first_name} {student.middle_name && `${student.middle_name} `}{student.last_name}
-                </CardTitle>
-                <p className="text-sm text-gray-600 mb-1">{student.email || "No email"}</p>
-                <p className="text-xs text-gray-500">Adm No: {student.student_id || "N/A"}</p>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500">
-                  Points: {student.points}
-                </span>
-                <span className="text-xs text-gray-500">
-                  Joined: {new Date(student.created_at).toLocaleDateString()}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+              </h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {groupedStudents[grade].map((student) => (
+                <Card key={student.id} className="hover:shadow-lg transition-shadow">
+                  <CardHeader className="pb-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <Badge className="bg-blue-100 text-blue-800">
+                        {student.grade_level || "N/A"}
+                      </Badge>
+                      <div className="flex gap-1">
+                        <Button size="sm" variant="outline" onClick={() => fetchStudentActivity(student.id)}>
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => openEditDialog(student)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <UserX className="h-3 w-3" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Deactivate Student</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to deactivate {student.first_name} {student.last_name}? 
+                                This will prevent them from borrowing books and cancel active reservations.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeactivateStudent(student.id)}>
+                                Deactivate
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg leading-tight mb-1">
+                        {student.first_name} {student.middle_name && `${student.middle_name} `}{student.last_name}
+                      </CardTitle>
+                      <p className="text-sm text-gray-600 mb-1">{student.email || "No email"}</p>
+                      <p className="text-xs text-gray-500">Adm No: {student.student_id || "N/A"}</p>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-500">
+                        Points: {student.points}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        Joined: {new Date(student.created_at).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
