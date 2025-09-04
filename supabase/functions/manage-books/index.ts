@@ -116,13 +116,13 @@ async function updateBook(supabaseClient: any, bookId: string, bookData: any) {
       title: bookData.title,
       author: bookData.author,
       category: bookData.category,
-      isbn: bookData.isbn,
-      description: bookData.description,
-      grade_level: bookData.grade_level,
+      isbn: bookData.isbn || null,  // Convert empty string to null
+      description: bookData.description || null,
+      grade_level: bookData.grade_level || null,
       points: parseInt(bookData.points) || 1,
       total_copies: parseInt(bookData.total_copies) || 1,
       available_copies: parseInt(bookData.available_copies) || 1,
-      cover_image: bookData.cover_image,
+      cover_image: bookData.cover_image || null,
       updated_at: new Date().toISOString(),
     })
     .eq('id', bookId)
