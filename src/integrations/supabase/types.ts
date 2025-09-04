@@ -7,13 +7,54 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
+      book_copies: {
+        Row: {
+          barcode: string
+          book_id: string
+          copy_number: number
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          barcode: string
+          book_id: string
+          copy_number: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          barcode?: string
+          book_id?: string
+          copy_number?: number
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "book_copies_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       books: {
         Row: {
           author: string
@@ -301,6 +342,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_book_copy_barcode: {
+        Args: { book_id_param: string; copy_number_param: number }
+        Returns: string
+      }
       get_current_user_department: {
         Args: Record<PropertyKey, never>
         Returns: string
