@@ -212,7 +212,7 @@ export const BulkImport = () => {
   };
 
   const downloadBookTemplate = () => {
-    const template = "title,author,category,isbn,description,grade_level,points,total_copies,available_copies\nSample Book,Sample Author,Fiction,978-1234567890,A great book,9-12,15,3,3\nAnother Book,Another Author,Non-Fiction,978-0987654321,Educational content,6-9,10,2,2";
+    const template = "title,author,category,isbn,description,grade_level,points,total_copies,available_copies\nSample Book,Sample Author,English,978-1234567890,A great book,9-12,15,3,3\nAnother Book,Another Author,Mathematics,978-0987654321,Educational content,6-9,10,2,2";
     const blob = new Blob([template], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -398,8 +398,8 @@ Jane,Mary,Smith,,+1234567890,STU002,Form 2,student,0,,XYZ Academy"
                 <Textarea
                   id="book-csv"
                   placeholder="title,author,category,isbn,description,grade_level,points,total_copies,available_copies
-Sample Book,Sample Author,Fiction,978-1234567890,A great book,9-12,15,3,3
-Another Book,Another Author,Non-Fiction,978-0987654321,Educational content,6-9,10,2,2"
+Sample Book,Sample Author,English,978-1234567890,A great book,9-12,15,3,3
+Another Book,Another Author,Mathematics,978-0987654321,Educational content,6-9,10,2,2"
                   value={booksData}
                   onChange={(e) => setBooksData(e.target.value)}
                   rows={8}

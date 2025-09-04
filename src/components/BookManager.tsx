@@ -65,13 +65,33 @@ const BookManager = () => {
     featured: false,
   });
 
-  const categories = ["Fiction", "Non-Fiction", "Science", "History", "Biography", "Poetry", "Drama", "Reference"];
+  const [categories, setCategories] = useState([
+    "English", "Kiswahili", "Mathematics", "Biology", "Physics", "Chemistry", 
+    "History and Government", "CRE", "Home Science", "Computer Studies", "Music", 
+    "Business Studies", "Art & Design", "Agriculture", "General Science"
+  ]);
+  const [customCategory, setCustomCategory] = useState("");
+  const [showAddCategory, setShowAddCategory] = useState(false);
   const gradeLevels = ["K-2", "3-5", "6-8", "9-12", "Adult"];
 
   useEffect(() => {
     fetchBooks();
     fetchDepartments();
   }, []);
+
+  const handleInputChange = useCallback((field: string, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  }, []);
+
+  const addCustomCategory = () => {
+    if (customCategory.trim() && !categories.includes(customCategory.trim())) {
+      setCategories([...categories, customCategory.trim()]);
+      setCustomCategory("");
+      setShowAddCategory(false);
+      // Set the new category as selected in the form
+      handleInputChange('category', customCategory.trim());
+    }
+  };
 
   const fetchBooks = async () => {
     setLoading(true);
@@ -347,9 +367,6 @@ const BookManager = () => {
   });
 
   const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
-    const handleInputChange = useCallback((field: string, value: string | boolean) => {
-      setFormData(prev => ({ ...prev, [field]: value }));
-    }, []);
 
     const handleTotalCopiesChange = useCallback((value: string) => {
       const total = value;
@@ -388,18 +405,60 @@ const BookManager = () => {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="category">Category *</Label>
-            <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categories.map((category) => (
-                  <SelectItem key={category} value={category}>
-                    {category}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {!showAddCategory ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAddCategory(true)}
+                  className="w-full"
+                >
+                  Add New Subject
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter new subject"
+                    value={customCategory}
+                    onChange={(e) => setCustomCategory(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && addCustomCategory()}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={addCustomCategory}
+                    disabled={!customCategory.trim()}
+                  >
+                    Add
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setShowAddCategory(false);
+                      setCustomCategory("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
           <div>
             <Label htmlFor="isbn">ISBN</Label>
@@ -536,7 +595,7 @@ const BookManager = () => {
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
+            <SelectItem value="all">All Subjects</SelectItem>
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
