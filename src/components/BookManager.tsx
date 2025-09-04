@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useQRCode } from "@/hooks/useQRCode";
+import { useBarcode } from "@/hooks/useBarcode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { QrCode, BookOpen, Search, Plus, Edit2, Trash2, Star, Download } from "lucide-react";
+import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download } from "lucide-react";
 
 interface Book {
   id: string;
@@ -38,7 +38,13 @@ interface Department {
 }
 
 const BookManager = () => {
-  const { generateBookQRCode, loading: qrLoading } = useQRCode();
+  const { generateBookCopyBarcode, loading: barcodeLoading } = useBarcode();
+  const [barcodeDataUrl, setBarcodeDataUrl] = useState<string>("");
+  const [showBarcodeDialog, setShowBarcodeDialog] = useState(false);
+  const [bookCopies, setBookCopies] = useState<any[]>([]);
+  const [showCopiesDialog, setShowCopiesDialog] = useState(false);
+  const [selectedBookForCopies, setSelectedBookForCopies] = useState<Book | null>(null);
+  const [copiesCount, setCopiesCount] = useState(1);
   const { user, profile } = useAuth();
   const [books, setBooks] = useState<Book[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
@@ -289,37 +295,88 @@ const BookManager = () => {
     handleDeleteBook(bookId);
   };
 
-  const generateQRForBook = async (book: Book) => {
+  const generateCopies = async (book: Book) => {
+    setSelectedBookForCopies(book);
+    setShowCopiesDialog(true);
+    await fetchBookCopies(book.id);
+  };
+
+  const fetchBookCopies = async (bookId: string) => {
     try {
-      const qrCodeDataURL = await generateBookQRCode(book.id, book.title);
-      if (qrCodeDataURL) {
-        const updatedBooks = books.map(b => 
-          b.id === book.id ? { ...b, qrCode: qrCodeDataURL } : b
-        );
-        setBooks(updatedBooks);
-        toast({
-          title: "Success",
-          description: "QR code generated successfully",
-        });
-      }
+      const { data, error } = await supabase.functions.invoke('manage-book-copies', {
+        body: { action: 'get_book_copies', bookId }
+      });
+
+      if (error) throw error;
+      setBookCopies(data.copies || []);
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error('Error fetching book copies:', error);
       toast({
         title: "Error",
-        description: "Failed to generate QR code",
+        description: "Failed to fetch book copies",
         variant: "destructive",
       });
     }
   };
 
-  const downloadQRCode = (book: Book) => {
-    if (!book.qrCode) return;
+  const handleGenerateCopies = async () => {
+    if (!selectedBookForCopies || copiesCount < 1) return;
     
-    const link = document.createElement('a');
-    link.download = `book-${book.id}-qr.png`;
-    link.href = book.qrCode;
-    link.click();
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-book-copies', {
+        body: { 
+          action: 'generate_copies', 
+          bookId: selectedBookForCopies.id, 
+          copiesCount 
+        }
+      });
+
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `Generated ${copiesCount} copies successfully`,
+      });
+      setCopiesCount(1);
+      await fetchBookCopies(selectedBookForCopies.id);
+    } catch (error) {
+      console.error('Error generating copies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate copies",
+        variant: "destructive",
+      });
+    }
   };
+
+  const generateBarcode = async (copy: any) => {
+    try {
+      const barcode = await generateBookCopyBarcode(copy.barcode, selectedBookForCopies?.title || '');
+      if (barcode) {
+        setBarcodeDataUrl(barcode);
+        setShowBarcodeDialog(true);
+      }
+    } catch (error) {
+      console.error('Error generating barcode:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate barcode",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const downloadBarcode = () => {
+    if (barcodeDataUrl) {
+      const link = document.createElement('a');
+      link.href = barcodeDataUrl;
+      link.download = 'book-barcode.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
 
   const toggleFeatured = async (book: Book) => {
     try {
@@ -669,22 +726,12 @@ const BookManager = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => generateQRForBook(book)}
-                  disabled={qrLoading}
+                  onClick={() => generateCopies(book)}
+                  disabled={barcodeLoading}
                 >
-                  <QrCode className="h-4 w-4 mr-1" />
-                  QR
+                  <BarChart3 className="h-4 w-4 mr-1" />
+                  Copies
                 </Button>
-                {book.qrCode && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => downloadQRCode(book)}
-                  >
-                    <Download className="h-4 w-4 mr-1" />
-                    Download
-                  </Button>
-                )}
                 <Button
                   variant="outline"
                   size="sm"
@@ -709,13 +756,6 @@ const BookManager = () => {
                   <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
-
-              {book.qrCode && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">QR Code:</p>
-                  <img src={book.qrCode} alt="Book QR Code" className="w-24 h-24" />
-                </div>
-              )}
             </CardContent>
           </Card>
         ))}
@@ -740,6 +780,88 @@ const BookManager = () => {
             <DialogTitle>Edit Book</DialogTitle>
           </DialogHeader>
           <BookForm onSubmit={handleEditBook} submitLabel="Update Book" />
+        </DialogContent>
+      </Dialog>
+
+      {/* Book Copies Dialog */}
+      <Dialog open={showCopiesDialog} onOpenChange={setShowCopiesDialog}>
+        <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              Book Copies - {selectedBookForCopies?.title}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Generate new copies */}
+            <div className="flex items-center space-x-2 border rounded-lg p-4">
+              <Label htmlFor="copiesCount">Generate new copies:</Label>
+              <Input
+                id="copiesCount"
+                type="number"
+                min="1"
+                max="100"
+                value={copiesCount}
+                onChange={(e) => setCopiesCount(parseInt(e.target.value) || 1)}
+                className="w-24"
+              />
+              <Button onClick={handleGenerateCopies} size="sm">
+                <Plus className="w-4 h-4 mr-1" />
+                Generate
+              </Button>
+            </div>
+
+            {/* Existing copies */}
+            <div className="space-y-2">
+              <h4 className="font-medium">Existing Copies ({bookCopies.length})</h4>
+              {bookCopies.length === 0 ? (
+                <p className="text-muted-foreground">No copies generated yet.</p>
+              ) : (
+                <div className="grid gap-2 max-h-60 overflow-y-auto">
+                  {bookCopies.map((copy) => (
+                    <div key={copy.id} className="flex items-center justify-between border rounded-lg p-3">
+                      <div className="flex-1">
+                        <div className="font-mono text-sm">{copy.barcode}</div>
+                        <div className="text-xs text-muted-foreground">
+                          Copy #{copy.copy_number} • Status: {copy.status}
+                        </div>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => generateBarcode(copy)}
+                      >
+                        <BarChart3 className="w-4 h-4 mr-1" />
+                        Barcode
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Barcode Dialog */}
+      <Dialog open={showBarcodeDialog} onOpenChange={setShowBarcodeDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Book Copy Barcode</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center space-y-4 py-4">
+            {barcodeDataUrl && (
+              <img 
+                src={barcodeDataUrl} 
+                alt="Book Copy Barcode" 
+                className="border rounded-lg bg-white p-4"
+              />
+            )}
+            <Button onClick={downloadBarcode} className="w-full">
+              <Download className="w-4 h-4 mr-2" />
+              Download Barcode
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { QrCode, Scan, BookOpen, User, Check, X, Download, Search, Users, Tags } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useQRCode } from "@/hooks/useQRCode";
+import { useBarcode } from "@/hooks/useBarcode";
 import { toast } from "sonner";
 
 interface ScanResult {
@@ -30,7 +30,7 @@ const BarcodeScanner = () => {
   const [isScanning, setIsScanning] = useState(false);
   const [books, setBooks] = useState<any[]>([]);
   const { user } = useAuth();
-  const { generateBookQRCode, generateStudentQRCode, loading: qrLoading } = useQRCode();
+  const { generateBookCopyBarcode, loading: barcodeLoading } = useBarcode();
 
   useEffect(() => {
     fetchBooks();
@@ -53,45 +53,31 @@ const BarcodeScanner = () => {
 
   const searchByCode = async (code: string): Promise<ScanResult | null> => {
     try {
-      // Try to parse as JSON first (QR code data)
-      try {
-        const qrData = JSON.parse(code);
-        if (qrData.type === 'book') {
-          const { data: book } = await supabase
-            .from('books')
-            .select('*')
-            .eq('id', qrData.id)
-            .single();
-          
-          if (book) {
-            return {
-              type: 'book',
-              id: book.id,
-              title: book.title,
-              author: book.author,
-              isbn: book.isbn,
-              available: book.available_copies > 0
-            };
-          }
-        } else if (qrData.type === 'student') {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', qrData.id)
-            .single();
-          
-          if (profile) {
-            return {
-              type: 'student',
-              id: profile.id,
-              studentName: `${profile.first_name} ${profile.last_name}`,
-              email: profile.email,
-              grade: profile.grade_level
-            };
-          }
-        }
-      } catch {
-        // Not JSON, continue with other searches
+      // Search by book copy barcode first
+      const { data: bookCopy } = await supabase
+        .from('book_copies')
+        .select(`
+          *,
+          books (
+            id,
+            title,
+            author,
+            isbn,
+            available_copies
+          )
+        `)
+        .eq('barcode', code)
+        .single();
+      
+      if (bookCopy?.books) {
+        return {
+          type: 'book',
+          id: bookCopy.books.id,
+          title: bookCopy.books.title,
+          author: bookCopy.books.author,
+          isbn: bookCopy.books.isbn,
+          available: bookCopy.status === 'available'
+        };
       }
 
       // Search by ISBN
@@ -164,33 +150,29 @@ const BarcodeScanner = () => {
     }
   };
 
-  const generateQRForResult = async () => {
-    if (!scanResult) return;
+  const generateBarcodeForResult = async () => {
+    if (!scanResult || scanResult.type !== 'book') return;
     
     try {
-      let qrCodeDataURL: string | null = null;
+      // Create a sample barcode for the book
+      const sampleBarcode = `BK001${scanResult.id.slice(-6)}`;
+      const barcodeDataURL = await generateBookCopyBarcode(sampleBarcode, scanResult.title || '');
       
-      if (scanResult.type === 'book') {
-        qrCodeDataURL = await generateBookQRCode(scanResult.id, scanResult.title || '');
-      } else if (scanResult.type === 'student') {
-        qrCodeDataURL = await generateStudentQRCode(scanResult.id, scanResult.studentName || '');
-      }
-      
-      if (qrCodeDataURL) {
-        setScanResult({ ...scanResult, qrCode: qrCodeDataURL });
-        toast.success('QR code generated successfully');
+      if (barcodeDataURL) {
+        setScanResult({ ...scanResult, qrCode: barcodeDataURL });
+        toast.success('Barcode generated successfully');
       }
     } catch (error) {
-      console.error('Error generating QR code:', error);
-      toast.error('Failed to generate QR code');
+      console.error('Error generating barcode:', error);
+      toast.error('Failed to generate barcode');
     }
   };
 
-  const downloadQRCode = () => {
+  const downloadBarcode = () => {
     if (!scanResult?.qrCode) return;
     
     const link = document.createElement('a');
-    link.download = `${scanResult.type}-${scanResult.id}-qr.png`;
+    link.download = `${scanResult.type}-${scanResult.id}-barcode.png`;
     link.href = scanResult.qrCode;
     link.click();
   };
@@ -243,20 +225,20 @@ const BarcodeScanner = () => {
       
       toast.info(`Generating labels for ${books.length} books...`);
       
-      const qrCodes = await Promise.all(
-        books.map(book => generateBookQRCode(book.id, book.title))
+      const barcodes = await Promise.all(
+        books.map(book => generateBookCopyBarcode(`BK001${book.id.slice(-6)}`, book.title))
       );
       
-      qrCodes.forEach((qrCode, index) => {
-        if (qrCode) {
+      barcodes.forEach((barcode, index) => {
+        if (barcode) {
           const link = document.createElement('a');
-          link.download = `book-${books[index].id}-label.png`;
-          link.href = qrCode;
+          link.download = `book-${books[index].id}-barcode.png`;
+          link.href = barcode;
           link.click();
         }
       });
       
-      toast.success(`Generated labels for ${qrCodes.filter(Boolean).length} books`);
+      toast.success(`Generated barcodes for ${barcodes.filter(Boolean).length} books`);
     } catch (error) {
       console.error('Error generating bulk labels:', error);
       toast.error('Failed to generate labels');
@@ -391,7 +373,7 @@ const BarcodeScanner = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={downloadQRCode}
+                        onClick={downloadBarcode}
                       >
                         <Download className="h-4 w-4 mr-1" />
                         Download
@@ -410,11 +392,11 @@ const BarcodeScanner = () => {
                   </Button>
                   <Button 
                     variant="outline" 
-                    onClick={generateQRForResult}
-                    disabled={qrLoading}
+                    onClick={generateBarcodeForResult}
+                    disabled={barcodeLoading}
                   >
                     <QrCode className="h-4 w-4 mr-1" />
-                    Generate QR
+                    Generate Barcode
                   </Button>
                 </div>
               </div>
@@ -458,7 +440,7 @@ const BarcodeScanner = () => {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={downloadQRCode}
+                        onClick={downloadBarcode}
                       >
                         <Download className="h-4 w-4 mr-1" />
                         Download
@@ -473,11 +455,11 @@ const BarcodeScanner = () => {
                   <Button variant="outline">Send Reminder</Button>
                   <Button 
                     variant="outline" 
-                    onClick={generateQRForResult}
-                    disabled={qrLoading}
+                    onClick={generateBarcodeForResult}
+                    disabled={barcodeLoading}
                   >
                     <QrCode className="h-4 w-4 mr-1" />
-                    Generate QR
+                    Generate Barcode
                   </Button>
                 </div>
               </div>
@@ -606,9 +588,9 @@ const BarcodeScanner = () => {
                   <Button 
                     onClick={generateBulkLabels} 
                     className="w-full"
-                    disabled={qrLoading}
+                    disabled={barcodeLoading}
                   >
-                    {qrLoading ? 'Generating...' : 'Generate & Download Labels'}
+                    {barcodeLoading ? 'Generating...' : 'Generate & Download Labels'}
                   </Button>
                 </div>
               </DialogContent>
