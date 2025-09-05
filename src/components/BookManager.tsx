@@ -85,7 +85,7 @@ const BookManager = () => {
     fetchDepartments();
   }, []);
 
-  const handleInputChange = useCallback((field: string, value: string | boolean) => {
+  const handleInputChange = useCallback((field: string) => (value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
@@ -95,7 +95,7 @@ const BookManager = () => {
       setCustomCategory("");
       setShowAddCategory(false);
       // Set the new category as selected in the form
-      handleInputChange('category', customCategory.trim());
+      handleInputChange('category')(customCategory.trim());
     }
   };
 
@@ -440,7 +440,7 @@ const BookManager = () => {
           <div>
             <Label htmlFor="category">Category *</Label>
             <div className="space-y-2">
-              <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
+              <Select value={formData.category} onValueChange={handleInputChange('category')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -496,7 +496,7 @@ const BookManager = () => {
           </div>
           <div>
             <Label htmlFor="grade_level">Grade Level</Label>
-            <Select value={formData.grade_level} onValueChange={(value) => handleInputChange('grade_level', value)}>
+            <Select value={formData.grade_level} onValueChange={handleInputChange('grade_level')}>
               <SelectTrigger>
                 <SelectValue placeholder="Select grade" />
               </SelectTrigger>
@@ -517,7 +517,7 @@ const BookManager = () => {
             <Input
               id="title"
               value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
+              onChange={(e) => handleInputChange('title')(e.target.value)}
               placeholder="Book title"
               required
             />
@@ -527,7 +527,7 @@ const BookManager = () => {
             <Input
               id="isbn"
               value={formData.isbn}
-              onChange={(e) => handleInputChange('isbn', e.target.value)}
+              onChange={(e) => handleInputChange('isbn')(e.target.value)}
               placeholder="ISBN number"
             />
           </div>
@@ -538,7 +538,7 @@ const BookManager = () => {
           <Input
             id="author"
             value={formData.author}
-            onChange={(e) => handleInputChange('author', e.target.value)}
+            onChange={(e) => handleInputChange('author')(e.target.value)}
             placeholder="Author name"
             required
           />
@@ -551,7 +551,7 @@ const BookManager = () => {
               id="points"
               type="number"
               value={formData.points}
-              onChange={(e) => handleInputChange('points', e.target.value)}
+              onChange={(e) => handleInputChange('points')(e.target.value)}
               min="1"
             />
           </div>
@@ -572,7 +572,7 @@ const BookManager = () => {
           <Textarea
             id="description"
             value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
+            onChange={(e) => handleInputChange('description')(e.target.value)}
             placeholder="Book description"
             rows={3}
           />
@@ -583,7 +583,7 @@ const BookManager = () => {
           <Input
             id="cover_image"
             value={formData.cover_image}
-            onChange={(e) => handleInputChange('cover_image', e.target.value)}
+            onChange={(e) => handleInputChange('cover_image')(e.target.value)}
             placeholder="https://example.com/cover.jpg"
           />
         </div>
@@ -593,7 +593,7 @@ const BookManager = () => {
             type="checkbox"
             id="featured"
             checked={formData.featured}
-            onChange={(e) => handleInputChange('featured', e.target.checked)}
+            onChange={(e) => handleInputChange('featured')(e.target.checked)}
             className="rounded border-gray-300"
           />
           <Label htmlFor="featured">Mark as Featured Book</Label>
