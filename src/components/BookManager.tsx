@@ -438,29 +438,6 @@ const BookManager = () => {
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => handleInputChange('title', e.target.value)}
-              placeholder="Book title"
-              required
-            />
-          </div>
-          <div>
-            <Label htmlFor="author">Author *</Label>
-            <Input
-              id="author"
-              value={formData.author}
-              onChange={(e) => handleInputChange('author', e.target.value)}
-              placeholder="Author name"
-              required
-            />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
             <Label htmlFor="category">Category *</Label>
             <div className="space-y-2">
               <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
@@ -518,18 +495,6 @@ const BookManager = () => {
             </div>
           </div>
           <div>
-            <Label htmlFor="isbn">ISBN</Label>
-            <Input
-              id="isbn"
-              value={formData.isbn}
-              onChange={(e) => handleInputChange('isbn', e.target.value)}
-              placeholder="ISBN number"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-4">
-          <div>
             <Label htmlFor="grade_level">Grade Level</Label>
             <Select value={formData.grade_level} onValueChange={(value) => handleInputChange('grade_level', value)}>
               <SelectTrigger>
@@ -544,6 +509,42 @@ const BookManager = () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              placeholder="Book title"
+              required
+            />
+          </div>
+          <div>
+            <Label htmlFor="isbn">ISBN</Label>
+            <Input
+              id="isbn"
+              value={formData.isbn}
+              onChange={(e) => handleInputChange('isbn', e.target.value)}
+              placeholder="ISBN number"
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="author">Author *</Label>
+          <Input
+            id="author"
+            value={formData.author}
+            onChange={(e) => handleInputChange('author', e.target.value)}
+            placeholder="Author name"
+            required
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
           <div>
             <Label htmlFor="points">Points</Label>
             <Input
