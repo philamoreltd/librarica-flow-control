@@ -1,17 +1,19 @@
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, BookOpen, Star, Calendar, User } from "lucide-react";
+import { Search, Filter, BookOpen, Star, Calendar, User, Eye } from "lucide-react";
 import { useBooks } from "@/hooks/useBooks";
 import { useAuth } from "@/hooks/useAuth";
 
 const BookCatalogReal = () => {
   const { books, loading, borrowBook, reserveBook } = useBooks();
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
 
@@ -43,6 +45,11 @@ const BookCatalogReal = () => {
     await reserveBook(bookId, user.id);
   };
 
+  const handleViewCopies = (category: string) => {
+    const categorySlug = category.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/category/${categorySlug}`);
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -58,6 +65,37 @@ const BookCatalogReal = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Book Catalog</h1>
         <p className="text-gray-600">Discover and borrow from our extensive collection</p>
+      </div>
+
+      {/* Category Cards */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Browse by Category</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          {categories.filter(cat => cat !== "all").map((category) => {
+            const categoryBooks = books.filter(book => book.category === category);
+            return (
+              <Card 
+                key={category} 
+                className="cursor-pointer hover:shadow-md transition-all duration-200 hover:scale-105"
+                onClick={() => handleViewCopies(category)}
+              >
+                <CardContent className="p-4 text-center">
+                  <BookOpen className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                  <h3 className="font-medium text-sm text-gray-900 mb-1">
+                    {category}
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    {categoryBooks.length} book{categoryBooks.length !== 1 ? 's' : ''}
+                  </p>
+                  <Button size="sm" variant="ghost" className="mt-2 w-full">
+                    <Eye className="h-3 w-3 mr-1" />
+                    View Copies
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {/* Search and Filters */}
