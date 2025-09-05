@@ -78,7 +78,7 @@ const BookManager = () => {
   ]);
   const [customCategory, setCustomCategory] = useState("");
   const [showAddCategory, setShowAddCategory] = useState(false);
-  const gradeLevels = ["K-2", "3-5", "6-8", "9-12", "Adult"];
+  const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
 
   useEffect(() => {
     fetchBooks();
