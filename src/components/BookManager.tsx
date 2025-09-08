@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { useBarcode } from "@/hooks/useBarcode";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -423,16 +423,16 @@ const BookManager = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
+  const handleTotalCopiesChange = useCallback((value: string) => {
+    const total = value;
+    setFormData(prev => ({ 
+      ...prev, 
+      total_copies: total,
+      available_copies: prev.available_copies > total ? total : prev.available_copies
+    }));
+  }, []);
 
-    const handleTotalCopiesChange = useCallback((value: string) => {
-      const total = value;
-      setFormData(prev => ({ 
-        ...prev, 
-        total_copies: total,
-        available_copies: prev.available_copies > total ? total : prev.available_copies
-      }));
-    }, []);
+  const BookForm = memo(({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
 
     return (
       <div className="space-y-4">
@@ -604,7 +604,7 @@ const BookManager = () => {
         </Button>
       </div>
     );
-  };
+  });
 
   if (loading) {
     return (
