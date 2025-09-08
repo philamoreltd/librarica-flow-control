@@ -432,7 +432,7 @@ const BookManager = () => {
     }));
   }, []);
 
-  const BookForm = memo(({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
+  const BookForm = ({ onSubmit, submitLabel }: { onSubmit: () => void; submitLabel: string }) => {
 
     return (
       <div className="space-y-4">
@@ -516,19 +516,23 @@ const BookManager = () => {
             <Label htmlFor="title">Title *</Label>
             <Input
               id="title"
+              name="title"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
               placeholder="Book title"
               required
+              autoComplete="off"
             />
           </div>
           <div>
             <Label htmlFor="isbn">ISBN</Label>
             <Input
               id="isbn"
+              name="isbn"
               value={formData.isbn}
               onChange={(e) => handleInputChange('isbn', e.target.value)}
               placeholder="ISBN number"
+              autoComplete="off"
             />
           </div>
         </div>
@@ -537,10 +541,12 @@ const BookManager = () => {
           <Label htmlFor="author">Author *</Label>
           <Input
             id="author"
+            name="author"
             value={formData.author}
             onChange={(e) => handleInputChange('author', e.target.value)}
             placeholder="Author name"
             required
+            autoComplete="off"
           />
         </div>
 
@@ -549,20 +555,24 @@ const BookManager = () => {
             <Label htmlFor="points">Points</Label>
             <Input
               id="points"
+              name="points"
               type="number"
               value={formData.points}
               onChange={(e) => handleInputChange('points', e.target.value)}
               min="1"
+              autoComplete="off"
             />
           </div>
           <div>
             <Label htmlFor="total_copies">Total Copies</Label>
             <Input
               id="total_copies"
+              name="total_copies"
               type="number"
               value={formData.total_copies}
               onChange={(e) => handleTotalCopiesChange(e.target.value)}
               min="1"
+              autoComplete="off"
             />
           </div>
         </div>
@@ -571,10 +581,12 @@ const BookManager = () => {
           <Label htmlFor="description">Description</Label>
           <Textarea
             id="description"
+            name="description"
             value={formData.description}
             onChange={(e) => handleInputChange('description', e.target.value)}
             placeholder="Book description"
             rows={3}
+            autoComplete="off"
           />
         </div>
 
@@ -582,9 +594,11 @@ const BookManager = () => {
           <Label htmlFor="cover_image">Cover Image URL</Label>
           <Input
             id="cover_image"
+            name="cover_image"
             value={formData.cover_image}
             onChange={(e) => handleInputChange('cover_image', e.target.value)}
             placeholder="https://example.com/cover.jpg"
+            autoComplete="off"
           />
         </div>
 
@@ -592,6 +606,7 @@ const BookManager = () => {
           <input
             type="checkbox"
             id="featured"
+            name="featured"
             checked={formData.featured}
             onChange={(e) => handleInputChange('featured', e.target.checked)}
             className="rounded border-gray-300"
@@ -599,12 +614,12 @@ const BookManager = () => {
           <Label htmlFor="featured">Mark as Featured Book</Label>
         </div>
 
-        <Button onClick={onSubmit} className="w-full">
+        <Button type="button" onClick={onSubmit} className="w-full">
           {submitLabel}
         </Button>
       </div>
     );
-  });
+  };
 
   if (loading) {
     return (
