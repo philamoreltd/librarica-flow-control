@@ -44,6 +44,7 @@ const BookManager = () => {
   const [barcodeDataUrl, setBarcodeDataUrl] = useState<string>("");
   const [showBarcodeDialog, setShowBarcodeDialog] = useState(false);
   const [bookCopies, setBookCopies] = useState<any[]>([]);
+  const [allBookCopies, setAllBookCopies] = useState<any[]>([]);
   const [showCopiesDialog, setShowCopiesDialog] = useState(false);
   const [selectedBookForCopies, setSelectedBookForCopies] = useState<Book | null>(null);
   const [copiesCount, setCopiesCount] = useState(1);
@@ -315,6 +316,33 @@ const BookManager = () => {
     }
   };
 
+  const fetchAllBookCopies = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('book_copies')
+        .select(`
+          *,
+          books (
+            title,
+            author,
+            category,
+            isbn
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setAllBookCopies(data || []);
+    } catch (error) {
+      console.error('Error fetching all book copies:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch book copies",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleGenerateCopies = async () => {
     if (!selectedBookForCopies || copiesCount < 1) return;
     
@@ -335,6 +363,7 @@ const BookManager = () => {
       });
       setCopiesCount(1);
       await fetchBookCopies(selectedBookForCopies.id);
+      await fetchAllBookCopies();
     } catch (error) {
       console.error('Error generating copies:', error);
       toast({
@@ -398,6 +427,9 @@ const BookManager = () => {
       if (selectedBookForCopies) {
         await fetchBookCopies(selectedBookForCopies.id);
       }
+      
+      // Refresh all book copies
+      await fetchAllBookCopies();
 
       toast({
         title: "Success",
@@ -461,6 +493,7 @@ const BookManager = () => {
   useEffect(() => {
     fetchBooks();
     fetchDepartments();
+    fetchAllBookCopies();
   }, []);
 
   if (loading) {
@@ -624,6 +657,75 @@ const BookManager = () => {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Book Copies by Category Section */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-xl font-semibold text-gray-900">Book Copies by Category</h3>
+          <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
+            Refresh
+          </Button>
+        </div>
+        
+        {categories.map((category) => {
+          const categoryCopies = allBookCopies.filter(copy => 
+            copy.books?.category === category
+          );
+          
+          if (categoryCopies.length === 0) return null;
+          
+          return (
+            <Card key={category} className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="text-lg font-medium text-gray-900">{category}</h4>
+                <Badge variant="secondary">
+                  {categoryCopies.length} {categoryCopies.length === 1 ? 'copy' : 'copies'}
+                </Badge>
+              </div>
+              
+              <div className="grid gap-3">
+                {categoryCopies.map((copy) => (
+                  <div key={copy.id} className="flex items-center justify-between border rounded-lg p-3">
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{copy.books?.title}</div>
+                      <div className="text-xs text-muted-foreground">
+                        by {copy.books?.author}
+                      </div>
+                      <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
+                        <span>Copy #{copy.copy_number}</span>
+                        <span>Barcode: {copy.barcode}</span>
+                        <span>ISBN: {copy.isbn || 'Not assigned'}</span>
+                        <Badge 
+                          variant={copy.status === 'available' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {copy.status}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => generateBarcode(copy)}
+                      >
+                        <BarChart3 className="w-4 h-4 mr-1" />
+                        Barcode
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          );
+        })}
+        
+        {allBookCopies.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No book copies found. Generate copies from the books above.</p>
+          </div>
+        )}
       </div>
 
       {filteredBooks.length === 0 && (
