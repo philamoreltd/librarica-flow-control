@@ -46,7 +46,8 @@ serve(async (req) => {
       );
     }
 
-    const { action, bookId, copiesCount } = await req.json();
+    const body = await req.json();
+    const { action, bookId, copiesCount } = body;
 
     switch (action) {
       case 'generate_copies':
@@ -54,8 +55,8 @@ serve(async (req) => {
       case 'get_book_copies':
         return await getBookCopies(supabaseClient, bookId);
       case 'update_copy_status':
-        const { copyId, status, notes } = await req.json();
-        return await updateCopyStatus(supabaseClient, copyId, status, notes);
+        const { copyId, status, notes, isbn } = body;
+        return await updateCopyStatus(supabaseClient, copyId, status, notes, isbn);
       default:
         return new Response(
           JSON.stringify({ error: 'Invalid action' }),
@@ -98,10 +99,17 @@ async function generateBookCopies(supabaseClient: any, bookId: string, copiesCou
           copy_number_param: copyNumber
         });
 
+      // Generate ISBN using the database function
+      const { data: isbnResult } = await supabaseClient
+        .rpc('generate_copy_isbn', {
+          book_id_param: bookId
+        });
+
       copiesToInsert.push({
         book_id: bookId,
         copy_number: copyNumber,
         barcode: barcodeResult,
+        isbn: isbnResult,
         status: 'available'
       });
     }
@@ -153,14 +161,23 @@ async function getBookCopies(supabaseClient: any, bookId: string) {
   );
 }
 
-async function updateCopyStatus(supabaseClient: any, copyId: string, status: string, notes?: string) {
+async function updateCopyStatus(supabaseClient: any, copyId: string, status: string, notes?: string, isbn?: string) {
+  const updateData: any = {
+    status,
+    updated_at: new Date().toISOString()
+  };
+  
+  if (notes !== undefined) {
+    updateData.notes = notes;
+  }
+  
+  if (isbn !== undefined) {
+    updateData.isbn = isbn;
+  }
+
   const { data, error } = await supabaseClient
     .from('book_copies')
-    .update({
-      status,
-      notes,
-      updated_at: new Date().toISOString()
-    })
+    .update(updateData)
     .eq('id', copyId)
     .select()
     .single();

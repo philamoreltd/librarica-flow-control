@@ -21,6 +21,7 @@ export type Database = {
           copy_number: number
           created_at: string
           id: string
+          isbn: string | null
           notes: string | null
           status: string
           updated_at: string
@@ -31,6 +32,7 @@ export type Database = {
           copy_number: number
           created_at?: string
           id?: string
+          isbn?: string | null
           notes?: string | null
           status?: string
           updated_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           copy_number?: number
           created_at?: string
           id?: string
+          isbn?: string | null
           notes?: string | null
           status?: string
           updated_at?: string
@@ -344,6 +347,10 @@ export type Database = {
     Functions: {
       generate_book_copy_barcode: {
         Args: { book_id_param: string; copy_number_param: number }
+        Returns: string
+      }
+      generate_copy_isbn: {
+        Args: { book_id_param: string }
         Returns: string
       }
       get_current_user_department: {

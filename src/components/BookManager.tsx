@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookForm } from "@/components/BookForm";
+import { CopyRow } from "@/components/CopyRow";
 import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download } from "lucide-react";
 
 interface Book {
@@ -372,6 +373,46 @@ const BookManager = () => {
     }
   };
 
+  const handleUpdateCopy = async (copyId: string, updates: { isbn?: string; status?: string; notes?: string }) => {
+    try {
+      const { error } = await supabase.functions.invoke('manage-book-copies', {
+        body: { 
+          action: 'update_copy_status', 
+          copyId, 
+          status: updates.status || 'available',
+          notes: updates.notes,
+          isbn: updates.isbn
+        }
+      });
+
+      if (error) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to update copy",
+        });
+        return;
+      }
+
+      // Refresh the copies list
+      if (selectedBookForCopies) {
+        await fetchBookCopies(selectedBookForCopies.id);
+      }
+
+      toast({
+        title: "Success",
+        description: "Copy updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating copy:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to update copy",
+      });
+    }
+  };
+
   const toggleFeatured = async (book: Book) => {
     try {
       const { data: session } = await supabase.auth.getSession();
@@ -650,22 +691,12 @@ const BookManager = () => {
               ) : (
                 <div className="grid gap-2 max-h-60 overflow-y-auto">
                   {bookCopies.map((copy) => (
-                    <div key={copy.id} className="flex items-center justify-between border rounded-lg p-3">
-                      <div className="flex-1">
-                        <div className="font-mono text-sm">{copy.barcode}</div>
-                        <div className="text-xs text-muted-foreground">
-                          Copy #{copy.copy_number} • Status: {copy.status}
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => generateBarcode(copy)}
-                      >
-                        <BarChart3 className="w-4 h-4 mr-1" />
-                        Barcode
-                      </Button>
-                    </div>
+                    <CopyRow 
+                      key={copy.id} 
+                      copy={copy} 
+                      onGenerateBarcode={generateBarcode}
+                      onUpdateCopy={handleUpdateCopy}
+                    />
                   ))}
                 </div>
               )}
