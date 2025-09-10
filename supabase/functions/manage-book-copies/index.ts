@@ -93,17 +93,35 @@ async function generateBookCopies(supabaseClient: any, bookId: string, copiesCou
       const copyNumber = startCopyNumber + i;
       
       // Generate barcode using the database function
-      const { data: barcodeResult } = await supabaseClient
+      const { data: barcodeResult, error: barcodeError } = await supabaseClient
         .rpc('generate_book_copy_barcode', {
           book_id_param: bookId,
           copy_number_param: copyNumber
         });
 
+      if (barcodeError) {
+        console.error('Barcode generation error:', barcodeError);
+        throw new Error(`Failed to generate barcode: ${barcodeError.message}`);
+      }
+
+      if (!barcodeResult) {
+        throw new Error('Barcode generation returned null');
+      }
+
       // Generate ISBN using the database function
-      const { data: isbnResult } = await supabaseClient
+      const { data: isbnResult, error: isbnError } = await supabaseClient
         .rpc('generate_copy_isbn', {
           book_id_param: bookId
         });
+
+      if (isbnError) {
+        console.error('ISBN generation error:', isbnError);
+        throw new Error(`Failed to generate ISBN: ${isbnError.message}`);
+      }
+
+      if (!isbnResult) {
+        throw new Error('ISBN generation returned null');
+      }
 
       copiesToInsert.push({
         book_id: bookId,
