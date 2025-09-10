@@ -175,10 +175,46 @@ const BookManager = () => {
 
       if (response.error) throw response.error;
 
-      toast({
-        title: "Success",
-        description: "Book added successfully",
-      });
+      const newBook = response.data?.book;
+      
+      // Automatically generate book copies based on total_copies
+      if (newBook && parseInt(formData.total_copies) > 0) {
+        try {
+          const copiesResponse = await supabase.functions.invoke('manage-book-copies', {
+            body: { 
+              action: 'generate_copies', 
+              bookId: newBook.id, 
+              copiesCount: parseInt(formData.total_copies)
+            }
+          });
+
+          if (copiesResponse.error) {
+            console.error('Error auto-generating copies:', copiesResponse.error);
+            toast({
+              title: "Warning",
+              description: `Book added successfully, but failed to generate ${formData.total_copies} copies. You can generate them manually.`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: `Book added successfully with ${formData.total_copies} copies generated automatically`,
+            });
+          }
+        } catch (copyError) {
+          console.error('Copy generation error:', copyError);
+          toast({
+            title: "Warning", 
+            description: "Book added successfully, but copy generation failed. You can generate copies manually.",
+            variant: "destructive",
+          });
+        }
+      } else {
+        toast({
+          title: "Success",
+          description: "Book added successfully",
+        });
+      }
 
       setIsAddDialogOpen(false);
       resetForm();
