@@ -183,6 +183,7 @@ const BookManager = () => {
       setIsAddDialogOpen(false);
       resetForm();
       fetchBooks();
+      fetchAllBookCopies(); // Refresh book copies after adding a new book
     } catch (error: any) {
       console.error('Add book error:', error);
       toast({
@@ -224,6 +225,7 @@ const BookManager = () => {
       setEditingBook(null);
       resetForm();
       fetchBooks();
+      fetchAllBookCopies(); // Refresh book copies after editing a book
     } catch (error: any) {
       console.error('Update book error:', error);
       toast({
@@ -259,6 +261,7 @@ const BookManager = () => {
       });
 
       fetchBooks();
+      fetchAllBookCopies(); // Refresh book copies after deleting a book
     } catch (error: any) {
       console.error('Delete book error:', error);
       toast({
