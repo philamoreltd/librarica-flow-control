@@ -629,10 +629,14 @@ const BookManager = () => {
                   size="sm"
                   onClick={() => generateCopies(book)}
                   disabled={barcodeLoading}
+                  className="flex-1"
                 >
                   <BarChart3 className="h-4 w-4 mr-1" />
-                  Copies
+                  Manage Copies
                 </Button>
+              </div>
+              
+              <div className="flex items-center space-x-2 mt-2">
                 <Button
                   variant="outline"
                   size="sm"
@@ -724,9 +728,16 @@ const BookManager = () => {
           );
         })}
         
-        {allBookCopies.length === 0 && (
+        {allBookCopies.length === 0 && books.length > 0 && (
           <div className="text-center py-8">
-            <p className="text-gray-600">No book copies found. Generate copies from the books above.</p>
+            <p className="text-gray-600 mb-4">No book copies found. Click "Manage Copies" on any book above to generate physical copies.</p>
+            <p className="text-sm text-gray-500">Physical copies are needed for borrowing and tracking individual books.</p>
+          </div>
+        )}
+        
+        {allBookCopies.length === 0 && books.length === 0 && (
+          <div className="text-center py-8">
+            <p className="text-gray-600">No books or copies found. Add some books first.</p>
           </div>
         )}
       </div>
