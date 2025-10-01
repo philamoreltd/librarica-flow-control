@@ -138,6 +138,12 @@ verify_jwt = true
 [functions.manage-book-copies]
 verify_jwt = true
 
+[functions.issue-book-copy]
+verify_jwt = true
+
+[functions.return-book-copy]
+verify_jwt = true
+
 [db]
 port = 54322
 
