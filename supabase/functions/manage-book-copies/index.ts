@@ -111,7 +111,8 @@ async function generateBookCopies(supabaseClient: any, bookId: string, copiesCou
       // Generate ISBN using the database function
       const { data: isbnResult, error: isbnError } = await supabaseClient
         .rpc('generate_copy_isbn', {
-          book_id_param: bookId
+          book_id_param: bookId,
+          copy_number_param: copyNumber
         });
 
       if (isbnError) {

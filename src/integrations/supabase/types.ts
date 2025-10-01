@@ -350,7 +350,9 @@ export type Database = {
         Returns: string
       }
       generate_copy_isbn: {
-        Args: { book_id_param: string }
+        Args:
+          | { book_id_param: string }
+          | { book_id_param: string; copy_number_param: number }
         Returns: string
       }
       get_current_user_department: {
