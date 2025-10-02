@@ -33,19 +33,33 @@ const CheckInOutManager = () => {
 
   const fetchData = async () => {
     try {
-      // Fetch available books
-      const { data: booksData } = await supabase
-        .from('books')
-        .select('*')
-        .gt('available_copies', 0)
-        .order('title');
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
 
-      // Fetch students
-      const { data: studentsData } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('role', 'student')
-        .order('first_name');
+      // Fetch books via edge function
+      const booksResponse = await supabase.functions.invoke('manage-books', {
+        body: { action: 'get_books' },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (booksResponse.error) throw booksResponse.error;
+      const booksData = (booksResponse.data?.books || []).filter((book: Book) => 
+        book.available_copies && book.available_copies > 0
+      );
+
+      // Fetch students via edge function
+      const studentsResponse = await supabase.functions.invoke('manage-students', {
+        body: { action: 'get_students' },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (studentsResponse.error) throw studentsResponse.error;
 
       // Fetch borrowed books
       const { data: borrowedData } = await supabase
@@ -59,9 +73,10 @@ const CheckInOutManager = () => {
         .order('borrowed_at', { ascending: false });
 
       setBooks(booksData || []);
-      setStudents(studentsData || []);
+      setStudents(studentsResponse.data?.students || []);
       setBorrowedBooks(borrowedData as BookWithBorrower[] || []);
     } catch (error: any) {
+      console.error('Error loading data:', error);
       toast({
         title: "Error loading data",
         description: error.message,
