@@ -213,6 +213,26 @@ const BookCopyIssueManager = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to real-time updates for book_copies
+    const channel = supabase
+      .channel('book-copies-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'book_copies'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return (

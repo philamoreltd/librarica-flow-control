@@ -48,6 +48,37 @@ export function useBookCopies(category?: string) {
 
   useEffect(() => {
     fetchBooksByCategory();
+
+    // Subscribe to real-time updates for books and book_copies
+    const booksChannel = supabase
+      .channel('books-copies-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'books'
+        },
+        () => {
+          fetchBooksByCategory();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'book_copies'
+        },
+        () => {
+          fetchBooksByCategory();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(booksChannel);
+    };
   }, [category]);
 
   return {

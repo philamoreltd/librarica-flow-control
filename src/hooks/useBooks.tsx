@@ -107,6 +107,26 @@ export function useBooks() {
 
   useEffect(() => {
     fetchBooks();
+
+    // Subscribe to real-time updates
+    const channel = supabase
+      .channel('books-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'books'
+        },
+        () => {
+          fetchBooks();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   return {
