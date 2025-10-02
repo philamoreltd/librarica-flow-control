@@ -82,6 +82,26 @@ const StudentManager = () => {
 
   useEffect(() => {
     fetchStudents();
+
+    // Subscribe to real-time updates
+    const studentsChannel = supabase
+      .channel('students-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        () => {
+          fetchStudents();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(studentsChannel);
+    };
   }, []);
 
   const fetchStudents = async () => {

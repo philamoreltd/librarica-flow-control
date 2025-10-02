@@ -31,7 +31,7 @@ serve(async (req) => {
       .from('borrowing_records')
       .select(`
         *,
-        books (id, title, available_copies)
+        books (id, title)
       `)
       .eq('id', borrowingRecordId)
       .eq('status', 'active')
@@ -71,19 +71,29 @@ serve(async (req) => {
       })
     }
 
-    // 3. Update book availability
-    const { error: updateBookError } = await supabaseClient
-      .from('books')
-      .update({ 
-        available_copies: borrowRecord.books.available_copies + 1 
-      })
-      .eq('id', borrowRecord.book_id)
+    // 3. Find and return the borrowed copy to available
+    const { data: bookCopies } = await supabaseClient
+      .from('book_copies')
+      .select('id')
+      .eq('book_id', borrowRecord.book_id)
+      .eq('status', 'borrowed')
+      .limit(1)
 
-    if (updateBookError) {
-      return new Response(JSON.stringify({ error: updateBookError.message }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+    if (bookCopies && bookCopies.length > 0) {
+      const { error: updateCopyError } = await supabaseClient
+        .from('book_copies')
+        .update({ 
+          status: 'available',
+          notes: `Returned on ${returnDate.toLocaleDateString()}`
+        })
+        .eq('id', bookCopies[0].id)
+
+      if (updateCopyError) {
+        return new Response(JSON.stringify({ error: updateCopyError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        })
+      }
     }
 
     // 4. Check for reservations and notify if applicable

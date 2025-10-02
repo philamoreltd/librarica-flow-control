@@ -27,28 +27,23 @@ serve(async (req) => {
     }
 
     // Start transaction-like operations
-    // 1. Check book availability
-    const { data: book, error: bookError } = await supabaseClient
-      .from('books')
-      .select('available_copies, total_copies, title')
-      .eq('id', bookId)
+    // 1. Get an available book copy
+    const { data: availableCopy, error: copyError } = await supabaseClient
+      .from('book_copies')
+      .select('*, books(title, department_id)')
+      .eq('book_id', bookId)
+      .eq('status', 'available')
+      .limit(1)
       .single()
 
-    if (bookError || !book) {
-      return new Response(JSON.stringify({ error: 'Book not found' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
-    }
-
-    if (book.available_copies <= 0) {
-      return new Response(JSON.stringify({ error: 'Book not available' }), {
+    if (copyError || !availableCopy) {
+      return new Response(JSON.stringify({ error: 'No available copies for this book' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    // 2. Check if user already has this book
+    // 2. Check if user already has an active copy of this book
     const { data: existingRecord } = await supabaseClient
       .from('borrowing_records')
       .select('id')
@@ -58,7 +53,7 @@ serve(async (req) => {
       .single()
 
     if (existingRecord) {
-      return new Response(JSON.stringify({ error: 'Book already borrowed by user' }), {
+      return new Response(JSON.stringify({ error: 'User already has an active copy of this book' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
@@ -75,7 +70,8 @@ serve(async (req) => {
         user_id: userId,
         book_id: bookId,
         due_date: dueDate.toISOString(),
-        status: 'active'
+        status: 'active',
+        department_id: availableCopy.books.department_id
       })
 
     if (borrowError) {
@@ -85,11 +81,14 @@ serve(async (req) => {
       })
     }
 
-    // 5. Update book availability
+    // 5. Update book copy status
     const { error: updateError } = await supabaseClient
-      .from('books')
-      .update({ available_copies: book.available_copies - 1 })
-      .eq('id', bookId)
+      .from('book_copies')
+      .update({ 
+        status: 'borrowed',
+        notes: `Borrowed on ${new Date().toLocaleDateString()}`
+      })
+      .eq('id', availableCopy.id)
 
     if (updateError) {
       return new Response(JSON.stringify({ error: updateError.message }), {
@@ -100,8 +99,9 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({ 
       success: true, 
-      message: `Successfully borrowed "${book.title}"`,
-      dueDate: dueDate.toISOString()
+      message: `Successfully borrowed "${availableCopy.books.title}" (Copy #${availableCopy.copy_number})`,
+      dueDate: dueDate.toISOString(),
+      copyId: availableCopy.id
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })

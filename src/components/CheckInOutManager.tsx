@@ -192,6 +192,48 @@ const CheckInOutManager = () => {
 
   useEffect(() => {
     fetchData();
+
+    // Subscribe to real-time updates
+    const booksChannel = supabase
+      .channel('checkinout-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'books'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'borrowing_records'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'book_copies'
+        },
+        () => {
+          fetchData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(booksChannel);
+    };
   }, []);
 
   return (
