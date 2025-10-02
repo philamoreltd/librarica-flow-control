@@ -22,6 +22,7 @@ const CheckInOutManager = () => {
   const [books, setBooks] = useState<Book[]>([]);
   const [students, setStudents] = useState<Profile[]>([]);
   const [borrowedBooks, setBorrowedBooks] = useState<BookWithBorrower[]>([]);
+  const [bookCopies, setBookCopies] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [studentSearchQuery, setStudentSearchQuery] = useState("");
   const [bookSearchQuery, setBookSearchQuery] = useState("");
@@ -29,6 +30,8 @@ const CheckInOutManager = () => {
   const [selectedBook, setSelectedBook] = useState("");
   const [loading, setLoading] = useState(false);
   const [summarySearchQuery, setSummarySearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
   const { toast } = useToast();
 
   const fetchData = async () => {
@@ -72,9 +75,19 @@ const CheckInOutManager = () => {
         .eq('status', 'active')
         .order('borrowed_at', { ascending: false });
 
+      // Fetch all book copies
+      const { data: copiesData } = await supabase
+        .from('book_copies')
+        .select(`
+          *,
+          books(title, author, category, isbn)
+        `)
+        .order('created_at', { ascending: false });
+
       setBooks(booksData || []);
       setStudents(studentsResponse.data?.students || []);
       setBorrowedBooks(borrowedData as BookWithBorrower[] || []);
+      setBookCopies(copiesData || []);
     } catch (error: any) {
       console.error('Error loading data:', error);
       toast({
@@ -177,6 +190,43 @@ const CheckInOutManager = () => {
       record.profile?.student_id?.toLowerCase().includes(searchLower)
     );
   });
+
+  // Get unique categories
+  const categories = ["all", ...Array.from(new Set(
+    bookCopies
+      .map(copy => copy.books?.category)
+      .filter(Boolean)
+  ))].sort();
+
+  // Filter book copies by category and search
+  const filteredBookCopies = bookCopies.filter(copy => {
+    const matchesCategory = selectedCategory === "all" || copy.books?.category === selectedCategory;
+    const searchLower = copiesSearchQuery.toLowerCase();
+    const matchesSearch = !copiesSearchQuery || (
+      copy.books?.title?.toLowerCase().includes(searchLower) ||
+      copy.books?.author?.toLowerCase().includes(searchLower) ||
+      copy.barcode?.toLowerCase().includes(searchLower) ||
+      copy.isbn?.toLowerCase().includes(searchLower)
+    );
+    return matchesCategory && matchesSearch;
+  });
+
+  const getStatusBadgeColor = (status: string) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-100 text-green-800';
+      case 'borrowed':
+        return 'bg-blue-100 text-blue-800';
+      case 'reserved':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'lost':
+        return 'bg-red-100 text-red-800';
+      case 'damaged':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   // Group borrowed books by student for summary
   const studentBookSummary = borrowedBooks.reduce((acc, record) => {
@@ -510,6 +560,118 @@ const CheckInOutManager = () => {
                 </div>
               ))
             )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Book Copies Dashboard by Category */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <BookOpen className="h-5 w-5 mr-2" />
+            Book Copies Inventory
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Filters */}
+            <div className="flex gap-4">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-64">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((category) => (
+                    <SelectItem key={category} value={category}>
+                      {category === "all" ? "All Categories" : category}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  placeholder="Search by title, author, barcode, ISBN..."
+                  value={copiesSearchQuery}
+                  onChange={(e) => setCopiesSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Summary Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="p-4 border rounded-lg bg-blue-50">
+                <p className="text-sm text-gray-600">Total Copies</p>
+                <p className="text-2xl font-bold text-blue-600">{filteredBookCopies.length}</p>
+              </div>
+              <div className="p-4 border rounded-lg bg-green-50">
+                <p className="text-sm text-gray-600">Available</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {filteredBookCopies.filter(c => c.status === 'available').length}
+                </p>
+              </div>
+              <div className="p-4 border rounded-lg bg-orange-50">
+                <p className="text-sm text-gray-600">Borrowed</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {filteredBookCopies.filter(c => c.status === 'borrowed').length}
+                </p>
+              </div>
+              <div className="p-4 border rounded-lg bg-yellow-50">
+                <p className="text-sm text-gray-600">Reserved</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {filteredBookCopies.filter(c => c.status === 'reserved').length}
+                </p>
+              </div>
+              <div className="p-4 border rounded-lg bg-red-50">
+                <p className="text-sm text-gray-600">Lost/Damaged</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {filteredBookCopies.filter(c => ['lost', 'damaged'].includes(c.status)).length}
+                </p>
+              </div>
+            </div>
+
+            {/* Book Copies List */}
+            <div className="space-y-3">
+              {filteredBookCopies.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No book copies found for the selected category</p>
+                </div>
+              ) : (
+                filteredBookCopies.map((copy) => (
+                  <div 
+                    key={copy.id} 
+                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-medium">{copy.books?.title}</h3>
+                        <Badge variant="outline">Copy #{copy.copy_number}</Badge>
+                        <Badge className={getStatusBadgeColor(copy.status)}>
+                          {copy.status}
+                        </Badge>
+                      </div>
+                      <div className="text-sm text-gray-600 space-y-1">
+                        <p>Author: {copy.books?.author}</p>
+                        <p>Category: {copy.books?.category}</p>
+                        <div className="flex gap-4">
+                          <span>Barcode: {copy.barcode}</span>
+                          <span>ISBN: {copy.isbn || copy.books?.isbn || 'N/A'}</span>
+                        </div>
+                        {copy.notes && (
+                          <p className="text-xs text-gray-500 italic">Notes: {copy.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right text-xs text-gray-500">
+                      <p>Created: {new Date(copy.created_at).toLocaleDateString()}</p>
+                      <p>Updated: {new Date(copy.updated_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
