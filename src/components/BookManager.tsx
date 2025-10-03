@@ -61,6 +61,7 @@ const BookManager = () => {
 
   const [copiesSelectedCategory, setCopiesSelectedCategory] = useState("all");
   const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
+  const [hasSyncedCopies, setHasSyncedCopies] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -360,21 +361,12 @@ const BookManager = () => {
 
   const fetchAllBookCopies = async () => {
     try {
-      const { data, error } = await supabase
-        .from('book_copies')
-        .select(`
-          *,
-          books (
-            title,
-            author,
-            category,
-            isbn
-          )
-        `)
-        .order('created_at', { ascending: false });
+      const { data, error } = await supabase.functions.invoke('manage-book-copies', {
+        body: { action: 'get_all_copies' }
+      });
 
       if (error) throw error;
-      setAllBookCopies(data || []);
+      setAllBookCopies((data as any)?.copies || []);
     } catch (error) {
       console.error('Error fetching all book copies:', error);
       toast({
@@ -587,7 +579,7 @@ const BookManager = () => {
         </div>
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={resetForm}>
+            <Button onClick={resetForm} aria-label="Add Book">
               <Plus className="h-4 w-4 mr-2" />
               Add Book
             </Button>

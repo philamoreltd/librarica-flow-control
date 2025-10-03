@@ -54,6 +54,25 @@ serve(async (req) => {
         return await generateBookCopies(supabaseClient, bookId, copiesCount);
       case 'get_book_copies':
         return await getBookCopies(supabaseClient, bookId);
+      case 'get_all_copies': {
+        const { data, error } = await supabaseClient
+          .from('book_copies')
+          .select(`*, books (id, title, author, category, isbn) `)
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.error('Get all copies error:', error);
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        return new Response(
+          JSON.stringify({ copies: data }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
       case 'update_copy_status':
         const { copyId, status, notes, isbn } = body;
         return await updateCopyStatus(supabaseClient, copyId, status, notes, isbn);
