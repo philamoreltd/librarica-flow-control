@@ -59,6 +59,9 @@ const BookManager = () => {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const { toast } = useToast();
 
+  const [copiesSelectedCategory, setCopiesSelectedCategory] = useState("all");
+  const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
+
   const [formData, setFormData] = useState({
     title: "",
     author: "",
@@ -702,81 +705,167 @@ const BookManager = () => {
         ))}
       </div>
 
-      {/* Book Copies by Category Section */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xl font-semibold text-gray-900">Book Copies by Category</h3>
-          <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
-            Refresh
-          </Button>
-        </div>
-        
-        {categories.map((category) => {
-          const categoryCopies = allBookCopies.filter(copy => 
-            copy.books?.category === category
-          );
-          
-          if (categoryCopies.length === 0) return null;
-          
-          return (
-            <Card key={category} className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-lg font-medium text-gray-900">{category}</h4>
-                <Badge variant="secondary">
-                  {categoryCopies.length} {categoryCopies.length === 1 ? 'copy' : 'copies'}
-                </Badge>
-              </div>
-              
-              <div className="grid gap-3">
-                {categoryCopies.map((copy) => (
-                  <div key={copy.id} className="flex items-center justify-between border rounded-lg p-3">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{copy.books?.title}</div>
-                      <div className="text-xs text-muted-foreground">
-                        by {copy.books?.author}
-                      </div>
-                      <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
-                        <span>Copy #{copy.copy_number}</span>
-                        <span>Barcode: {copy.barcode}</span>
-                        <span>ISBN: {copy.isbn || 'Not assigned'}</span>
-                        <Badge 
-                          variant={copy.status === 'available' ? 'default' : 'secondary'}
-                          className="text-xs"
-                        >
-                          {copy.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => generateBarcode(copy)}
-                      >
-                        <BarChart3 className="w-4 h-4 mr-1" />
-                        Barcode
-                      </Button>
-                    </div>
-                  </div>
+      {/* Book Copies by Category Dashboard */}
+      <Card className="mt-8">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center">
+              <BarChart3 className="h-5 w-5 mr-2" />
+              Book Copies by Category Dashboard
+            </CardTitle>
+            <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Filters */}
+          <div className="flex gap-4">
+            <Select value={copiesSelectedCategory} onValueChange={setCopiesSelectedCategory}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Select Category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Categories</SelectItem>
+                {categories.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
+                  </SelectItem>
                 ))}
-              </div>
-            </Card>
-          );
-        })}
-        
-        {allBookCopies.length === 0 && books.length > 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-600 mb-4">No book copies found. Click "Manage Copies" on any book above to generate physical copies.</p>
-            <p className="text-sm text-gray-500">Physical copies are needed for borrowing and tracking individual books.</p>
+              </SelectContent>
+            </Select>
+            
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search by title, author, barcode, or ISBN..."
+                value={copiesSearchQuery}
+                onChange={(e) => setCopiesSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
-        )}
-        
-        {allBookCopies.length === 0 && books.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-gray-600">No books or copies found. Add some books first.</p>
-          </div>
-        )}
-      </div>
+
+          {/* Summary Statistics */}
+          {(() => {
+            const filteredCopies = allBookCopies.filter(copy => {
+              const matchesCategory = copiesSelectedCategory === "all" || copy.books?.category === copiesSelectedCategory;
+              const searchLower = copiesSearchQuery.toLowerCase();
+              const matchesSearch = !copiesSearchQuery || (
+                copy.books?.title?.toLowerCase().includes(searchLower) ||
+                copy.books?.author?.toLowerCase().includes(searchLower) ||
+                copy.barcode?.toLowerCase().includes(searchLower) ||
+                copy.isbn?.toLowerCase().includes(searchLower)
+              );
+              return matchesCategory && matchesSearch;
+            });
+
+            const stats = {
+              total: filteredCopies.length,
+              available: filteredCopies.filter(c => c.status === 'available').length,
+              borrowed: filteredCopies.filter(c => c.status === 'borrowed').length,
+              reserved: filteredCopies.filter(c => c.status === 'reserved').length,
+              damaged: filteredCopies.filter(c => c.status === 'damaged' || c.status === 'lost').length,
+            };
+
+            return (
+              <>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-2xl font-bold">{stats.total}</div>
+                      <p className="text-xs text-muted-foreground">Total Copies</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-2xl font-bold text-green-600">{stats.available}</div>
+                      <p className="text-xs text-muted-foreground">Available</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-2xl font-bold text-blue-600">{stats.borrowed}</div>
+                      <p className="text-xs text-muted-foreground">Borrowed</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-2xl font-bold text-yellow-600">{stats.reserved}</div>
+                      <p className="text-xs text-muted-foreground">Reserved</p>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-2xl font-bold text-red-600">{stats.damaged}</div>
+                      <p className="text-xs text-muted-foreground">Lost/Damaged</p>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Book Copies List */}
+                <div className="space-y-3">
+                  {filteredCopies.length === 0 ? (
+                    <div className="text-center py-8">
+                      <p className="text-muted-foreground">
+                        {allBookCopies.length === 0 
+                          ? "No book copies found. Click 'Manage Copies' on any book above to generate physical copies."
+                          : "No copies match your search criteria."}
+                      </p>
+                    </div>
+                  ) : (
+                    filteredCopies.map((copy) => (
+                      <div key={copy.id} className="flex items-center justify-between border rounded-lg p-4 hover:bg-accent/50 transition-colors">
+                        <div className="flex-1 space-y-1">
+                          <div className="font-medium">{copy.books?.title}</div>
+                          <div className="text-sm text-muted-foreground">
+                            by {copy.books?.author}
+                          </div>
+                          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                            <span className="font-mono">Copy #{copy.copy_number}</span>
+                            <span className="font-mono">Barcode: {copy.barcode}</span>
+                            <span className="font-mono">ISBN: {copy.isbn || 'Not assigned'}</span>
+                            {copy.books?.category && (
+                              <Badge variant="outline" className="text-xs">
+                                {copy.books.category}
+                              </Badge>
+                            )}
+                          </div>
+                          {copy.notes && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Note: {copy.notes}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <Badge 
+                            variant={copy.status === 'available' ? 'default' : 'secondary'}
+                            className={copy.status === 'available' ? 'bg-green-100 text-green-800' : 
+                                      copy.status === 'borrowed' ? 'bg-blue-100 text-blue-800' :
+                                      copy.status === 'reserved' ? 'bg-yellow-100 text-yellow-800' :
+                                      copy.status === 'lost' || copy.status === 'damaged' ? 'bg-red-100 text-red-800' :
+                                      ''}
+                          >
+                            {copy.status}
+                          </Badge>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => generateBarcode(copy)}
+                          >
+                            <BarChart3 className="w-4 h-4 mr-1" />
+                            Barcode
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            );
+          })()}
+        </CardContent>
+      </Card>
 
       {filteredBooks.length === 0 && (
         <div className="text-center py-12">
