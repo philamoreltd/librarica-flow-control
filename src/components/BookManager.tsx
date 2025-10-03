@@ -536,6 +536,38 @@ const BookManager = () => {
     fetchBooks();
     fetchDepartments();
     fetchAllBookCopies();
+
+    // Subscribe to real-time updates for books and book_copies
+    const channel = supabase
+      .channel('book-manager-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'books'
+        },
+        () => {
+          fetchBooks();
+          fetchAllBookCopies();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'book_copies'
+        },
+        () => {
+          fetchAllBookCopies();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   if (loading) {
