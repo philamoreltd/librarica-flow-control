@@ -745,9 +745,63 @@ const BookManager = () => {
               <BarChart3 className="h-5 w-5 mr-2" />
               Book Copies by Category Dashboard
             </CardTitle>
-            <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
-              Refresh
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={async () => {
+                  // Sync all books - generate missing copies
+                  try {
+                    const booksWithoutCopies = books.filter(book => {
+                      const bookCopies = allBookCopies.filter(copy => copy.book_id === book.id);
+                      return bookCopies.length < book.total_copies;
+                    });
+
+                    if (booksWithoutCopies.length === 0) {
+                      toast({
+                        title: "Already Synced",
+                        description: "All books already have the correct number of copies",
+                      });
+                      return;
+                    }
+
+                    for (const book of booksWithoutCopies) {
+                      const existingCopiesCount = allBookCopies.filter(copy => copy.book_id === book.id).length;
+                      const copiesToGenerate = book.total_copies - existingCopiesCount;
+
+                      if (copiesToGenerate > 0) {
+                        await supabase.functions.invoke('manage-book-copies', {
+                          body: { 
+                            action: 'generate_copies', 
+                            bookId: book.id, 
+                            copiesCount: copiesToGenerate
+                          }
+                        });
+                      }
+                    }
+
+                    toast({
+                      title: "Success",
+                      description: `Generated missing copies for ${booksWithoutCopies.length} book(s)`,
+                    });
+
+                    await fetchAllBookCopies();
+                  } catch (error) {
+                    console.error('Sync error:', error);
+                    toast({
+                      title: "Error",
+                      description: "Failed to sync copies",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+                size="sm"
+              >
+                Sync All Copies
+              </Button>
+              <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
+                Refresh
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
