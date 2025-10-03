@@ -838,12 +838,25 @@ const BookManager = () => {
                 {/* Book Copies List */}
                 <div className="space-y-3">
                   {filteredCopies.length === 0 ? (
-                    <div className="text-center py-8">
-                      <p className="text-muted-foreground">
-                        {allBookCopies.length === 0 
-                          ? "No book copies found. Click 'Manage Copies' on any book above to generate physical copies."
-                          : "No copies match your search criteria."}
-                      </p>
+                    <div className="text-center py-12 space-y-4">
+                      <BookOpen className="h-16 w-16 text-muted-foreground mx-auto opacity-50" />
+                      <div>
+                        <p className="text-lg font-medium text-foreground mb-2">
+                          {allBookCopies.length === 0 
+                            ? "No Physical Book Copies Yet"
+                            : "No copies match your search"}
+                        </p>
+                        <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                          {allBookCopies.length === 0 
+                            ? "Physical copies are required for check-out tracking. Click 'Manage Copies' on any book card above to generate barcoded copies."
+                            : "Try adjusting your category or search filters."}
+                        </p>
+                      </div>
+                      {allBookCopies.length === 0 && books.length > 0 && (
+                        <Button variant="outline" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                          Go to Books Above
+                        </Button>
+                      )}
                     </div>
                   ) : (
                     filteredCopies.map((copy) => (
