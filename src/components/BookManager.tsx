@@ -387,17 +387,23 @@ const BookManager = () => {
 
   const fetchStudents = async () => {
     try {
+      console.log('Fetching students...');
       const { data, error } = await supabase.functions.invoke('manage-students', {
         body: { action: 'get_students' }
       });
 
+      console.log('Students response:', { data, error });
+
       if (error) throw error;
-      setStudents(data?.students || []);
+      
+      const studentsList = data?.students || [];
+      console.log('Students loaded:', studentsList.length);
+      setStudents(studentsList);
     } catch (error: any) {
       console.error('Error fetching students:', error);
       toast({
         title: "Error loading students",
-        description: error.message || "Failed to load students",
+        description: error.message || "Failed to load students. You may need admin or librarian permissions.",
         variant: "destructive",
       });
     }
