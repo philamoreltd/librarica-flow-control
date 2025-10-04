@@ -388,13 +388,18 @@ const BookManager = () => {
   const fetchStudents = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('manage-students', {
-        body: { action: 'get_all' }
+        body: { action: 'get_students' }
       });
 
       if (error) throw error;
       setStudents(data?.students || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching students:', error);
+      toast({
+        title: "Error loading students",
+        description: error.message || "Failed to load students",
+        variant: "destructive",
+      });
     }
   };
 
