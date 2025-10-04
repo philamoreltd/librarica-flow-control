@@ -69,6 +69,7 @@ const BookManager = () => {
   const [selectedCopyForCheckout, setSelectedCopyForCheckout] = useState<any>(null);
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [checkoutDueDate, setCheckoutDueDate] = useState("");
+  const [studentSearchQuery, setStudentSearchQuery] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -400,6 +401,8 @@ const BookManager = () => {
   const handleCheckOut = (copy: any) => {
     setSelectedCopyForCheckout(copy);
     setShowCheckOutDialog(true);
+    setStudentSearchQuery("");
+    setSelectedStudentId("");
     // Set default due date to 2 weeks from now
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 14);
@@ -1189,17 +1192,35 @@ const BookManager = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="student-select">Select Student</Label>
+              <Label htmlFor="student-search">Search and Select Student</Label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  id="student-search"
+                  placeholder="Search by name or student ID..."
+                  value={studentSearchQuery}
+                  onChange={(e) => setStudentSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
               <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                <SelectTrigger id="student-select">
+                <SelectTrigger id="student-select" className="z-50">
                   <SelectValue placeholder="Choose a student..." />
                 </SelectTrigger>
-                <SelectContent>
-                  {students.map((student) => (
-                    <SelectItem key={student.id} value={student.id}>
-                      {student.first_name} {student.last_name} - {student.student_id}
-                    </SelectItem>
-                  ))}
+                <SelectContent className="z-50 bg-background">
+                  {students
+                    .filter((student) => {
+                      if (!studentSearchQuery) return true;
+                      const searchLower = studentSearchQuery.toLowerCase();
+                      const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
+                      const studentId = student.student_id?.toLowerCase() || "";
+                      return fullName.includes(searchLower) || studentId.includes(searchLower);
+                    })
+                    .map((student) => (
+                      <SelectItem key={student.id} value={student.id}>
+                        {student.first_name} {student.last_name} - {student.student_id}
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
