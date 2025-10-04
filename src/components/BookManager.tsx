@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -14,7 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookForm } from "@/components/BookForm";
 import { CopyRow } from "@/components/CopyRow";
-import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download } from "lucide-react";
+import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { cn } from "@/lib/utils";
 
 interface Book {
   id: string;
@@ -69,7 +72,7 @@ const BookManager = () => {
   const [selectedCopyForCheckout, setSelectedCopyForCheckout] = useState<any>(null);
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [checkoutDueDate, setCheckoutDueDate] = useState("");
-  const [studentSearchQuery, setStudentSearchQuery] = useState("");
+  const [studentPickerOpen, setStudentPickerOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -412,8 +415,8 @@ const BookManager = () => {
   const handleCheckOut = (copy: any) => {
     setSelectedCopyForCheckout(copy);
     setShowCheckOutDialog(true);
-    setStudentSearchQuery("");
     setSelectedStudentId("");
+    setStudentPickerOpen(true);
     // Set default due date to 2 weeks from now
     const defaultDueDate = new Date();
     defaultDueDate.setDate(defaultDueDate.getDate() + 14);
@@ -1194,6 +1197,9 @@ const BookManager = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Check Out Book</DialogTitle>
+            <DialogDescription>
+              Select a student and due date to issue this copy.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div>
@@ -1203,37 +1209,43 @@ const BookManager = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="student-search">Search and Select Student</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  id="student-search"
-                  placeholder="Search by name or student ID..."
-                  value={studentSearchQuery}
-                  onChange={(e) => setStudentSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
-                <SelectTrigger id="student-select" className="z-50">
-                  <SelectValue placeholder="Choose a student..." />
-                </SelectTrigger>
-                <SelectContent className="z-50 bg-background">
-                  {students
-                    .filter((student) => {
-                      if (!studentSearchQuery) return true;
-                      const searchLower = studentSearchQuery.toLowerCase();
-                      const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
-                      const studentId = student.student_id?.toLowerCase() || "";
-                      return fullName.includes(searchLower) || studentId.includes(searchLower);
-                    })
-                    .map((student) => (
-                      <SelectItem key={student.id} value={student.id}>
-                        {student.first_name} {student.last_name} - {student.student_id}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
+              <Label>Search and Select Student</Label>
+              <Popover open={studentPickerOpen} onOpenChange={setStudentPickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={studentPickerOpen}
+                    className="w-full justify-between"
+                  >
+                    {selectedStudentId
+                      ? `${students.find((s) => s.id === selectedStudentId)?.first_name || ''} ${students.find((s) => s.id === selectedStudentId)?.last_name || ''} - ${students.find((s) => s.id === selectedStudentId)?.student_id || ''}`
+                      : "Choose a student..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[360px] p-0 z-50 bg-background pointer-events-auto" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search name or student ID..." />
+                    <CommandEmpty>No student found.</CommandEmpty>
+                    <CommandGroup className="max-h-64 overflow-auto">
+                      {students.map((student) => (
+                        <CommandItem
+                          key={student.id}
+                          value={`${student.first_name} ${student.last_name} ${student.student_id || ''}`}
+                          onSelect={() => {
+                            setSelectedStudentId(student.id);
+                            setStudentPickerOpen(false);
+                          }}
+                        >
+                          <Check className={cn("mr-2 h-4 w-4", selectedStudentId === student.id ? "opacity-100" : "opacity-0")} />
+                          {student.first_name} {student.last_name} - {student.student_id}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label htmlFor="due-date">Due Date</Label>
