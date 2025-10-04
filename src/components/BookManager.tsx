@@ -62,6 +62,13 @@ const BookManager = () => {
   const [copiesSelectedCategory, setCopiesSelectedCategory] = useState("all");
   const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
   const [hasSyncedCopies, setHasSyncedCopies] = useState(false);
+  
+  // Check in/out states
+  const [students, setStudents] = useState<any[]>([]);
+  const [showCheckOutDialog, setShowCheckOutDialog] = useState(false);
+  const [selectedCopyForCheckout, setSelectedCopyForCheckout] = useState<any>(null);
+  const [selectedStudentId, setSelectedStudentId] = useState("");
+  const [checkoutDueDate, setCheckoutDueDate] = useState("");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -372,6 +379,115 @@ const BookManager = () => {
       toast({
         title: "Error",
         description: "Failed to fetch book copies",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchStudents = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('manage-students', {
+        body: { action: 'get_all' }
+      });
+
+      if (error) throw error;
+      setStudents(data?.students || []);
+    } catch (error) {
+      console.error('Error fetching students:', error);
+    }
+  };
+
+  const handleCheckOut = (copy: any) => {
+    setSelectedCopyForCheckout(copy);
+    setShowCheckOutDialog(true);
+    // Set default due date to 2 weeks from now
+    const defaultDueDate = new Date();
+    defaultDueDate.setDate(defaultDueDate.getDate() + 14);
+    setCheckoutDueDate(defaultDueDate.toISOString().split('T')[0]);
+  };
+
+  const handleCheckOutSubmit = async () => {
+    if (!selectedCopyForCheckout || !selectedStudentId || !checkoutDueDate) {
+      toast({
+        title: "Missing Information",
+        description: "Please select a student and due date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.functions.invoke('issue-book-copy', {
+        body: {
+          copyId: selectedCopyForCheckout.id,
+          studentId: selectedStudentId,
+          dueDate: checkoutDueDate
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Book checked out successfully",
+      });
+
+      setShowCheckOutDialog(false);
+      setSelectedCopyForCheckout(null);
+      setSelectedStudentId("");
+      await fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Check out error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check out book",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCheckIn = async (copy: any) => {
+    try {
+      // Find the active borrowing record for this copy
+      const { data: borrowingRecords, error: fetchError } = await supabase
+        .from('borrowing_records')
+        .select('id')
+        .eq('book_id', copy.book_id)
+        .eq('status', 'active')
+        .order('borrowed_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+
+      if (!borrowingRecords || borrowingRecords.length === 0) {
+        toast({
+          title: "Error",
+          description: "No active borrowing record found",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.functions.invoke('return-book-copy', {
+        body: {
+          copyId: copy.id,
+          borrowingRecordId: borrowingRecords[0].id
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Book checked in successfully",
+      });
+
+      await fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Check in error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check in book",
         variant: "destructive",
       });
     }
@@ -939,6 +1055,28 @@ const BookManager = () => {
                           >
                             {copy.status}
                           </Badge>
+                          {copy.status === 'available' && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleCheckOut(copy)}
+                              className="bg-blue-600 hover:bg-blue-700"
+                            >
+                              <BookOpen className="w-4 h-4 mr-1" />
+                              Check Out
+                            </Button>
+                          )}
+                          {copy.status === 'borrowed' && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              onClick={() => handleCheckIn(copy)}
+                              className="bg-green-600 hover:bg-green-700"
+                            >
+                              <BookOpen className="w-4 h-4 mr-1" />
+                              Check In
+                            </Button>
+                          )}
                           <Button
                             size="sm"
                             variant="outline"
@@ -1032,6 +1170,55 @@ const BookManager = () => {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Check Out Dialog */}
+      <Dialog open={showCheckOutDialog} onOpenChange={setShowCheckOutDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Check Out Book</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-sm font-medium">Book</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedCopyForCheckout?.books?.title} (Copy #{selectedCopyForCheckout?.copy_number})
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="student-select">Select Student</Label>
+              <Select value={selectedStudentId} onValueChange={setSelectedStudentId}>
+                <SelectTrigger id="student-select">
+                  <SelectValue placeholder="Choose a student..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {students.map((student) => (
+                    <SelectItem key={student.id} value={student.id}>
+                      {student.first_name} {student.last_name} - {student.student_id}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="due-date">Due Date</Label>
+              <Input
+                id="due-date"
+                type="date"
+                value={checkoutDueDate}
+                onChange={(e) => setCheckoutDueDate(e.target.value)}
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowCheckOutDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCheckOutSubmit}>
+                Check Out
+              </Button>
             </div>
           </div>
         </DialogContent>
