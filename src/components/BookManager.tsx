@@ -391,14 +391,22 @@ const BookManager = () => {
   const fetchStudents = async () => {
     try {
       console.log('Fetching students...');
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
       const { data, error } = await supabase.functions.invoke('manage-students', {
-        body: { action: 'get_students' }
+        body: { action: 'get_students' },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
       });
 
       console.log('Students response:', { data, error });
 
       if (error) throw error;
-      
+
       const studentsList = data?.students || [];
       console.log('Students loaded:', studentsList.length);
       setStudents(studentsList);
@@ -412,10 +420,11 @@ const BookManager = () => {
     }
   };
 
-  const handleCheckOut = (copy: any) => {
+  const handleCheckOut = async (copy: any) => {
     setSelectedCopyForCheckout(copy);
     setShowCheckOutDialog(true);
     setSelectedStudentId("");
+    await fetchStudents();
     setStudentPickerOpen(true);
     // Set default due date to 2 weeks from now
     const defaultDueDate = new Date();
@@ -1226,7 +1235,7 @@ const BookManager = () => {
                 </PopoverTrigger>
                 <PopoverContent className="w-[360px] p-0 z-50 bg-background pointer-events-auto" align="start">
                   <Command>
-                    <CommandInput placeholder="Search name or student ID..." />
+                    <CommandInput placeholder="Search name or student ID..." autoFocus />
                     <CommandEmpty>No student found.</CommandEmpty>
                     <CommandGroup className="max-h-64 overflow-auto">
                       {students.map((student) => (
