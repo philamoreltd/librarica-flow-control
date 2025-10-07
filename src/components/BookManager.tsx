@@ -485,6 +485,14 @@ const BookManager = () => {
         throw new Error('No authentication token');
       }
 
+      // First, try to get all borrowing records for debugging
+      const { data: allRecords, error: debugError } = await supabase
+        .from('borrowing_records')
+        .select('id, status, book_id')
+        .eq('book_id', copy.book_id);
+
+      console.log('All borrowing records for this book:', allRecords);
+
       // Fetch the borrowing record with student details
       const { data: borrowingRecords, error: fetchError } = await supabase
         .from('borrowing_records')
@@ -492,6 +500,7 @@ const BookManager = () => {
           id,
           borrowed_at,
           due_date,
+          status,
           profiles:user_id (
             id,
             first_name,
@@ -501,16 +510,21 @@ const BookManager = () => {
           )
         `)
         .eq('book_id', copy.book_id)
-        .eq('status', 'active')
+        .or('status.eq.active,returned_at.is.null')
         .order('borrowed_at', { ascending: false })
         .limit(1);
 
-      if (fetchError) throw fetchError;
+      console.log('Borrowing records query result:', { borrowingRecords, fetchError });
+
+      if (fetchError) {
+        console.error('Fetch error:', fetchError);
+        throw fetchError;
+      }
 
       if (!borrowingRecords || borrowingRecords.length === 0) {
         toast({
           title: "Error",
-          description: "No active borrowing record found for this book",
+          description: "No active borrowing record found for this book. The book may not have been properly checked out.",
           variant: "destructive",
         });
         return;
