@@ -474,31 +474,20 @@ const BookManager = () => {
 
   const handleCheckIn = async (copy: any) => {
     try {
-      // Find the active borrowing record for this copy
-      const { data: borrowingRecords, error: fetchError } = await supabase
-        .from('borrowing_records')
-        .select('id')
-        .eq('book_id', copy.book_id)
-        .eq('status', 'active')
-        .order('borrowed_at', { ascending: false })
-        .limit(1);
-
-      if (fetchError) throw fetchError;
-
-      if (!borrowingRecords || borrowingRecords.length === 0) {
-        toast({
-          title: "Error",
-          description: "No active borrowing record found",
-          variant: "destructive",
-        });
-        return;
+      console.log('Checking in copy:', copy);
+      
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
       }
 
-      const { error } = await supabase.functions.invoke('return-book-copy', {
+      const { data, error } = await supabase.functions.invoke('return-book-copy', {
         body: {
-          copyId: copy.id,
-          borrowingRecordId: borrowingRecords[0].id
-        }
+          copyId: copy.id
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
       });
 
       if (error) throw error;
@@ -508,7 +497,9 @@ const BookManager = () => {
         description: "Book checked in successfully",
       });
 
+      // Refresh the book copies list
       await fetchAllBookCopies();
+      await fetchBooks(); // Also refresh books to update available counts
     } catch (error: any) {
       console.error('Check in error:', error);
       toast({
