@@ -64,6 +64,7 @@ const BookManager = () => {
 
   const [copiesSelectedCategory, setCopiesSelectedCategory] = useState("all");
   const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null);
   const [hasSyncedCopies, setHasSyncedCopies] = useState(false);
   
   // Check in/out states
@@ -968,7 +969,9 @@ const BookManager = () => {
                 copy.barcode?.toLowerCase().includes(searchLower) ||
                 copy.isbn?.toLowerCase().includes(searchLower)
               );
-              return matchesCategory && matchesSearch;
+              const matchesStatus = !selectedStatusFilter || 
+                (selectedStatusFilter === 'damaged' ? (copy.status === 'damaged' || copy.status === 'lost') : copy.status === selectedStatusFilter);
+              return matchesCategory && matchesSearch && matchesStatus;
             });
 
             const stats = {
@@ -982,31 +985,46 @@ const BookManager = () => {
             return (
               <>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                  <Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedStatusFilter === null ? 'ring-2 ring-primary' : 'hover:ring-1 hover:ring-primary/50'}`}
+                    onClick={() => setSelectedStatusFilter(null)}
+                  >
                     <CardContent className="pt-6">
                       <div className="text-2xl font-bold">{stats.total}</div>
                       <p className="text-xs text-muted-foreground">Total Copies</p>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedStatusFilter === 'available' ? 'ring-2 ring-green-600' : 'hover:ring-1 hover:ring-green-600/50'}`}
+                    onClick={() => setSelectedStatusFilter(selectedStatusFilter === 'available' ? null : 'available')}
+                  >
                     <CardContent className="pt-6">
                       <div className="text-2xl font-bold text-green-600">{stats.available}</div>
                       <p className="text-xs text-muted-foreground">Available</p>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedStatusFilter === 'borrowed' ? 'ring-2 ring-blue-600' : 'hover:ring-1 hover:ring-blue-600/50'}`}
+                    onClick={() => setSelectedStatusFilter(selectedStatusFilter === 'borrowed' ? null : 'borrowed')}
+                  >
                     <CardContent className="pt-6">
                       <div className="text-2xl font-bold text-blue-600">{stats.borrowed}</div>
                       <p className="text-xs text-muted-foreground">Borrowed</p>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedStatusFilter === 'reserved' ? 'ring-2 ring-yellow-600' : 'hover:ring-1 hover:ring-yellow-600/50'}`}
+                    onClick={() => setSelectedStatusFilter(selectedStatusFilter === 'reserved' ? null : 'reserved')}
+                  >
                     <CardContent className="pt-6">
                       <div className="text-2xl font-bold text-yellow-600">{stats.reserved}</div>
                       <p className="text-xs text-muted-foreground">Reserved</p>
                     </CardContent>
                   </Card>
-                  <Card>
+                  <Card 
+                    className={`cursor-pointer transition-all hover:shadow-md ${selectedStatusFilter === 'damaged' ? 'ring-2 ring-red-600' : 'hover:ring-1 hover:ring-red-600/50'}`}
+                    onClick={() => setSelectedStatusFilter(selectedStatusFilter === 'damaged' ? null : 'damaged')}
+                  >
                     <CardContent className="pt-6">
                       <div className="text-2xl font-bold text-red-600">{stats.damaged}</div>
                       <p className="text-xs text-muted-foreground">Lost/Damaged</p>
