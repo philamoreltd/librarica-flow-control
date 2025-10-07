@@ -16,7 +16,7 @@ import { BookForm } from "@/components/BookForm";
 import { CopyRow } from "@/components/CopyRow";
 import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
 
 interface Book {
@@ -1236,22 +1236,24 @@ const BookManager = () => {
                 <PopoverContent className="w-[360px] p-0 z-50 bg-background pointer-events-auto" align="start">
                   <Command>
                     <CommandInput placeholder="Search name or student ID..." autoFocus />
-                    <CommandEmpty>No student found.</CommandEmpty>
-                    <CommandGroup className="max-h-64 overflow-auto">
-                      {students.map((student) => (
-                        <CommandItem
-                          key={student.id}
-                          value={`${student.first_name} ${student.last_name} ${student.student_id || ''}`}
-                          onSelect={() => {
-                            setSelectedStudentId(student.id);
-                            setStudentPickerOpen(false);
-                          }}
-                        >
-                          <Check className={cn("mr-2 h-4 w-4", selectedStudentId === student.id ? "opacity-100" : "opacity-0")} />
-                          {student.first_name} {student.last_name} - {student.student_id}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
+                    <CommandList>
+                      <CommandEmpty>No student found.</CommandEmpty>
+                      <CommandGroup className="max-h-64 overflow-auto">
+                        {students.map((student) => (
+                          <CommandItem
+                            key={student.id}
+                            value={`${student.first_name} ${student.last_name} ${student.student_id || ''}`}
+                            onSelect={() => {
+                              setSelectedStudentId(student.id);
+                              setStudentPickerOpen(false);
+                            }}
+                          >
+                            <Check className={cn("mr-2 h-4 w-4", selectedStudentId === student.id ? "opacity-100" : "opacity-0")} />
+                            {student.first_name} {student.last_name} - {student.student_id}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>
