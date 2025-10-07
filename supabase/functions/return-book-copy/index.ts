@@ -43,27 +43,63 @@ serve(async (req) => {
       );
     }
 
-    const { copyId, borrowingRecordId } = await req.json();
+    const { copyId } = await req.json();
 
-    if (!copyId || !borrowingRecordId) {
+    if (!copyId) {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields: copyId, borrowingRecordId' }),
+        JSON.stringify({ error: 'Missing required field: copyId' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    // Get the book copy to find the book_id
+    const { data: copy, error: copyError } = await supabaseClient
+      .from('book_copies')
+      .select('book_id')
+      .eq('id', copyId)
+      .single();
+
+    if (copyError || !copy) {
+      console.error('Error fetching copy:', copyError);
+      return new Response(
+        JSON.stringify({ error: 'Book copy not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Find the active borrowing record for this book
+    const { data: borrowingRecords, error: borrowError } = await supabaseClient
+      .from('borrowing_records')
+      .select('id')
+      .eq('book_id', copy.book_id)
+      .eq('status', 'active')
+      .order('borrowed_at', { ascending: false })
+      .limit(1);
+
+    if (borrowError) {
+      console.error('Error fetching borrowing record:', borrowError);
+      throw borrowError;
+    }
+
+    if (!borrowingRecords || borrowingRecords.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No active borrowing record found for this book' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Update borrowing record
-    const { error: borrowError } = await supabaseClient
+    const { error: updateBorrowError } = await supabaseClient
       .from('borrowing_records')
       .update({
         returned_at: new Date().toISOString(),
         status: 'returned'
       })
-      .eq('id', borrowingRecordId);
+      .eq('id', borrowingRecords[0].id);
 
-    if (borrowError) {
-      console.error('Error updating borrowing record:', borrowError);
-      throw borrowError;
+    if (updateBorrowError) {
+      console.error('Error updating borrowing record:', updateBorrowError);
+      throw updateBorrowError;
     }
 
     // Update copy status back to available
