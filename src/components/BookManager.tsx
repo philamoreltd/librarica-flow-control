@@ -70,7 +70,10 @@ const BookManager = () => {
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
   const [showCheckOutDialog, setShowCheckOutDialog] = useState(false);
+  const [showCheckInDialog, setShowCheckInDialog] = useState(false);
   const [selectedCopyForCheckout, setSelectedCopyForCheckout] = useState<any>(null);
+  const [selectedCopyForCheckin, setSelectedCopyForCheckin] = useState<any>(null);
+  const [borrowingDetails, setBorrowingDetails] = useState<any>(null);
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const [checkoutDueDate, setCheckoutDueDate] = useState("");
   const [studentPickerOpen, setStudentPickerOpen] = useState(false);
@@ -475,8 +478,63 @@ const BookManager = () => {
 
   const handleCheckIn = async (copy: any) => {
     try {
-      console.log('Checking in copy:', copy);
+      console.log('Fetching borrowing details for copy:', copy);
       
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      // Fetch the borrowing record with student details
+      const { data: borrowingRecords, error: fetchError } = await supabase
+        .from('borrowing_records')
+        .select(`
+          id,
+          borrowed_at,
+          due_date,
+          profiles:user_id (
+            id,
+            first_name,
+            last_name,
+            student_id,
+            email
+          )
+        `)
+        .eq('book_id', copy.book_id)
+        .eq('status', 'active')
+        .order('borrowed_at', { ascending: false })
+        .limit(1);
+
+      if (fetchError) throw fetchError;
+
+      if (!borrowingRecords || borrowingRecords.length === 0) {
+        toast({
+          title: "Error",
+          description: "No active borrowing record found for this book",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Show confirmation dialog with student details
+      setSelectedCopyForCheckin(copy);
+      setBorrowingDetails(borrowingRecords[0]);
+      setShowCheckInDialog(true);
+
+    } catch (error: any) {
+      console.error('Error fetching borrowing details:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to fetch borrowing details",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const confirmCheckIn = async () => {
+    if (!selectedCopyForCheckin || !borrowingDetails) return;
+
+    try {
       const { data: session } = await supabase.auth.getSession();
       if (!session?.session?.access_token) {
         throw new Error('No authentication token');
@@ -484,7 +542,7 @@ const BookManager = () => {
 
       const { data, error } = await supabase.functions.invoke('return-book-copy', {
         body: {
-          copyId: copy.id
+          copyId: selectedCopyForCheckin.id
         },
         headers: {
           Authorization: `Bearer ${session.session.access_token}`,
@@ -498,6 +556,10 @@ const BookManager = () => {
         description: "Book checked in successfully",
       });
 
+      setShowCheckInDialog(false);
+      setSelectedCopyForCheckin(null);
+      setBorrowingDetails(null);
+      
       // Refresh the book copies list
       await fetchAllBookCopies();
       await fetchBooks(); // Also refresh books to update available counts
@@ -1282,6 +1344,94 @@ const BookManager = () => {
               </Button>
               <Button onClick={handleCheckOutSubmit}>
                 Check Out
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Check In Confirmation Dialog */}
+      <Dialog open={showCheckInDialog} onOpenChange={setShowCheckInDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Confirm Check In</DialogTitle>
+            <DialogDescription>
+              Please verify the student details before checking in this book.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <Label className="text-sm font-medium">Book</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                {selectedCopyForCheckin?.books?.title} (Copy #{selectedCopyForCheckin?.copy_number})
+              </p>
+            </div>
+            
+            {borrowingDetails && (
+              <>
+                <div className="border-t pt-4 space-y-3">
+                  <div>
+                    <Label className="text-sm font-medium">Student Name</Label>
+                    <p className="text-sm mt-1">
+                      {borrowingDetails.profiles?.first_name} {borrowingDetails.profiles?.last_name}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium">Student ID</Label>
+                    <p className="text-sm mt-1">
+                      {borrowingDetails.profiles?.student_id || 'N/A'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium">Email</Label>
+                    <p className="text-sm mt-1">
+                      {borrowingDetails.profiles?.email || 'N/A'}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium">Borrowed Date</Label>
+                    <p className="text-sm mt-1">
+                      {new Date(borrowingDetails.borrowed_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium">Due Date</Label>
+                    <p className="text-sm mt-1">
+                      {new Date(borrowingDetails.due_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  
+                  {new Date(borrowingDetails.due_date) < new Date() && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                      <p className="text-sm text-red-800 font-medium">
+                        ⚠️ This book is overdue
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+            
+            <div className="flex justify-end space-x-2 pt-4 border-t">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setShowCheckInDialog(false);
+                  setSelectedCopyForCheckin(null);
+                  setBorrowingDetails(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={confirmCheckIn}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                Confirm Check In
               </Button>
             </div>
           </div>
