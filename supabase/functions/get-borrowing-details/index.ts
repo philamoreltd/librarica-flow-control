@@ -74,7 +74,19 @@ serve(async (req) => {
     // First try to find by copy_id
     const copyQuery = await supabaseClient
       .from('borrowing_records')
-      .select('id')
+      .select(`
+        id,
+        borrowed_at,
+        due_date,
+        status,
+        profiles:user_id (
+          id,
+          first_name,
+          last_name,
+          student_id,
+          email
+        )
+      `)
       .eq('copy_id', copyId)
       .or('status.eq.active,returned_at.is.null')
       .order('borrowed_at', { ascending: false })
@@ -87,7 +99,19 @@ serve(async (req) => {
     if (!borrowError && (!borrowingRecords || borrowingRecords.length === 0)) {
       const bookQuery = await supabaseClient
         .from('borrowing_records')
-        .select('id')
+        .select(`
+          id,
+          borrowed_at,
+          due_date,
+          status,
+          profiles:user_id (
+            id,
+            first_name,
+            last_name,
+            student_id,
+            email
+          )
+        `)
         .eq('book_id', copy.book_id)
         .or('status.eq.active,returned_at.is.null')
         .order('borrowed_at', { ascending: false })
@@ -104,42 +128,14 @@ serve(async (req) => {
 
     if (!borrowingRecords || borrowingRecords.length === 0) {
       return new Response(
-        JSON.stringify({ error: 'No active borrowing record found for this book' }),
+        JSON.stringify({ error: 'No active borrowing record found for this book copy' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Update borrowing record
-    const { error: updateBorrowError } = await supabaseClient
-      .from('borrowing_records')
-      .update({
-        returned_at: new Date().toISOString(),
-        status: 'returned'
-      })
-      .eq('id', borrowingRecords[0].id);
-
-    if (updateBorrowError) {
-      console.error('Error updating borrowing record:', updateBorrowError);
-      throw updateBorrowError;
-    }
-
-    // Update copy status back to available
-    const { error: updateError } = await supabaseClient
-      .from('book_copies')
-      .update({ 
-        status: 'available',
-        notes: `Returned on ${new Date().toLocaleDateString()}`
-      })
-      .eq('id', copyId);
-
-    if (updateError) {
-      console.error('Error updating copy status:', updateError);
-      throw updateError;
-    }
-
     return new Response(
       JSON.stringify({ 
-        message: 'Book copy returned successfully'
+        borrowingRecord: borrowingRecords[0]
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

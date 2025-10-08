@@ -485,46 +485,22 @@ const BookManager = () => {
         throw new Error('No authentication token');
       }
 
-      // First, try to get all borrowing records for debugging
-      const { data: allRecords, error: debugError } = await supabase
-        .from('borrowing_records')
-        .select('id, status, book_id')
-        .in('book_id', [copy.book_id, copy.id]);
+      // Call edge function to get borrowing details (uses service role for full access)
+      const { data, error } = await supabase.functions.invoke('get-borrowing-details', {
+        body: { copyId: copy.id }
+      });
 
-      console.log('All borrowing records for this book:', allRecords);
+      console.log('Borrowing details response:', { data, error });
 
-      // Fetch the borrowing record with student details
-      const { data: borrowingRecords, error: fetchError } = await supabase
-        .from('borrowing_records')
-        .select(`
-          id,
-          borrowed_at,
-          due_date,
-          status,
-          profiles:user_id (
-            id,
-            first_name,
-            last_name,
-            student_id,
-            email
-          )
-        `)
-        .in('book_id', [copy.book_id, copy.id])
-        .or('status.eq.active,returned_at.is.null')
-        .order('borrowed_at', { ascending: false })
-        .limit(1);
-
-      console.log('Borrowing records query result:', { borrowingRecords, fetchError });
-
-      if (fetchError) {
-        console.error('Fetch error:', fetchError);
-        throw fetchError;
+      if (error) {
+        console.error('Fetch error:', error);
+        throw error;
       }
 
-      if (!borrowingRecords || borrowingRecords.length === 0) {
+      if (!data?.borrowingRecord) {
         toast({
           title: "Error",
-          description: "No active borrowing record found for this book. The book may not have been properly checked out.",
+          description: "No active borrowing record found for this book copy. The book may not have been properly checked out.",
           variant: "destructive",
         });
         return;
@@ -532,7 +508,7 @@ const BookManager = () => {
 
       // Show confirmation dialog with student details
       setSelectedCopyForCheckin(copy);
-      setBorrowingDetails(borrowingRecords[0]);
+      setBorrowingDetails(data.borrowingRecord);
       setShowCheckInDialog(true);
 
     } catch (error: any) {

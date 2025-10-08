@@ -73,6 +73,7 @@ serve(async (req) => {
       .insert({
         user_id: studentId,
         book_id: copy.book_id,
+        copy_id: copyId,
         borrowed_at: new Date().toISOString(),
         due_date: dueDate,
         status: 'active',

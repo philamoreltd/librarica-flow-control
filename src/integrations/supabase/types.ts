@@ -124,6 +124,7 @@ export type Database = {
         Row: {
           book_id: string
           borrowed_at: string | null
+          copy_id: string | null
           created_at: string | null
           department_id: string | null
           due_date: string
@@ -137,6 +138,7 @@ export type Database = {
         Insert: {
           book_id: string
           borrowed_at?: string | null
+          copy_id?: string | null
           created_at?: string | null
           department_id?: string | null
           due_date: string
@@ -150,6 +152,7 @@ export type Database = {
         Update: {
           book_id?: string
           borrowed_at?: string | null
+          copy_id?: string | null
           created_at?: string | null
           department_id?: string | null
           due_date?: string
