@@ -489,7 +489,7 @@ const BookManager = () => {
       const { data: allRecords, error: debugError } = await supabase
         .from('borrowing_records')
         .select('id, status, book_id')
-        .eq('book_id', copy.book_id);
+        .in('book_id', [copy.book_id, copy.id]);
 
       console.log('All borrowing records for this book:', allRecords);
 
@@ -509,7 +509,7 @@ const BookManager = () => {
             email
           )
         `)
-        .eq('book_id', copy.book_id)
+        .in('book_id', [copy.book_id, copy.id])
         .or('status.eq.active,returned_at.is.null')
         .order('borrowed_at', { ascending: false })
         .limit(1);

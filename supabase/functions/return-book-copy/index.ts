@@ -71,8 +71,8 @@ serve(async (req) => {
     const { data: borrowingRecords, error: borrowError } = await supabaseClient
       .from('borrowing_records')
       .select('id')
-      .eq('book_id', copy.book_id)
-      .eq('status', 'active')
+      .in('book_id', [copy.book_id, copyId])
+      .or('status.eq.active,returned_at.is.null')
       .order('borrowed_at', { ascending: false })
       .limit(1);
 
