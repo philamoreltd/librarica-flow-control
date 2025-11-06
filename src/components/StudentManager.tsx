@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus } from "lucide-react";
 import StudentForm from "@/components/StudentForm";
 
 interface Student {
@@ -67,6 +67,16 @@ const StudentManager = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [studentActivity, setStudentActivity] = useState<StudentActivity | null>(null);
   const [viewingStudentId, setViewingStudentId] = useState<string | null>(null);
+  
+  // Quick checkout states
+  const [showQuickCheckout, setShowQuickCheckout] = useState(false);
+  const [books, setBooks] = useState<any[]>([]);
+  const [selectedBook, setSelectedBook] = useState<any>(null);
+  const [bookCopies, setBookCopies] = useState<any[]>([]);
+  const [selectedCopyId, setSelectedCopyId] = useState("");
+  const [checkoutDueDate, setCheckoutDueDate] = useState("");
+  const [bookSearchQuery, setBookSearchQuery] = useState("");
+  
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -335,6 +345,121 @@ const StudentManager = () => {
     }
   };
 
+  const fetchBooks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('books')
+        .select('*')
+        .order('title');
+
+      if (error) throw error;
+      setBooks(data || []);
+    } catch (error: any) {
+      console.error('Fetch books error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch books",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchBookCopies = async (bookId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('book_copies')
+        .select('*')
+        .eq('book_id', bookId)
+        .eq('status', 'available')
+        .order('copy_number');
+
+      if (error) throw error;
+      setBookCopies(data || []);
+    } catch (error: any) {
+      console.error('Fetch book copies error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch book copies",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleQuickCheckout = async () => {
+    if (!selectedCopyId || !checkoutDueDate || !viewingStudentId) {
+      toast({
+        title: "Error",
+        description: "Please select a book copy and set a due date",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await supabase.functions.invoke('issue-book-copy', {
+        body: {
+          copyId: selectedCopyId,
+          studentId: viewingStudentId,
+          dueDate: checkoutDueDate
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: "Book checked out successfully",
+      });
+
+      // Reset checkout form
+      setShowQuickCheckout(false);
+      setSelectedBook(null);
+      setSelectedCopyId("");
+      setCheckoutDueDate("");
+      setBookSearchQuery("");
+      setBookCopies([]);
+
+      // Refresh student activity
+      fetchStudentActivity(viewingStudentId);
+    } catch (error: any) {
+      console.error('Quick checkout error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to checkout book",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleBookSelect = (book: any) => {
+    setSelectedBook(book);
+    setBookSearchQuery(book.title);
+    fetchBookCopies(book.id);
+  };
+
+  const openQuickCheckout = () => {
+    setShowQuickCheckout(true);
+    fetchBooks();
+    
+    // Set default due date to 14 days from now
+    const defaultDueDate = new Date();
+    defaultDueDate.setDate(defaultDueDate.getDate() + 14);
+    setCheckoutDueDate(defaultDueDate.toISOString().split('T')[0]);
+  };
+
+  const filteredBooks = books.filter(book =>
+    book.title.toLowerCase().includes(bookSearchQuery.toLowerCase()) ||
+    book.author.toLowerCase().includes(bookSearchQuery.toLowerCase())
+  );
+
   const openEditDialog = (student: Student) => {
     setEditingStudent(student);
     setFormData({
@@ -545,13 +670,140 @@ const StudentManager = () => {
       </Dialog>
 
       {/* Activity Dialog */}
-      <Dialog open={isActivityDialogOpen} onOpenChange={setIsActivityDialogOpen}>
+      <Dialog 
+        open={isActivityDialogOpen} 
+        onOpenChange={(open) => {
+          setIsActivityDialogOpen(open);
+          if (!open) {
+            // Reset quick checkout state when dialog closes
+            setShowQuickCheckout(false);
+            setSelectedBook(null);
+            setSelectedCopyId("");
+            setCheckoutDueDate("");
+            setBookSearchQuery("");
+            setBookCopies([]);
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Student Activity</DialogTitle>
           </DialogHeader>
           {studentActivity && (
             <div className="space-y-6">
+              {/* Quick Checkout Section */}
+              {!showQuickCheckout ? (
+                <div className="flex justify-end">
+                  <Button onClick={openQuickCheckout} variant="outline" size="sm">
+                    <BookPlus className="h-4 w-4 mr-2" />
+                    Quick Checkout
+                  </Button>
+                </div>
+              ) : (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Quick Checkout</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Search Book</Label>
+                      <Input
+                        placeholder="Search by title or author..."
+                        value={bookSearchQuery}
+                        onChange={(e) => setBookSearchQuery(e.target.value)}
+                      />
+                      {bookSearchQuery && !selectedBook && (
+                        <div className="mt-2 max-h-40 overflow-y-auto border rounded-md">
+                          {filteredBooks.length > 0 ? (
+                            filteredBooks.slice(0, 5).map((book) => (
+                              <button
+                                key={book.id}
+                                onClick={() => handleBookSelect(book)}
+                                className="w-full text-left p-2 hover:bg-muted transition-colors"
+                              >
+                                <p className="font-medium">{book.title}</p>
+                                <p className="text-sm text-gray-600">by {book.author}</p>
+                                <p className="text-xs text-gray-500">{book.available_copies} available</p>
+                              </button>
+                            ))
+                          ) : (
+                            <p className="p-2 text-sm text-gray-500">No books found</p>
+                          )}
+                        </div>
+                      )}
+                      {selectedBook && (
+                        <div className="mt-2 p-2 bg-muted rounded-md flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{selectedBook.title}</p>
+                            <p className="text-sm text-gray-600">by {selectedBook.author}</p>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedBook(null);
+                              setBookCopies([]);
+                              setSelectedCopyId("");
+                            }}
+                          >
+                            Change
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedBook && bookCopies.length > 0 && (
+                      <div>
+                        <Label>Select Copy</Label>
+                        <Select value={selectedCopyId} onValueChange={setSelectedCopyId}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a copy" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {bookCopies.map((copy) => (
+                              <SelectItem key={copy.id} value={copy.id}>
+                                Copy #{copy.copy_number} - {copy.barcode}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+
+                    {selectedBook && bookCopies.length === 0 && (
+                      <p className="text-sm text-yellow-600">No available copies for this book</p>
+                    )}
+
+                    <div>
+                      <Label>Due Date</Label>
+                      <Input
+                        type="date"
+                        value={checkoutDueDate}
+                        onChange={(e) => setCheckoutDueDate(e.target.value)}
+                        min={new Date().toISOString().split('T')[0]}
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button onClick={handleQuickCheckout} disabled={!selectedCopyId || !checkoutDueDate}>
+                        Checkout Book
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setShowQuickCheckout(false);
+                          setSelectedBook(null);
+                          setSelectedCopyId("");
+                          setBookSearchQuery("");
+                          setBookCopies([]);
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <div>
                 <h3 className="text-lg font-semibold mb-3">Borrowing History</h3>
                 {studentActivity.borrowing_history.length > 0 ? (
