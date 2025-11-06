@@ -10,6 +10,8 @@ import StudentDashboard from "@/components/StudentDashboard";
 import MemberDashboard from "@/components/MemberDashboard";
 import AdminPanel from "@/components/AdminPanel";
 import HomePage from "@/components/HomePage";
+import BookManager from "@/components/BookManager";
+import StudentManager from "@/components/StudentManager";
 
 const Index = () => {
   const [activeView, setActiveView] = useState("home");
@@ -18,7 +20,7 @@ const Index = () => {
 
   // Redirect to auth if not authenticated and trying to access protected routes
   useEffect(() => {
-    const protectedRoutes = ["student", "dashboard", "admin"];
+    const protectedRoutes = ["student", "dashboard", "admin", "books", "students"];
     if (!loading && !user && protectedRoutes.includes(activeView)) {
       navigate('/auth');
     }
@@ -36,6 +38,26 @@ const Index = () => {
     switch (activeView) {
       case "home":
         return <HomePage />;
+      case "books":
+        if (!user || !profile || !['librarian', 'admin'].includes(profile.role)) {
+          return (
+            <div className="container mx-auto px-4 py-8 text-center">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+              <p className="text-gray-600">You need librarian or admin privileges to access this area.</p>
+            </div>
+          );
+        }
+        return <BookManager />;
+      case "students":
+        if (!user || !profile || !['librarian', 'admin'].includes(profile.role)) {
+          return (
+            <div className="container mx-auto px-4 py-8 text-center">
+              <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+              <p className="text-gray-600">You need librarian or admin privileges to access this area.</p>
+            </div>
+          );
+        }
+        return <StudentManager />;
       case "catalog":
         return <BookCatalogReal />;
       case "student":

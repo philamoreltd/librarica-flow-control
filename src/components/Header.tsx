@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Library, Search, Bell, User, Menu, X, QrCode, GraduationCap, LogOut, Settings } from "lucide-react";
+import { Library, BookOpen, Bell, User, Menu, X, Users, GraduationCap, LogOut, Settings } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
@@ -21,8 +21,8 @@ const Header = ({ activeView, setActiveView }: HeaderProps) => {
 
   const navItems = [
     { id: "home", label: "Home", icon: Library },
-    { id: "catalog", label: "Catalog", icon: Search },
-    { id: "scanner", label: "Scanner", icon: QrCode },
+    { id: "books", label: "Books", icon: BookOpen },
+    { id: "students", label: "Students", icon: Users },
     { id: "elearning", label: "eLearning", icon: GraduationCap },
     { id: "dashboard", label: "Staff Portal", icon: User },
     { id: "admin", label: "Admin", icon: Bell },
