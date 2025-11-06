@@ -273,7 +273,7 @@ async function getAllStudents(supabaseClient: any) {
 async function getStudentActivity(supabaseClient: any, studentId: string) {
   console.log('Getting student activity for:', studentId);
   
-  // Get borrowing history
+  // Get borrowing history with copy_id
   const { data: borrowingHistory } = await supabaseClient
     .from('borrowing_records')
     .select(`
@@ -283,7 +283,12 @@ async function getStudentActivity(supabaseClient: any, studentId: string) {
       returned_at,
       status,
       fine_amount,
-      books (title, author)
+      copy_id,
+      books:book_id (
+        id,
+        title,
+        author
+      )
     `)
     .eq('user_id', studentId)
     .order('borrowed_at', { ascending: false });
@@ -296,7 +301,11 @@ async function getStudentActivity(supabaseClient: any, studentId: string) {
       reserved_at,
       expires_at,
       status,
-      books (title, author)
+      books:book_id (
+        id,
+        title,
+        author
+      )
     `)
     .eq('user_id', studentId)
     .order('reserved_at', { ascending: false });

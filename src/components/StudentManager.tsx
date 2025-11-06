@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle } from "lucide-react";
 import StudentForm from "@/components/StudentForm";
 
 interface Student {
@@ -36,7 +36,9 @@ interface StudentActivity {
     returned_at?: string;
     status: string;
     fine_amount: number;
+    copy_id?: string;
     books: {
+      id: string;
       title: string;
       author: string;
     };
@@ -47,6 +49,7 @@ interface StudentActivity {
     expires_at: string;
     status: string;
     books: {
+      id: string;
       title: string;
       author: string;
     };
@@ -63,6 +66,7 @@ const StudentManager = () => {
   const [isActivityDialogOpen, setIsActivityDialogOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [studentActivity, setStudentActivity] = useState<StudentActivity | null>(null);
+  const [viewingStudentId, setViewingStudentId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -152,6 +156,7 @@ const StudentManager = () => {
 
       if (response.error) throw response.error;
       setStudentActivity(response.data);
+      setViewingStudentId(studentId);
       setIsActivityDialogOpen(true);
     } catch (error: any) {
       console.error('Fetch student activity error:', error);
@@ -290,6 +295,41 @@ const StudentManager = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to deactivate student",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCheckIn = async (copyId: string, studentId: string) => {
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      const response = await supabase.functions.invoke('return-book-copy', {
+        body: { 
+          copyId: copyId
+        },
+        headers: {
+          Authorization: `Bearer ${session.session.access_token}`,
+        },
+      });
+
+      if (response.error) throw response.error;
+
+      toast({
+        title: "Success",
+        description: "Book checked in successfully",
+      });
+
+      // Refresh student activity
+      fetchStudentActivity(studentId);
+    } catch (error: any) {
+      console.error('Check in error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to check in book",
         variant: "destructive",
       });
     }
@@ -519,19 +559,42 @@ const StudentManager = () => {
                     {studentActivity.borrowing_history.map((record) => (
                       <div key={record.id} className="p-3 border rounded-lg">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium">{record.books.title}</p>
                             <p className="text-sm text-gray-600">by {record.books.author}</p>
                             <p className="text-xs text-gray-500">
                               Borrowed: {new Date(record.borrowed_at).toLocaleDateString()}
                             </p>
+                            {record.status === 'active' && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Due: {new Date(record.due_date).toLocaleDateString()}
+                              </p>
+                            )}
+                            {record.returned_at && (
+                              <p className="text-xs text-gray-500 mt-1">
+                                Returned: {new Date(record.returned_at).toLocaleDateString()}
+                              </p>
+                            )}
                           </div>
-                          <div className="text-right">
-                            <Badge className={record.status === 'active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
-                              {record.status}
-                            </Badge>
-                            {record.fine_amount > 0 && (
-                              <p className="text-sm text-red-600 mt-1">Fine: ${record.fine_amount}</p>
+                          <div className="flex items-start gap-2">
+                            <div className="text-right">
+                              <Badge className={record.status === 'active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
+                                {record.status}
+                              </Badge>
+                              {record.fine_amount > 0 && (
+                                <p className="text-sm text-red-600 mt-1">Fine: ${record.fine_amount}</p>
+                              )}
+                            </div>
+                            {record.status === 'active' && record.copy_id && viewingStudentId && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCheckIn(record.copy_id!, viewingStudentId)}
+                                className="h-8"
+                              >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Check In
+                              </Button>
                             )}
                           </div>
                         </div>
