@@ -829,14 +829,12 @@ const StudentManager = () => {
                             )}
                           </div>
                           <div className="flex items-start gap-2">
-                            <div className="text-right">
-                              <Badge className={record.status === 'active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
-                                {record.status}
-                              </Badge>
-                              {record.fine_amount > 0 && (
-                                <p className="text-sm text-red-600 mt-1">Fine: ${record.fine_amount}</p>
-                              )}
-                            </div>
+                            <Badge className={record.status === 'active' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}>
+                              {record.status}
+                            </Badge>
+                            {record.fine_amount > 0 && (
+                              <p className="text-sm text-red-600 mt-1">Fine: ${record.fine_amount}</p>
+                            )}
                             {record.status === 'active' && record.copy_id && viewingStudentId && (
                               <Button
                                 size="sm"
@@ -846,6 +844,32 @@ const StudentManager = () => {
                               >
                                 <CheckCircle className="h-4 w-4 mr-1" />
                                 Check In
+                              </Button>
+                            )}
+                            {record.status === 'returned' && record.books?.id && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  const book = books.find(b => b.id === record.books.id);
+                                  if (book) {
+                                    handleBookSelect(book);
+                                    setShowQuickCheckout(true);
+                                  } else {
+                                    // If books not loaded yet, fetch them first
+                                    fetchBooks().then(() => {
+                                      const foundBook = books.find(b => b.id === record.books.id);
+                                      if (foundBook) {
+                                        handleBookSelect(foundBook);
+                                        setShowQuickCheckout(true);
+                                      }
+                                    });
+                                  }
+                                }}
+                                className="h-8"
+                              >
+                                <XCircle className="h-4 w-4 mr-1" />
+                                Check Out
                               </Button>
                             )}
                           </div>
