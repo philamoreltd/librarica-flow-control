@@ -352,28 +352,16 @@ export type Database = {
         Args: { book_id_param: string; copy_number_param: number }
         Returns: string
       }
-      generate_copy_isbn: {
-        Args:
-          | { book_id_param: string }
-          | { book_id_param: string; copy_number_param: number }
-        Returns: string
-      }
-      get_current_user_department: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      get_current_user_role: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      is_department_admin: {
-        Args: { dept_id: string }
-        Returns: boolean
-      }
-      is_super_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      generate_copy_isbn:
+        | { Args: { book_id_param: string }; Returns: string }
+        | {
+            Args: { book_id_param: string; copy_number_param: number }
+            Returns: string
+          }
+      get_current_user_department: { Args: never; Returns: string }
+      get_current_user_role: { Args: never; Returns: string }
+      is_department_admin: { Args: { dept_id: string }; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
     }
     Enums: {
       [_ in never]: never
