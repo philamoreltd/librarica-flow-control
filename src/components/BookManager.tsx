@@ -35,6 +35,7 @@ interface Book {
   created_at: string;
   updated_at: string;
   featured: boolean;
+  department_id?: string;
 }
 
 interface Department {
@@ -91,6 +92,7 @@ const BookManager = () => {
     cover_image: "",
     qrCode: "",
     featured: false,
+    department_id: "",
   });
 
   const [categories, setCategories] = useState([
@@ -172,6 +174,7 @@ const BookManager = () => {
       cover_image: "",
       qrCode: "",
       featured: false,
+      department_id: "",
     });
   };
 
@@ -341,7 +344,8 @@ const BookManager = () => {
       available_copies: book.available_copies.toString(),
       cover_image: book.cover_image || "",
       qrCode: book.qrCode || "",
-      featured: book.featured || false
+      featured: book.featured || false,
+      department_id: book.department_id || "",
     });
     setIsEditDialogOpen(true);
   };

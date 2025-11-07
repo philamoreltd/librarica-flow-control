@@ -26,6 +26,7 @@ interface Student {
   institution?: string;
   created_at: string;
   updated_at: string;
+  department_id?: string;
 }
 
 interface StudentActivity {
@@ -89,7 +90,8 @@ const StudentManager = () => {
     grade_level: "",
     points: "0",
     password: "",
-    institution: ""
+    institution: "",
+    department_id: ""
   });
 
   const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
@@ -189,7 +191,8 @@ const StudentManager = () => {
       grade_level: "",
       points: "0",
       password: "",
-      institution: ""
+      institution: "",
+      department_id: ""
     });
   };
 
@@ -472,7 +475,8 @@ const StudentManager = () => {
       grade_level: student.grade_level || "",
       points: student.points.toString(),
       password: "",
-      institution: student.institution || ""
+      institution: student.institution || "",
+      department_id: student.department_id || ""
     });
     setIsEditDialogOpen(true);
   };

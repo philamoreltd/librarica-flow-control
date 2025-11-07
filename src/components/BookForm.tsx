@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useDepartments } from "@/hooks/useDepartments";
 
 interface BookFormData {
   title: string;
@@ -18,6 +19,7 @@ interface BookFormData {
   cover_image: string;
   qrCode: string;
   featured: boolean;
+  department_id?: string;
 }
 
 interface BookFormProps {
@@ -32,6 +34,7 @@ interface BookFormProps {
 export const BookForm = ({ formData, onFormDataChange, onSubmit, submitLabel, categories, onAddCategory }: BookFormProps) => {
   const [customCategory, setCustomCategory] = useState("");
   const [showAddCategory, setShowAddCategory] = useState(false);
+  const { departments } = useDepartments();
   
   const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
 
@@ -59,6 +62,23 @@ export const BookForm = ({ formData, onFormDataChange, onSubmit, submitLabel, ca
 
   return (
     <div className="space-y-4">
+      <div>
+        <Label htmlFor="department_id">Department (Optional)</Label>
+        <Select value={formData.department_id || "none"} onValueChange={(value) => handleInputChange('department_id', value === "none" ? "" : value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Department</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept.id} value={dept.id}>
+                {dept.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="category">Category *</Label>

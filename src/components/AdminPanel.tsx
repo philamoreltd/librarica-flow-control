@@ -22,6 +22,7 @@ import BookManager from "./BookManager";
 import StudentManager from "./StudentManager";
 import CheckInOutManager from "./CheckInOutManager";
 import BookCopyIssueManager from "./BookCopyIssueManager";
+import { DepartmentManager } from "./DepartmentManager";
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -156,10 +157,11 @@ const AdminPanel = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-9">
+        <TabsList className="grid w-full grid-cols-10">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="books">Books</TabsTrigger>
           <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="check-in-out">Check In/Out</TabsTrigger>
           <TabsTrigger value="issue-copies">Issue Copies</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
@@ -233,6 +235,10 @@ const AdminPanel = () => {
 
         <TabsContent value="students">
           <StudentManager />
+        </TabsContent>
+
+        <TabsContent value="departments">
+          <DepartmentManager />
         </TabsContent>
 
         <TabsContent value="check-in-out">

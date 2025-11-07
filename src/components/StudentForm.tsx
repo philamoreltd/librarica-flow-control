@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useDepartments } from "@/hooks/useDepartments";
 
 interface StudentFormProps {
   formData: {
@@ -16,6 +17,7 @@ interface StudentFormProps {
     points: string;
     password: string;
     institution: string;
+    department_id?: string;
   };
   setFormData: React.Dispatch<React.SetStateAction<{
     first_name: string;
@@ -28,6 +30,7 @@ interface StudentFormProps {
     points: string;
     password: string;
     institution: string;
+    department_id?: string;
   }>>;
   onSubmit: () => void;
   submitLabel: string;
@@ -37,6 +40,8 @@ interface StudentFormProps {
 const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
 
 const StudentForm = ({ formData, setFormData, onSubmit, submitLabel, editingStudent }: StudentFormProps) => {
+  const { departments } = useDepartments();
+  
   const handleInputChange = useCallback((field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   }, [setFormData]);
@@ -134,6 +139,23 @@ const StudentForm = ({ formData, setFormData, onSubmit, submitLabel, editingStud
           onChange={(e) => handleInputChange('institution', e.target.value)}
           placeholder="School/Institution name"
         />
+      </div>
+
+      <div>
+        <Label htmlFor="department_id">Department (Optional)</Label>
+        <Select value={formData.department_id || "none"} onValueChange={(value) => handleInputChange('department_id', value === "none" ? "" : value)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select department" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No Department</SelectItem>
+            {departments.map((dept) => (
+              <SelectItem key={dept.id} value={dept.id}>
+                {dept.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
