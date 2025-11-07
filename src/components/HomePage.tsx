@@ -5,11 +5,13 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Users, Award, TrendingUp, Star, Clock, ArrowRight } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeaturedBooks } from "@/hooks/useFeaturedBooks";
+import { useLibraryStats } from "@/hooks/useLibraryStats";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const { user, profile } = useAuth();
   const { featuredBooks, loading: booksLoading } = useFeaturedBooks();
+  const { stats, loading: statsLoading } = useLibraryStats();
   const navigate = useNavigate();
 
 
@@ -58,7 +60,9 @@ const HomePage = () => {
           <Card className="text-center bg-gradient-to-br from-blue-500 to-blue-600 text-white">
             <CardContent className="p-6">
               <BookOpen className="h-12 w-12 mx-auto mb-4 text-blue-100" />
-              <h3 className="text-3xl font-bold mb-2">2,500+</h3>
+              <h3 className="text-3xl font-bold mb-2">
+                {statsLoading ? '...' : stats.availableBooks.toLocaleString()}
+              </h3>
               <p className="text-blue-100">Books Available</p>
             </CardContent>
           </Card>
@@ -66,7 +70,9 @@ const HomePage = () => {
           <Card className="text-center bg-gradient-to-br from-green-500 to-green-600 text-white">
             <CardContent className="p-6">
               <Users className="h-12 w-12 mx-auto mb-4 text-green-100" />
-              <h3 className="text-3xl font-bold mb-2">1,200+</h3>
+              <h3 className="text-3xl font-bold mb-2">
+                {statsLoading ? '...' : stats.activeStudents.toLocaleString()}
+              </h3>
               <p className="text-green-100">Active Students</p>
             </CardContent>
           </Card>
@@ -74,15 +80,19 @@ const HomePage = () => {
           <Card className="text-center bg-gradient-to-br from-purple-500 to-purple-600 text-white">
             <CardContent className="p-6">
               <Award className="h-12 w-12 mx-auto mb-4 text-purple-100" />
-              <h3 className="text-3xl font-bold mb-2">95%</h3>
-              <p className="text-purple-100">Satisfaction Rate</p>
+              <h3 className="text-3xl font-bold mb-2">
+                {statsLoading ? '...' : stats.totalBooks.toLocaleString()}
+              </h3>
+              <p className="text-purple-100">Books in Catalogue</p>
             </CardContent>
           </Card>
           
           <Card className="text-center bg-gradient-to-br from-orange-500 to-orange-600 text-white">
             <CardContent className="p-6">
               <TrendingUp className="h-12 w-12 mx-auto mb-4 text-orange-100" />
-              <h3 className="text-3xl font-bold mb-2">50K+</h3>
+              <h3 className="text-3xl font-bold mb-2">
+                {statsLoading ? '...' : stats.booksBorrowed.toLocaleString()}
+              </h3>
               <p className="text-orange-100">Books Borrowed</p>
             </CardContent>
           </Card>
