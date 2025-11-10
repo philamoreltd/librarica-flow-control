@@ -2,21 +2,55 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Users, Award, TrendingUp, Star, Clock, ArrowRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BookOpen, Users, Award, TrendingUp, Star, Clock, ArrowRight, Building2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useFeaturedBooks } from "@/hooks/useFeaturedBooks";
 import { useLibraryStats } from "@/hooks/useLibraryStats";
+import { useDepartments } from "@/hooks/useDepartments";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 const HomePage = () => {
   const { user, profile } = useAuth();
+  const { departments } = useDepartments();
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
   const { featuredBooks, loading: booksLoading } = useFeaturedBooks();
   const { stats, loading: statsLoading } = useLibraryStats();
   const navigate = useNavigate();
 
+  // Auto-select user's department on login
+  useEffect(() => {
+    if (profile?.department_id) {
+      setSelectedDepartment(profile.department_id);
+    }
+  }, [profile?.department_id]);
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Department Filter */}
+      {user && departments.length > 0 && (
+        <section className="container mx-auto px-4 pt-6">
+          <div className="flex items-center justify-end gap-3">
+            <Building2 className="h-4 w-4 text-gray-600" />
+            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+              <SelectTrigger className="w-64">
+                <SelectValue placeholder="Select Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name} ({dept.code})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </section>
+      )}
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center max-w-4xl mx-auto">

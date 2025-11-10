@@ -9,8 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2 } from "lucide-react";
 import StudentForm from "@/components/StudentForm";
+import { useDepartments } from "@/hooks/useDepartments";
 
 interface Student {
   id: string;
@@ -68,6 +69,8 @@ const StudentManager = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [studentActivity, setStudentActivity] = useState<StudentActivity | null>(null);
   const [viewingStudentId, setViewingStudentId] = useState<string | null>(null);
+  
+  const { departments } = useDepartments();
   
   // Quick checkout states
   const [showQuickCheckout, setShowQuickCheckout] = useState(false);
@@ -590,9 +593,17 @@ const StudentManager = () => {
                 <Card key={student.id} className="hover:shadow-lg transition-shadow">
                   <CardHeader className="pb-3">
                     <div className="flex justify-between items-start mb-2">
-                      <Badge className="bg-blue-100 text-blue-800">
-                        {student.grade_level || "N/A"}
-                      </Badge>
+                      <div className="flex gap-2">
+                        <Badge className="bg-blue-100 text-blue-800">
+                          {student.grade_level || "N/A"}
+                        </Badge>
+                        {student.department_id && (
+                          <Badge variant="outline" className="text-xs">
+                            <Building2 className="h-3 w-3 mr-1" />
+                            {departments.find(d => d.id === student.department_id)?.code || "Dept"}
+                          </Badge>
+                        )}
+                      </div>
                       <div className="flex gap-1">
                         <Button size="sm" variant="outline" onClick={() => fetchStudentActivity(student.id)}>
                           <Eye className="h-3 w-3" />

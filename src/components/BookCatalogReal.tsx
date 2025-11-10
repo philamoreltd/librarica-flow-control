@@ -1,21 +1,31 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, BookOpen, Star, Calendar, User, Eye } from "lucide-react";
+import { Search, Filter, BookOpen, Star, Calendar, User, Eye, Building2 } from "lucide-react";
 import { useBooks } from "@/hooks/useBooks";
 import { useAuth } from "@/hooks/useAuth";
+import { useDepartments } from "@/hooks/useDepartments";
 
 const BookCatalogReal = () => {
   const { books, loading, borrowBook, reserveBook } = useBooks();
   const { user, profile } = useAuth();
+  const { departments } = useDepartments();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+
+  // Auto-select user's department on login
+  useEffect(() => {
+    if (profile?.department_id) {
+      setSelectedDepartment(profile.department_id);
+    }
+  }, [profile?.department_id]);
 
   const categories = ["all", ...Array.from(new Set(books.map(book => book.category)))];
 
@@ -23,8 +33,11 @@ const BookCatalogReal = () => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || book.category === selectedCategory;
+    const matchesDepartment = selectedDepartment === "all" || 
+                              book.department_id === selectedDepartment ||
+                              !book.department_id;
     
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesDepartment;
   });
 
   const getStatusInfo = (book: any) => {
@@ -111,6 +124,19 @@ const BookCatalogReal = () => {
             />
           </div>
           <div className="flex gap-2">
+            <Select value={selectedDepartment} onValueChange={setSelectedDepartment}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Department" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Departments</SelectItem>
+                {departments.map((dept) => (
+                  <SelectItem key={dept.id} value={dept.id}>
+                    {dept.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
               <SelectTrigger className="w-40">
                 <SelectValue placeholder="Category" />
