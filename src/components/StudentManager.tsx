@@ -595,6 +595,7 @@ const StudentManager = () => {
                   <TableRow>
                     <TableHead>Name</TableHead>
                     <TableHead>Adm No</TableHead>
+                    <TableHead>Phone Number</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Grade</TableHead>
                     <TableHead>Department</TableHead>
@@ -606,17 +607,13 @@ const StudentManager = () => {
                   {groupedStudents[grade].map((student) => (
                     <TableRow key={student.id}>
                       <TableCell className="font-medium">
-                        <div>
-                          <div>
-                            {student.first_name} {student.middle_name && `${student.middle_name} `}{student.last_name}
-                          </div>
-                          {student.phone_number && (
-                            <div className="text-sm text-muted-foreground">{student.phone_number}</div>
-                          )}
-                        </div>
+                        {student.first_name} {student.middle_name && `${student.middle_name} `}{student.last_name}
                       </TableCell>
                       <TableCell>
                         <span className="text-sm">{student.student_id || "N/A"}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm">{student.phone_number || "-"}</span>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm">{student.email || "No email"}</span>
