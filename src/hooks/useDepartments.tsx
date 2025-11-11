@@ -44,16 +44,51 @@ export function useDepartments() {
 
   const createDepartment = async (departmentData: DepartmentInput) => {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('departments')
-        .insert([departmentData]);
+        .insert([departmentData])
+        .select()
+        .single();
 
       if (error) throw error;
 
-      toast({
-        title: "Department created",
-        description: "The department has been created successfully.",
-      });
+      // If email is provided, create department admin account
+      if (departmentData.email && data) {
+        try {
+          const { error: adminError } = await supabase.functions.invoke('create-department-admin', {
+            body: {
+              email: departmentData.email,
+              departmentId: data.id,
+              departmentName: data.name
+            }
+          });
+
+          if (adminError) {
+            console.error('Error creating department admin:', adminError);
+            toast({
+              title: "Department created",
+              description: "Department created, but failed to send invitation email.",
+              variant: "default",
+            });
+          } else {
+            toast({
+              title: "Department created",
+              description: `Department created and invitation email sent to ${departmentData.email}`,
+            });
+          }
+        } catch (adminError) {
+          console.error('Error calling create-department-admin function:', adminError);
+          toast({
+            title: "Department created",
+            description: "Department created, but failed to send invitation email.",
+          });
+        }
+      } else {
+        toast({
+          title: "Department created",
+          description: "The department has been created successfully.",
+        });
+      }
 
       fetchDepartments();
     } catch (error: any) {
