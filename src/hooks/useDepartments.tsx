@@ -174,12 +174,39 @@ export function useDepartments() {
     };
   }, []);
 
+  const resendInvitation = async (departmentId: string, email: string, departmentName: string) => {
+    try {
+      const { error } = await supabase.functions.invoke('create-department-admin', {
+        body: {
+          email,
+          departmentId,
+          departmentName
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Invitation sent",
+        description: `Password setup email resent to ${email}`,
+      });
+    } catch (error: any) {
+      console.error('Error resending invitation:', error);
+      toast({
+        title: "Error resending invitation",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     departments,
     loading,
     createDepartment,
     updateDepartment,
     deleteDepartment,
+    resendInvitation,
     refetch: fetchDepartments,
   };
 }

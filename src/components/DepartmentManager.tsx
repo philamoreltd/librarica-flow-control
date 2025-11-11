@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Building2 } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, Mail } from 'lucide-react';
 import { useDepartments } from '@/hooks/useDepartments';
 
 interface DepartmentFormData {
@@ -23,7 +23,7 @@ interface DepartmentFormData {
 }
 
 export function DepartmentManager() {
-  const { departments, loading, createDepartment, updateDepartment, deleteDepartment } = useDepartments();
+  const { departments, loading, createDepartment, updateDepartment, deleteDepartment, resendInvitation } = useDepartments();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<any>(null);
   const [formData, setFormData] = useState<DepartmentFormData>({
@@ -239,6 +239,16 @@ export function DepartmentManager() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      {dept.email && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => resendInvitation(dept.id, dept.email!, dept.name)}
+                          title="Resend invitation email"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
