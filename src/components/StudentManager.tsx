@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2 } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2, Download } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import StudentForm from "@/components/StudentForm";
 import { useDepartments } from "@/hooks/useDepartments";
@@ -371,6 +372,65 @@ const StudentManager = () => {
     }
   };
 
+  const exportToCSV = () => {
+    const csvData = filteredStudents.map(student => ({
+      'First Name': student.first_name || '',
+      'Middle Name': student.middle_name || '',
+      'Last Name': student.last_name || '',
+      'Admission Number': student.student_id || '',
+      'Phone Number': student.phone_number || '',
+      'Email': student.email || '',
+      'Grade Level': student.grade_level || '',
+      'Department': departments.find(d => d.id === student.department_id)?.name || '',
+      'Points': student.points || 0,
+    }));
+
+    const headers = Object.keys(csvData[0] || {});
+    const csvContent = [
+      headers.join(','),
+      ...csvData.map(row => headers.map(header => {
+        const value = row[header as keyof typeof row];
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `students_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+    
+    toast({
+      title: "Success",
+      description: "Student list exported to CSV",
+    });
+  };
+
+  const exportToExcel = () => {
+    const excelData = filteredStudents.map(student => ({
+      'First Name': student.first_name || '',
+      'Middle Name': student.middle_name || '',
+      'Last Name': student.last_name || '',
+      'Admission Number': student.student_id || '',
+      'Phone Number': student.phone_number || '',
+      'Email': student.email || '',
+      'Grade Level': student.grade_level || '',
+      'Department': departments.find(d => d.id === student.department_id)?.name || '',
+      'Points': student.points || 0,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Students');
+    
+    XLSX.writeFile(workbook, `students_${new Date().toISOString().split('T')[0]}.xlsx`);
+    
+    toast({
+      title: "Success",
+      description: "Student list exported to Excel",
+    });
+  };
+
   const fetchBookCopies = async (bookId: string) => {
     try {
       const { data, error } = await supabase
@@ -529,13 +589,22 @@ const StudentManager = () => {
           <h2 className="text-2xl font-bold text-gray-900">Student Management</h2>
           <p className="text-gray-600">Add, edit, and manage student accounts</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Student
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={exportToCSV} disabled={filteredStudents.length === 0}>
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button variant="outline" onClick={exportToExcel} disabled={filteredStudents.length === 0}>
+            <Download className="h-4 w-4 mr-2" />
+            Export Excel
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Student
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Student</DialogTitle>
@@ -547,7 +616,8 @@ const StudentManager = () => {
               submitLabel="Add Student" 
             />
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Search and Filters */}
