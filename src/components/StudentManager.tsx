@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2, Download } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2, Download, Printer } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import StudentForm from "@/components/StudentForm";
@@ -431,6 +431,135 @@ const StudentManager = () => {
     });
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast({
+        title: "Error",
+        description: "Please allow pop-ups to print",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Student List - ${new Date().toLocaleDateString()}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 20px;
+              color: #000;
+            }
+            h1 {
+              text-align: center;
+              margin-bottom: 10px;
+              font-size: 24px;
+            }
+            .print-date {
+              text-align: center;
+              margin-bottom: 20px;
+              color: #666;
+              font-size: 14px;
+            }
+            .grade-section {
+              margin-bottom: 30px;
+              page-break-inside: avoid;
+            }
+            .grade-header {
+              background-color: #f3f4f6;
+              padding: 10px;
+              font-weight: bold;
+              font-size: 16px;
+              margin-bottom: 10px;
+              border-left: 4px solid #3b82f6;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            th, td {
+              border: 1px solid #ddd;
+              padding: 8px;
+              text-align: left;
+              font-size: 12px;
+            }
+            th {
+              background-color: #f9fafb;
+              font-weight: 600;
+            }
+            tr:nth-child(even) {
+              background-color: #f9fafb;
+            }
+            .total-count {
+              text-align: center;
+              margin-top: 20px;
+              font-weight: bold;
+              font-size: 14px;
+            }
+            @media print {
+              body {
+                margin: 10px;
+              }
+              .grade-section {
+                page-break-inside: avoid;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Student List</h1>
+          <div class="print-date">Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
+          
+          ${sortedGrades.map(grade => `
+            <div class="grade-section">
+              <div class="grade-header">${grade} (${groupedStudents[grade].length} student${groupedStudents[grade].length !== 1 ? 's' : ''})</div>
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 20%">Name</th>
+                    <th style="width: 12%">Adm No</th>
+                    <th style="width: 15%">Phone Number</th>
+                    <th style="width: 20%">Email</th>
+                    <th style="width: 10%">Grade</th>
+                    <th style="width: 15%">Department</th>
+                    <th style="width: 8%">Points</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${groupedStudents[grade].map(student => `
+                    <tr>
+                      <td>${student.first_name} ${student.middle_name ? student.middle_name + ' ' : ''}${student.last_name}</td>
+                      <td>${student.student_id || 'N/A'}</td>
+                      <td>${student.phone_number || '-'}</td>
+                      <td>${student.email || 'No email'}</td>
+                      <td>${student.grade_level || 'N/A'}</td>
+                      <td>${departments.find(d => d.id === student.department_id)?.name || '-'}</td>
+                      <td>${student.points}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `).join('')}
+          
+          <div class="total-count">Total Students: ${filteredStudents.length}</div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
+  };
+
   const fetchBookCopies = async (bookId: string) => {
     try {
       const { data, error } = await supabase
@@ -590,6 +719,10 @@ const StudentManager = () => {
           <p className="text-gray-600">Add, edit, and manage student accounts</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={handlePrint} disabled={filteredStudents.length === 0}>
+            <Printer className="h-4 w-4 mr-2" />
+            Print
+          </Button>
           <Button variant="outline" onClick={exportToCSV} disabled={filteredStudents.length === 0}>
             <Download className="h-4 w-4 mr-2" />
             Export CSV
