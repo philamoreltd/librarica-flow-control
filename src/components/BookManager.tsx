@@ -67,6 +67,7 @@ const BookManager = () => {
   const [copiesSelectedCategory, setCopiesSelectedCategory] = useState("all");
   const [copiesSearchQuery, setCopiesSearchQuery] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null);
+  const [copiesSelectedGradeLevel, setCopiesSelectedGradeLevel] = useState("all");
   const [hasSyncedCopies, setHasSyncedCopies] = useState(false);
   
   // Check in/out states
@@ -1017,6 +1018,20 @@ const BookManager = () => {
                 ))}
               </SelectContent>
             </Select>
+
+            <Select value={copiesSelectedGradeLevel} onValueChange={setCopiesSelectedGradeLevel}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Class/Grade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Classes</SelectItem>
+                {gradeLevels.map((grade) => (
+                  <SelectItem key={grade} value={grade}>
+                    {grade}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -1033,6 +1048,7 @@ const BookManager = () => {
           {(() => {
             const filteredCopies = allBookCopies.filter(copy => {
               const matchesCategory = copiesSelectedCategory === "all" || copy.books?.category === copiesSelectedCategory;
+              const matchesGradeLevel = copiesSelectedGradeLevel === "all" || copy.books?.grade_level === copiesSelectedGradeLevel;
               const searchLower = copiesSearchQuery.toLowerCase();
               const matchesSearch = !copiesSearchQuery || (
                 copy.books?.title?.toLowerCase().includes(searchLower) ||
@@ -1042,7 +1058,7 @@ const BookManager = () => {
               );
               const matchesStatus = !selectedStatusFilter || 
                 (selectedStatusFilter === 'damaged' ? (copy.status === 'damaged' || copy.status === 'lost') : copy.status === selectedStatusFilter);
-              return matchesCategory && matchesSearch && matchesStatus;
+              return matchesCategory && matchesGradeLevel && matchesSearch && matchesStatus;
             });
 
             const stats = {
