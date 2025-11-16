@@ -58,6 +58,7 @@ const BookManager = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [selectedGradeLevel, setSelectedGradeLevel] = useState("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
@@ -710,8 +711,9 @@ const BookManager = () => {
                          book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          book.isbn?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || book.category === selectedCategory;
+    const matchesGradeLevel = selectedGradeLevel === "all" || book.grade_level === selectedGradeLevel;
     
-    return matchesSearch && matchesCategory;
+    return matchesSearch && matchesCategory && matchesGradeLevel;
   });
 
   useEffect(() => {
@@ -810,6 +812,19 @@ const BookManager = () => {
             {categories.map((category) => (
               <SelectItem key={category} value={category}>
                 {category}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={selectedGradeLevel} onValueChange={setSelectedGradeLevel}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Class/Grade" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Classes</SelectItem>
+            {gradeLevels.map((grade) => (
+              <SelectItem key={grade} value={grade}>
+                {grade}
               </SelectItem>
             ))}
           </SelectContent>
