@@ -23,6 +23,7 @@ import StudentManager from "./StudentManager";
 import CheckInOutManager from "./CheckInOutManager";
 import BookCopyIssueManager from "./BookCopyIssueManager";
 import { DepartmentManager } from "./DepartmentManager";
+import { StaffManagement } from "./StaffManagement";
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -164,7 +165,7 @@ const AdminPanel = () => {
           <TabsTrigger value="departments">Departments</TabsTrigger>
           <TabsTrigger value="check-in-out">Check In/Out</TabsTrigger>
           <TabsTrigger value="issue-copies">Issue Copies</TabsTrigger>
-          <TabsTrigger value="transactions">Transactions</TabsTrigger>
+          <TabsTrigger value="staff">Staff Management</TabsTrigger>
           <TabsTrigger value="overdue">Overdue Items</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
           <TabsTrigger value="bulk-import">Bulk Import</TabsTrigger>
@@ -249,48 +250,8 @@ const AdminPanel = () => {
           <BookCopyIssueManager />
         </TabsContent>
 
-        <TabsContent value="transactions">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>All Transactions</CardTitle>
-              <div className="flex gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    placeholder="Search transactions..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 w-64"
-                  />
-                </div>
-                <Button size="sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Transaction
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentTransactions.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <Badge className={getTransactionBadgeColor(transaction.type)}>
-                        {transaction.type}
-                      </Badge>
-                      <div>
-                        <p className="font-medium">{transaction.member}</p>
-                        <p className="text-sm text-gray-600">{transaction.book}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-gray-500">{transaction.date}</p>
-                      <p className="text-sm font-medium">{transaction.status}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+        <TabsContent value="staff">
+          <StaffManagement />
         </TabsContent>
 
         <TabsContent value="overdue">
