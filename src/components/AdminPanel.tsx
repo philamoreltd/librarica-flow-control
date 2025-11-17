@@ -24,9 +24,11 @@ import CheckInOutManager from "./CheckInOutManager";
 import BookCopyIssueManager from "./BookCopyIssueManager";
 import { DepartmentManager } from "./DepartmentManager";
 import { StaffManagement } from "./StaffManagement";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const permissions = usePermissions();
 
   // Sample data for admin dashboard
   const stats = [
@@ -158,209 +160,242 @@ const AdminPanel = () => {
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-10">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="books">Books</TabsTrigger>
-          <TabsTrigger value="students">Students</TabsTrigger>
-          <TabsTrigger value="departments">Departments</TabsTrigger>
-          <TabsTrigger value="check-in-out">Check In/Out</TabsTrigger>
-          <TabsTrigger value="issue-copies">Issue Copies</TabsTrigger>
-          <TabsTrigger value="staff">Staff Management</TabsTrigger>
-          <TabsTrigger value="overdue">Overdue Items</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="bulk-import">Bulk Import</TabsTrigger>
+        <TabsList className="grid w-full" style={{ gridTemplateColumns: `repeat(${
+          [
+            permissions.canViewOverview,
+            permissions.canManageBooks,
+            permissions.canManageStudents,
+            permissions.canManageDepartments,
+            permissions.canManageCheckInOut,
+            permissions.canManageIssueCopies,
+            permissions.canManageStaff,
+            permissions.canViewOverdue,
+            permissions.canViewAnalytics,
+            permissions.canBulkImport
+          ].filter(Boolean).length
+        }, minmax(0, 1fr))` }}>
+          {permissions.canViewOverview && <TabsTrigger value="overview">Overview</TabsTrigger>}
+          {permissions.canManageBooks && <TabsTrigger value="books">Books</TabsTrigger>}
+          {permissions.canManageStudents && <TabsTrigger value="students">Students</TabsTrigger>}
+          {permissions.canManageDepartments && <TabsTrigger value="departments">Departments</TabsTrigger>}
+          {permissions.canManageCheckInOut && <TabsTrigger value="check-in-out">Check In/Out</TabsTrigger>}
+          {permissions.canManageIssueCopies && <TabsTrigger value="issue-copies">Issue Copies</TabsTrigger>}
+          {permissions.canManageStaff && <TabsTrigger value="staff">Staff Management</TabsTrigger>}
+          {permissions.canViewOverdue && <TabsTrigger value="overdue">Overdue Items</TabsTrigger>}
+          {permissions.canViewAnalytics && <TabsTrigger value="analytics">Analytics</TabsTrigger>}
+          {permissions.canBulkImport && <TabsTrigger value="bulk-import">Bulk Import</TabsTrigger>}
         </TabsList>
 
-        <TabsContent value="overview">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Recent Transactions */}
+        {permissions.canViewOverview && (
+          <TabsContent value="overview">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Recent Transactions */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Recent Transactions</CardTitle>
+                  <Button size="sm" variant="outline">
+                    View All
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentTransactions.slice(0, 5).map((transaction) => (
+                      <div key={transaction.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge className={getTransactionBadgeColor(transaction.type)}>
+                              {transaction.type}
+                            </Badge>
+                          </div>
+                          <p className="font-medium text-sm">{transaction.member}</p>
+                          <p className="text-xs text-gray-600">{transaction.book}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-gray-500">{transaction.date}</p>
+                          <p className="text-xs font-medium">{transaction.status}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Popular Books */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Popular Books This Month</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {popularBooks.map((book, index) => (
+                      <div key={index} className="flex items-center justify-between py-2">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{book.title}</p>
+                          <p className="text-xs text-gray-600">
+                            {book.checkouts} checkouts • {book.waitlist} on waitlist
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-semibold">#{index + 1}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
+
+        {permissions.canManageBooks && (
+          <TabsContent value="books">
+            <BookManager />
+          </TabsContent>
+        )}
+
+        {permissions.canManageStudents && (
+          <TabsContent value="students">
+            <StudentManager />
+          </TabsContent>
+        )}
+
+        {permissions.canManageDepartments && (
+          <TabsContent value="departments">
+            <DepartmentManager />
+          </TabsContent>
+        )}
+
+        {permissions.canManageCheckInOut && (
+          <TabsContent value="check-in-out">
+            <CheckInOutManager />
+          </TabsContent>
+        )}
+
+        {permissions.canManageIssueCopies && (
+          <TabsContent value="issue-copies">
+            <BookCopyIssueManager />
+          </TabsContent>
+        )}
+
+        {permissions.canManageStaff && (
+          <TabsContent value="staff">
+            <StaffManagement />
+          </TabsContent>
+        )}
+
+        {permissions.canViewOverdue && (
+          <TabsContent value="overdue">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>Recent Transactions</CardTitle>
-                <Button size="sm" variant="outline">
-                  View All
+                <CardTitle className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
+                  Overdue Items ({overdueItems.length})
+                </CardTitle>
+                <Button size="sm">
+                  Send Reminders
                 </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {recentTransactions.slice(0, 5).map((transaction) => (
-                    <div key={transaction.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                  {overdueItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg bg-red-50 border-red-200">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge className={getTransactionBadgeColor(transaction.type)}>
-                            {transaction.type}
+                        <div className="flex items-center gap-2 mb-2">
+                          <p className="font-medium">{item.member}</p>
+                          <Badge className="bg-red-100 text-red-800">
+                            {item.daysOverdue} days overdue
                           </Badge>
                         </div>
-                        <p className="font-medium text-sm">{transaction.member}</p>
-                        <p className="text-xs text-gray-600">{transaction.book}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">{transaction.date}</p>
-                        <p className="text-xs font-medium">{transaction.status}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Popular Books */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Popular Books This Month</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {popularBooks.map((book, index) => (
-                    <div key={index} className="flex items-center justify-between py-2">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{book.title}</p>
-                        <p className="text-xs text-gray-600">
-                          {book.checkouts} checkouts • {book.waitlist} on waitlist
+                        <p className="text-sm text-gray-600 mb-1">{item.book}</p>
+                        <p className="text-xs text-gray-500">
+                          Due: {new Date(item.dueDate).toLocaleDateString()} • Contact: {item.contact}
                         </p>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-semibold">#{index + 1}</span>
+                        <p className="text-lg font-bold text-red-600">${item.fine.toFixed(2)}</p>
+                        <div className="flex gap-1 mt-2">
+                          <Button size="sm" variant="outline">
+                            Contact
+                          </Button>
+                          <Button size="sm">
+                            Collect Fine
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
+        )}
 
-        <TabsContent value="books">
-          <BookManager />
-        </TabsContent>
-
-        <TabsContent value="students">
-          <StudentManager />
-        </TabsContent>
-
-        <TabsContent value="departments">
-          <DepartmentManager />
-        </TabsContent>
-
-        <TabsContent value="check-in-out">
-          <CheckInOutManager />
-        </TabsContent>
-
-        <TabsContent value="issue-copies">
-          <BookCopyIssueManager />
-        </TabsContent>
-
-        <TabsContent value="staff">
-          <StaffManagement />
-        </TabsContent>
-
-        <TabsContent value="overdue">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center">
-                <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-                Overdue Items ({overdueItems.length})
-              </CardTitle>
-              <Button size="sm">
-                Send Reminders
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {overdueItems.map((item) => (
-                  <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg bg-red-50 border-red-200">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <p className="font-medium">{item.member}</p>
-                        <Badge className="bg-red-100 text-red-800">
-                          {item.daysOverdue} days overdue
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-gray-600 mb-1">{item.book}</p>
-                      <p className="text-xs text-gray-500">
-                        Due: {new Date(item.dueDate).toLocaleDateString()} • Contact: {item.contact}
-                      </p>
+        {permissions.canViewAnalytics && (
+          <TabsContent value="analytics">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
+                    Monthly Statistics
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
+                      <span className="text-sm font-medium">Total Checkouts</span>
+                      <span className="text-lg font-bold text-blue-600">1,456</span>
                     </div>
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-red-600">${item.fine.toFixed(2)}</p>
-                      <div className="flex gap-1 mt-2">
-                        <Button size="sm" variant="outline">
-                          Contact
-                        </Button>
-                        <Button size="sm">
-                          Collect Fine
-                        </Button>
-                      </div>
+                    <div className="flex justify-between items-center p-3 bg-green-50 rounded">
+                      <span className="text-sm font-medium">New Members</span>
+                      <span className="text-lg font-bold text-green-600">89</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded">
+                      <span className="text-sm font-medium">Revenue Generated</span>
+                      <span className="text-lg font-bold text-purple-600">$4,250</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-orange-50 rounded">
+                      <span className="text-sm font-medium">Books Added</span>
+                      <span className="text-lg font-bold text-orange-600">127</span>
                     </div>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                </CardContent>
+              </Card>
 
-        <TabsContent value="analytics">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <BarChart3 className="h-5 w-5 mr-2 text-blue-600" />
-                  Monthly Statistics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded">
-                    <span className="text-sm font-medium">Total Checkouts</span>
-                    <span className="text-lg font-bold text-blue-600">1,456</span>
+              <Card>
+                <CardHeader>
+                  <CardTitle>System Health</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Database Performance</span>
+                      <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Storage Usage</span>
+                      <Badge className="bg-yellow-100 text-yellow-800">75% Used</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Active Sessions</span>
+                      <Badge className="bg-blue-100 text-blue-800">342 Users</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm">Last Backup</span>
+                      <Badge className="bg-green-100 text-green-800">2 hours ago</Badge>
+                    </div>
                   </div>
-                  <div className="flex justify-between items-center p-3 bg-green-50 rounded">
-                    <span className="text-sm font-medium">New Members</span>
-                    <span className="text-lg font-bold text-green-600">89</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded">
-                    <span className="text-sm font-medium">Revenue Generated</span>
-                    <span className="text-lg font-bold text-purple-600">$4,250</span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded">
-                    <span className="text-sm font-medium">Books Added</span>
-                    <span className="text-lg font-bold text-orange-600">127</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        )}
 
-            <Card>
-              <CardHeader>
-                <CardTitle>System Health</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Database Performance</span>
-                    <Badge className="bg-green-100 text-green-800">Excellent</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Storage Usage</span>
-                    <Badge className="bg-yellow-100 text-yellow-800">75% Used</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Active Sessions</span>
-                    <Badge className="bg-blue-100 text-blue-800">342 Users</Badge>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm">Last Backup</span>
-                    <Badge className="bg-green-100 text-green-800">2 hours ago</Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="bulk-import">
-          <BulkImport />
-        </TabsContent>
+        {permissions.canBulkImport && (
+          <TabsContent value="bulk-import">
+            <BulkImport />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
