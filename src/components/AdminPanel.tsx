@@ -15,7 +15,11 @@ import {
   Search,
   Calendar,
   DollarSign,
-  Clock
+  Clock,
+  Shield,
+  ShieldCheck,
+  ShieldAlert,
+  User
 } from "lucide-react";
 import { BulkImport } from "./BulkImport";
 import BookManager from "./BookManager";
@@ -25,10 +29,53 @@ import BookCopyIssueManager from "./BookCopyIssueManager";
 import { DepartmentManager } from "./DepartmentManager";
 import { StaffManagement } from "./StaffManagement";
 import { usePermissions } from "@/hooks/usePermissions";
+import { useAuth } from "@/hooks/useAuth";
+
+const getRoleBadgeConfig = (role: string | null | undefined) => {
+  switch (role) {
+    case 'super_admin':
+      return {
+        label: 'Super Admin',
+        icon: ShieldCheck,
+        className: 'bg-purple-100 text-purple-800 border-purple-300',
+        description: 'Full system access'
+      };
+    case 'admin':
+      return {
+        label: 'Admin',
+        icon: Shield,
+        className: 'bg-blue-100 text-blue-800 border-blue-300',
+        description: 'Administrative access'
+      };
+    case 'department_admin':
+      return {
+        label: 'Department Admin',
+        icon: ShieldAlert,
+        className: 'bg-amber-100 text-amber-800 border-amber-300',
+        description: 'Department-level access'
+      };
+    case 'librarian':
+      return {
+        label: 'Librarian',
+        icon: BookOpen,
+        className: 'bg-green-100 text-green-800 border-green-300',
+        description: 'Operational access'
+      };
+    default:
+      return {
+        label: 'User',
+        icon: User,
+        className: 'bg-gray-100 text-gray-800 border-gray-300',
+        description: 'Limited access'
+      };
+  }
+};
 
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const permissions = usePermissions();
+  const { profile } = useAuth();
+  const roleBadge = getRoleBadgeConfig(profile?.role);
 
   // Sample data for admin dashboard
   const stats = [
@@ -130,9 +177,22 @@ const AdminPanel = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
-        <p className="text-gray-600">Comprehensive library management and analytics</p>
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Dashboard</h1>
+          <p className="text-gray-600">Comprehensive library management and analytics</p>
+        </div>
+        <div className="flex items-center gap-3 p-3 bg-card rounded-lg border shadow-sm">
+          <div className={`p-2 rounded-full ${roleBadge.className}`}>
+            <roleBadge.icon className="h-5 w-5" />
+          </div>
+          <div className="flex flex-col">
+            <Badge variant="outline" className={`${roleBadge.className} border font-semibold`}>
+              {roleBadge.label}
+            </Badge>
+            <span className="text-xs text-muted-foreground mt-1">{roleBadge.description}</span>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
