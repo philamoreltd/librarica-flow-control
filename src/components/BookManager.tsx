@@ -14,7 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookForm } from "@/components/BookForm";
 import { CopyRow } from "@/components/CopyRow";
-import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown } from "lucide-react";
+import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown, FileSpreadsheet } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { cn } from "@/lib/utils";
@@ -770,27 +771,79 @@ const BookManager = () => {
           <h2 className="text-2xl font-bold text-gray-900">Book Management</h2>
           <p className="text-gray-600">Add, edit, and manage library books</p>
         </div>
-        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={resetForm} aria-label="Add Book">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Book
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Book</DialogTitle>
-            </DialogHeader>
-            <BookForm 
-              formData={formData}
-              onFormDataChange={handleFormDataChange}
-              onSubmit={handleAddBook}
-              submitLabel="Add Book"
-              categories={categories}
-              onAddCategory={handleAddCategory}
-            />
-          </DialogContent>
-        </Dialog>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              // Prepare export data
+              const exportData = books.map(book => {
+                const bookCopiesList = allBookCopies.filter(copy => copy.book_id === book.id);
+                const availableCount = bookCopiesList.filter(c => c.status === 'available').length;
+                const borrowedCount = bookCopiesList.filter(c => c.status === 'borrowed').length;
+                const reservedCount = bookCopiesList.filter(c => c.status === 'reserved').length;
+                const damagedCount = bookCopiesList.filter(c => c.status === 'damaged' || c.status === 'lost').length;
+                
+                return {
+                  'Title': book.title,
+                  'Author': book.author,
+                  'Category': book.category,
+                  'Class/Grade': book.grade_level || 'N/A',
+                  'ISBN': book.isbn || 'N/A',
+                  'Total Copies': bookCopiesList.length,
+                  'Available': availableCount,
+                  'Borrowed': borrowedCount,
+                  'Reserved': reservedCount,
+                  'Lost/Damaged': damagedCount,
+                  'Featured': book.featured ? 'Yes' : 'No',
+                  'Points': book.points,
+                };
+              });
+
+              // Create workbook and worksheet
+              const ws = XLSX.utils.json_to_sheet(exportData);
+              const wb = XLSX.utils.book_new();
+              XLSX.utils.book_append_sheet(wb, ws, 'Books');
+
+              // Auto-size columns
+              const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+                wch: Math.max(key.length, ...exportData.map(row => String(row[key as keyof typeof row] || '').length)) + 2
+              }));
+              ws['!cols'] = colWidths;
+
+              // Download file
+              XLSX.writeFile(wb, `books_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+              
+              toast({
+                title: "Export Complete",
+                description: `Exported ${books.length} books to Excel file`,
+              });
+            }}
+          >
+            <FileSpreadsheet className="h-4 w-4 mr-2" />
+            Export Books
+          </Button>
+          <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={resetForm} aria-label="Add Book">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Book
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Book</DialogTitle>
+              </DialogHeader>
+              <BookForm 
+                formData={formData}
+                onFormDataChange={handleFormDataChange}
+                onSubmit={handleAddBook}
+                submitLabel="Add Book"
+                categories={categories}
+                onAddCategory={handleAddCategory}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       {/* Search and Filters */}
