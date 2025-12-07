@@ -1049,6 +1049,119 @@ const BookManager = () => {
               >
                 Sync All Copies
               </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={async () => {
+                  try {
+                    // Fetch borrowing records for borrowed copies
+                    const { data: borrowingData, error: borrowingError } = await supabase
+                      .from('borrowing_records')
+                      .select(`
+                        copy_id,
+                        borrowed_at,
+                        due_date,
+                        status,
+                        profiles:user_id (
+                          first_name,
+                          last_name,
+                          student_id,
+                          email,
+                          grade_level
+                        )
+                      `)
+                      .eq('status', 'active');
+
+                    if (borrowingError) throw borrowingError;
+
+                    // Create a map of copy_id to borrowing info
+                    const borrowingMap = new Map();
+                    (borrowingData || []).forEach((record: any) => {
+                      borrowingMap.set(record.copy_id, record);
+                    });
+
+                    // Filter copies based on current filters
+                    const filteredCopies = allBookCopies.filter(copy => {
+                      const matchesCategory = copiesSelectedCategory === "all" || copy.books?.category === copiesSelectedCategory;
+                      const matchesGradeLevel = copiesSelectedGradeLevel === "all" || copy.books?.grade_level === copiesSelectedGradeLevel;
+                      const searchLower = copiesSearchQuery.toLowerCase();
+                      const matchesSearch = !copiesSearchQuery || (
+                        copy.books?.title?.toLowerCase().includes(searchLower) ||
+                        copy.books?.author?.toLowerCase().includes(searchLower) ||
+                        copy.barcode?.toLowerCase().includes(searchLower) ||
+                        copy.isbn?.toLowerCase().includes(searchLower)
+                      );
+                      const matchesStatus = !selectedStatusFilter || 
+                        (selectedStatusFilter === 'damaged' ? (copy.status === 'damaged' || copy.status === 'lost') : copy.status === selectedStatusFilter);
+                      return matchesCategory && matchesGradeLevel && matchesSearch && matchesStatus;
+                    });
+
+                    // Prepare export data
+                    const exportData = filteredCopies.map(copy => {
+                      const borrowing = borrowingMap.get(copy.id);
+                      const borrowerName = borrowing?.profiles 
+                        ? `${borrowing.profiles.first_name || ''} ${borrowing.profiles.last_name || ''}`.trim() 
+                        : '';
+                      
+                      return {
+                        'Book Title': copy.books?.title || 'N/A',
+                        'Author': copy.books?.author || 'N/A',
+                        'Category': copy.books?.category || 'N/A',
+                        'Class/Grade': copy.books?.grade_level || 'N/A',
+                        'Copy #': copy.copy_number,
+                        'Barcode': copy.barcode,
+                        'ISBN': copy.isbn || 'N/A',
+                        'Status': copy.status,
+                        'Borrower Name': borrowerName || 'N/A',
+                        'Borrower ID': borrowing?.profiles?.student_id || 'N/A',
+                        'Borrower Email': borrowing?.profiles?.email || 'N/A',
+                        'Borrower Class': borrowing?.profiles?.grade_level || 'N/A',
+                        'Borrowed Date': borrowing?.borrowed_at ? new Date(borrowing.borrowed_at).toLocaleDateString() : 'N/A',
+                        'Due Date': borrowing?.due_date ? new Date(borrowing.due_date).toLocaleDateString() : 'N/A',
+                        'Notes': copy.notes || '',
+                      };
+                    });
+
+                    if (exportData.length === 0) {
+                      toast({
+                        title: "No Data",
+                        description: "No book copies to export with current filters",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+
+                    // Create workbook and worksheet
+                    const ws = XLSX.utils.json_to_sheet(exportData);
+                    const wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, 'Book Copies');
+
+                    // Auto-size columns
+                    const colWidths = Object.keys(exportData[0] || {}).map(key => ({
+                      wch: Math.max(key.length, ...exportData.map(row => String(row[key as keyof typeof row] || '').length)) + 2
+                    }));
+                    ws['!cols'] = colWidths;
+
+                    // Download file
+                    XLSX.writeFile(wb, `book_copies_export_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    
+                    toast({
+                      title: "Export Complete",
+                      description: `Exported ${exportData.length} book copies to Excel file`,
+                    });
+                  } catch (error: any) {
+                    console.error('Export error:', error);
+                    toast({
+                      title: "Export Failed",
+                      description: error.message || "Failed to export book copies",
+                      variant: "destructive",
+                    });
+                  }
+                }}
+              >
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export Copies
+              </Button>
               <Button variant="outline" onClick={fetchAllBookCopies} size="sm">
                 Refresh
               </Button>
