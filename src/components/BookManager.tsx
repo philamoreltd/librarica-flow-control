@@ -1159,6 +1159,11 @@ const BookManager = () => {
                                 {copy.books.category}
                               </Badge>
                             )}
+                            {copy.books?.grade_level && (
+                              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                {copy.books.grade_level}
+                              </Badge>
+                            )}
                           </div>
                           {copy.notes && (
                             <div className="text-xs text-muted-foreground mt-1">
