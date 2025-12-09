@@ -57,7 +57,7 @@ serve(async (req) => {
       case 'get_all_copies': {
         const { data, error } = await supabaseClient
           .from('book_copies')
-          .select(`*, books (id, title, author, category, isbn) `)
+          .select(`*, books (id, title, author, category, isbn, grade_level) `)
           .order('created_at', { ascending: false });
 
         if (error) {
