@@ -14,7 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookForm } from "@/components/BookForm";
 import { CopyRow } from "@/components/CopyRow";
-import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown, FileSpreadsheet } from "lucide-react";
+import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown, FileSpreadsheet, CheckSquare, Square } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import * as XLSX from 'xlsx';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -70,6 +71,10 @@ const BookManager = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string | null>(null);
   const [copiesSelectedGradeLevel, setCopiesSelectedGradeLevel] = useState("all");
   const [hasSyncedCopies, setHasSyncedCopies] = useState(false);
+  
+  // Bulk selection states
+  const [selectedCopyIds, setSelectedCopyIds] = useState<Set<string>>(new Set());
+  const [bulkClassAssignment, setBulkClassAssignment] = useState("");
   
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
@@ -756,6 +761,87 @@ const BookManager = () => {
     };
   }, []);
 
+  // Bulk class assignment handler
+  const handleBulkClassAssignment = async (gradeLevel: string) => {
+    if (selectedCopyIds.size === 0) {
+      toast({
+        title: "No copies selected",
+        description: "Please select at least one book copy",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      // Get unique book IDs from selected copies
+      const selectedCopies = allBookCopies.filter(copy => selectedCopyIds.has(copy.id));
+      const uniqueBookIds = [...new Set(selectedCopies.map(copy => copy.book_id))];
+
+      // Update each book's grade_level
+      for (const bookId of uniqueBookIds) {
+        const response = await supabase.functions.invoke('manage-books', {
+          body: { 
+            action: 'update_book',
+            bookId: bookId,
+            bookData: { grade_level: gradeLevel }
+          },
+          headers: {
+            Authorization: `Bearer ${session.session.access_token}`,
+          },
+        });
+
+        if (response.error) throw response.error;
+      }
+
+      toast({
+        title: "Class assigned successfully",
+        description: `Updated ${uniqueBookIds.length} book(s) to ${gradeLevel}`,
+      });
+
+      // Clear selection and refresh
+      setSelectedCopyIds(new Set());
+      setBulkClassAssignment("");
+      fetchBooks();
+      fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Bulk class assignment error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign class",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Toggle copy selection
+  const toggleCopySelection = (copyId: string) => {
+    setSelectedCopyIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(copyId)) {
+        newSet.delete(copyId);
+      } else {
+        newSet.add(copyId);
+      }
+      return newSet;
+    });
+  };
+
+  // Select all visible copies
+  const selectAllVisibleCopies = (filteredCopies: any[]) => {
+    const allIds = filteredCopies.map(copy => copy.id);
+    setSelectedCopyIds(new Set(allIds));
+  };
+
+  // Clear all selections
+  const clearAllSelections = () => {
+    setSelectedCopyIds(new Set());
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -1285,6 +1371,64 @@ const BookManager = () => {
                   </Card>
                 </div>
 
+                {/* Bulk Actions Bar */}
+                {filteredCopies.length > 0 && (
+                  <div className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={selectedCopyIds.size === filteredCopies.length && filteredCopies.length > 0}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              selectAllVisibleCopies(filteredCopies);
+                            } else {
+                              clearAllSelections();
+                            }
+                          }}
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {selectedCopyIds.size > 0 
+                            ? `${selectedCopyIds.size} selected` 
+                            : "Select all"}
+                        </span>
+                      </div>
+                      {selectedCopyIds.size > 0 && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          onClick={clearAllSelections}
+                          className="text-xs"
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
+                    {selectedCopyIds.size > 0 && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">Assign Class:</span>
+                        <Select 
+                          value={bulkClassAssignment} 
+                          onValueChange={(value) => {
+                            setBulkClassAssignment(value);
+                            handleBulkClassAssignment(value);
+                          }}
+                        >
+                          <SelectTrigger className="w-36">
+                            <SelectValue placeholder="Select class" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {gradeLevels.map((grade) => (
+                              <SelectItem key={grade} value={grade}>
+                                {grade}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Book Copies List */}
                 <div className="space-y-3">
                   {filteredCopies.length === 0 ? (
@@ -1310,32 +1454,39 @@ const BookManager = () => {
                     </div>
                   ) : (
                     filteredCopies.map((copy) => (
-                      <div key={copy.id} className="flex items-center justify-between border rounded-lg p-4 hover:bg-accent/50 transition-colors">
-                        <div className="flex-1 space-y-1">
-                          <div className="font-medium">{copy.books?.title}</div>
-                          <div className="text-sm text-muted-foreground">
-                            by {copy.books?.author}
-                          </div>
-                          <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                            <span className="font-mono">Copy #{copy.copy_number}</span>
-                            <span className="font-mono">Barcode: {copy.barcode}</span>
-                            <span className="font-mono">ISBN: {copy.isbn || 'Not assigned'}</span>
-                            {copy.books?.category && (
-                              <Badge variant="outline" className="text-xs">
-                                {copy.books.category}
-                              </Badge>
-                            )}
-                            {copy.books?.grade_level && (
-                              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
-                                {copy.books.grade_level}
-                              </Badge>
-                            )}
-                          </div>
-                          {copy.notes && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Note: {copy.notes}
+                      <div key={copy.id} className={`flex items-center justify-between border rounded-lg p-4 hover:bg-accent/50 transition-colors ${selectedCopyIds.has(copy.id) ? 'bg-primary/5 border-primary/30' : ''}`}>
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={selectedCopyIds.has(copy.id)}
+                            onCheckedChange={() => toggleCopySelection(copy.id)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1 space-y-1">
+                            <div className="font-medium">{copy.books?.title}</div>
+                            <div className="text-sm text-muted-foreground">
+                              by {copy.books?.author}
                             </div>
-                          )}
+                            <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                              <span className="font-mono">Copy #{copy.copy_number}</span>
+                              <span className="font-mono">Barcode: {copy.barcode}</span>
+                              <span className="font-mono">ISBN: {copy.isbn || 'Not assigned'}</span>
+                              {copy.books?.category && (
+                                <Badge variant="outline" className="text-xs">
+                                  {copy.books.category}
+                                </Badge>
+                              )}
+                              {copy.books?.grade_level && (
+                                <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                                  {copy.books.grade_level}
+                                </Badge>
+                              )}
+                            </div>
+                            {copy.notes && (
+                              <div className="text-xs text-muted-foreground mt-1">
+                                Note: {copy.notes}
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2 ml-4">
                           <Badge 
