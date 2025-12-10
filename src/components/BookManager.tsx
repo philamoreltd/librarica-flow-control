@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { BookForm } from "@/components/BookForm";
 import { CopyRow } from "@/components/CopyRow";
-import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown, FileSpreadsheet, CheckSquare, Square } from "lucide-react";
+import { BarChart3, BookOpen, Search, Plus, Edit2, Trash2, Star, Download, Check, ChevronsUpDown, FileSpreadsheet, CheckSquare, Square, Undo2, X } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import * as XLSX from 'xlsx';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -79,6 +79,13 @@ const BookManager = () => {
   const [bulkStatusAssignment, setBulkStatusAssignment] = useState("");
   const [showBulkStatusConfirm, setShowBulkStatusConfirm] = useState(false);
   const [pendingBulkStatus, setPendingBulkStatus] = useState("");
+  
+  // Undo state for bulk operations
+  const [undoStack, setUndoStack] = useState<{
+    type: 'status' | 'class' | 'category';
+    items: { id: string; bookId?: string; previousValue: string }[];
+  } | null>(null);
+  const [showUndoBanner, setShowUndoBanner] = useState(false);
   
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
@@ -765,6 +772,66 @@ const BookManager = () => {
     };
   }, []);
 
+  // Undo bulk operation handler
+  const handleUndoBulkOperation = async () => {
+    if (!undoStack) return;
+    
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      if (undoStack.type === 'status') {
+        // Undo status changes
+        for (const item of undoStack.items) {
+          await supabase.functions.invoke('manage-book-copies', {
+            body: { 
+              action: 'update_copy_status',
+              copyId: item.id,
+              status: item.previousValue
+            },
+            headers: {
+              Authorization: `Bearer ${session.session.access_token}`,
+            },
+          });
+        }
+      } else {
+        // Undo class or category changes
+        const field = undoStack.type === 'class' ? 'grade_level' : 'category';
+        for (const item of undoStack.items) {
+          await supabase.functions.invoke('manage-books', {
+            body: { 
+              action: 'update_book',
+              bookId: item.id,
+              bookData: { [field]: item.previousValue || null }
+            },
+            headers: {
+              Authorization: `Bearer ${session.session.access_token}`,
+            },
+          });
+        }
+      }
+
+      toast({
+        title: "Undo successful",
+        description: `Reverted ${undoStack.items.length} item(s) to previous state`,
+      });
+
+      setUndoStack(null);
+      setShowUndoBanner(false);
+      fetchBooks();
+      fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Undo error:', error);
+      toast({
+        title: "Undo failed",
+        description: error.message || "Failed to undo changes",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Bulk class assignment handler
   const handleBulkClassAssignment = async (gradeLevel: string) => {
     if (selectedCopyIds.size === 0) {
@@ -782,9 +849,15 @@ const BookManager = () => {
         throw new Error('No authentication token');
       }
 
-      // Get unique book IDs from selected copies
+      // Get unique book IDs from selected copies and store previous values
       const selectedCopies = allBookCopies.filter(copy => selectedCopyIds.has(copy.id));
       const uniqueBookIds = [...new Set(selectedCopies.map(copy => copy.book_id))];
+      
+      // Store previous values for undo
+      const previousValues = uniqueBookIds.map(bookId => {
+        const book = books.find(b => b.id === bookId);
+        return { id: bookId, previousValue: book?.grade_level || '' };
+      });
 
       // Update each book's grade_level
       for (const bookId of uniqueBookIds) {
@@ -801,6 +874,13 @@ const BookManager = () => {
 
         if (response.error) throw response.error;
       }
+
+      // Set undo stack
+      setUndoStack({ type: 'class', items: previousValues });
+      setShowUndoBanner(true);
+      
+      // Auto-hide undo banner after 10 seconds
+      setTimeout(() => setShowUndoBanner(false), 10000);
 
       toast({
         title: "Class assigned successfully",
@@ -843,6 +923,12 @@ const BookManager = () => {
       const selectedCopies = allBookCopies.filter(copy => selectedCopyIds.has(copy.id));
       const uniqueBookIds = [...new Set(selectedCopies.map(copy => copy.book_id))];
 
+      // Store previous values for undo
+      const previousValues = uniqueBookIds.map(bookId => {
+        const book = books.find(b => b.id === bookId);
+        return { id: bookId, previousValue: book?.category || '' };
+      });
+
       // Update each book's category
       for (const bookId of uniqueBookIds) {
         const response = await supabase.functions.invoke('manage-books', {
@@ -858,6 +944,13 @@ const BookManager = () => {
 
         if (response.error) throw response.error;
       }
+
+      // Set undo stack
+      setUndoStack({ type: 'category', items: previousValues });
+      setShowUndoBanner(true);
+      
+      // Auto-hide undo banner after 10 seconds
+      setTimeout(() => setShowUndoBanner(false), 10000);
 
       toast({
         title: "Category assigned successfully",
@@ -896,6 +989,12 @@ const BookManager = () => {
         throw new Error('No authentication token');
       }
 
+      // Store previous values for undo
+      const previousValues = Array.from(selectedCopyIds).map(copyId => {
+        const copy = allBookCopies.find(c => c.id === copyId);
+        return { id: copyId, previousValue: copy?.status || 'available' };
+      });
+
       // Update each copy's status
       let successCount = 0;
       for (const copyId of selectedCopyIds) {
@@ -914,6 +1013,13 @@ const BookManager = () => {
           successCount++;
         }
       }
+
+      // Set undo stack
+      setUndoStack({ type: 'status', items: previousValues });
+      setShowUndoBanner(true);
+      
+      // Auto-hide undo banner after 10 seconds
+      setTimeout(() => setShowUndoBanner(false), 10000);
 
       toast({
         title: "Status updated successfully",
@@ -1486,6 +1592,40 @@ const BookManager = () => {
                     </CardContent>
                   </Card>
                 </div>
+
+                {/* Undo Banner */}
+                {showUndoBanner && undoStack && (
+                  <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg p-3 animate-in slide-in-from-top-2">
+                    <div className="flex items-center gap-3">
+                      <Undo2 className="h-4 w-4 text-primary" />
+                      <span className="text-sm">
+                        Bulk {undoStack.type} change applied to {undoStack.items.length} item(s)
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleUndoBulkOperation}
+                        className="gap-2"
+                      >
+                        <Undo2 className="h-3 w-3" />
+                        Undo
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-6 w-6"
+                        onClick={() => {
+                          setShowUndoBanner(false);
+                          setUndoStack(null);
+                        }}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Bulk Actions Bar */}
                 {filteredCopies.length > 0 && (
