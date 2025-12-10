@@ -77,6 +77,8 @@ const BookManager = () => {
   const [bulkClassAssignment, setBulkClassAssignment] = useState("");
   const [bulkCategoryAssignment, setBulkCategoryAssignment] = useState("");
   const [bulkStatusAssignment, setBulkStatusAssignment] = useState("");
+  const [showBulkStatusConfirm, setShowBulkStatusConfirm] = useState(false);
+  const [pendingBulkStatus, setPendingBulkStatus] = useState("");
   
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
@@ -1566,8 +1568,8 @@ const BookManager = () => {
                           <Select 
                             value={bulkStatusAssignment} 
                             onValueChange={(value) => {
-                              setBulkStatusAssignment(value);
-                              handleBulkStatusAssignment(value);
+                              setPendingBulkStatus(value);
+                              setShowBulkStatusConfirm(true);
                             }}
                           >
                             <SelectTrigger className="w-36">
@@ -1579,6 +1581,27 @@ const BookManager = () => {
                               <SelectItem value="lost">Lost</SelectItem>
                             </SelectContent>
                           </Select>
+                          
+                          <AlertDialog open={showBulkStatusConfirm} onOpenChange={setShowBulkStatusConfirm}>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirm Status Change</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to mark {selectedCopyIds.size} book copy(ies) as <strong className="capitalize">{pendingBulkStatus}</strong>? This action will update the status of all selected copies.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setPendingBulkStatus("")}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => {
+                                  handleBulkStatusAssignment(pendingBulkStatus);
+                                  setShowBulkStatusConfirm(false);
+                                  setPendingBulkStatus("");
+                                }}>
+                                  Confirm
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                         </div>
                       </div>
                     )}
