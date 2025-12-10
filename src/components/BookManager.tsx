@@ -75,6 +75,7 @@ const BookManager = () => {
   // Bulk selection states
   const [selectedCopyIds, setSelectedCopyIds] = useState<Set<string>>(new Set());
   const [bulkClassAssignment, setBulkClassAssignment] = useState("");
+  const [bulkCategoryAssignment, setBulkCategoryAssignment] = useState("");
   
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
@@ -818,6 +819,63 @@ const BookManager = () => {
     }
   };
 
+  // Bulk category assignment handler
+  const handleBulkCategoryAssignment = async (category: string) => {
+    if (selectedCopyIds.size === 0) {
+      toast({
+        title: "No copies selected",
+        description: "Please select at least one book copy",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      // Get unique book IDs from selected copies
+      const selectedCopies = allBookCopies.filter(copy => selectedCopyIds.has(copy.id));
+      const uniqueBookIds = [...new Set(selectedCopies.map(copy => copy.book_id))];
+
+      // Update each book's category
+      for (const bookId of uniqueBookIds) {
+        const response = await supabase.functions.invoke('manage-books', {
+          body: { 
+            action: 'update_book',
+            bookId: bookId,
+            bookData: { category: category }
+          },
+          headers: {
+            Authorization: `Bearer ${session.session.access_token}`,
+          },
+        });
+
+        if (response.error) throw response.error;
+      }
+
+      toast({
+        title: "Category assigned successfully",
+        description: `Updated ${uniqueBookIds.length} book(s) to ${category}`,
+      });
+
+      // Clear selection and refresh
+      setSelectedCopyIds(new Set());
+      setBulkCategoryAssignment("");
+      fetchBooks();
+      fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Bulk category assignment error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to assign category",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Toggle copy selection
   const toggleCopySelection = (copyId: string) => {
     setSelectedCopyIds(prev => {
@@ -1404,26 +1462,49 @@ const BookManager = () => {
                       )}
                     </div>
                     {selectedCopyIds.size > 0 && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Assign Class:</span>
-                        <Select 
-                          value={bulkClassAssignment} 
-                          onValueChange={(value) => {
-                            setBulkClassAssignment(value);
-                            handleBulkClassAssignment(value);
-                          }}
-                        >
-                          <SelectTrigger className="w-36">
-                            <SelectValue placeholder="Select class" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {gradeLevels.map((grade) => (
-                              <SelectItem key={grade} value={grade}>
-                                {grade}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Assign Class:</span>
+                          <Select 
+                            value={bulkClassAssignment} 
+                            onValueChange={(value) => {
+                              setBulkClassAssignment(value);
+                              handleBulkClassAssignment(value);
+                            }}
+                          >
+                            <SelectTrigger className="w-36">
+                              <SelectValue placeholder="Select class" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {gradeLevels.map((grade) => (
+                                <SelectItem key={grade} value={grade}>
+                                  {grade}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Assign Category:</span>
+                          <Select 
+                            value={bulkCategoryAssignment} 
+                            onValueChange={(value) => {
+                              setBulkCategoryAssignment(value);
+                              handleBulkCategoryAssignment(value);
+                            }}
+                          >
+                            <SelectTrigger className="w-44">
+                              <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {categories.map((category) => (
+                                <SelectItem key={category} value={category}>
+                                  {category}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                     )}
                   </div>
