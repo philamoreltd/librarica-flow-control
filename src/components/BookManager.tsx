@@ -76,6 +76,7 @@ const BookManager = () => {
   const [selectedCopyIds, setSelectedCopyIds] = useState<Set<string>>(new Set());
   const [bulkClassAssignment, setBulkClassAssignment] = useState("");
   const [bulkCategoryAssignment, setBulkCategoryAssignment] = useState("");
+  const [bulkStatusAssignment, setBulkStatusAssignment] = useState("");
   
   // Check in/out states
   const [students, setStudents] = useState<any[]>([]);
@@ -876,6 +877,61 @@ const BookManager = () => {
     }
   };
 
+  // Bulk status assignment handler
+  const handleBulkStatusAssignment = async (status: string) => {
+    if (selectedCopyIds.size === 0) {
+      toast({
+        title: "No copies selected",
+        description: "Please select at least one book copy",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('No authentication token');
+      }
+
+      // Update each copy's status
+      let successCount = 0;
+      for (const copyId of selectedCopyIds) {
+        const response = await supabase.functions.invoke('manage-book-copies', {
+          body: { 
+            action: 'update_copy_status',
+            copyId: copyId,
+            status: status
+          },
+          headers: {
+            Authorization: `Bearer ${session.session.access_token}`,
+          },
+        });
+
+        if (!response.error) {
+          successCount++;
+        }
+      }
+
+      toast({
+        title: "Status updated successfully",
+        description: `Updated ${successCount} book copy(ies) to ${status}`,
+      });
+
+      // Clear selection and refresh
+      setSelectedCopyIds(new Set());
+      setBulkStatusAssignment("");
+      fetchAllBookCopies();
+    } catch (error: any) {
+      console.error('Bulk status assignment error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update status",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Toggle copy selection
   const toggleCopySelection = (copyId: string) => {
     setSelectedCopyIds(prev => {
@@ -1502,6 +1558,25 @@ const BookManager = () => {
                                   {category}
                                 </SelectItem>
                               ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">Change Status:</span>
+                          <Select 
+                            value={bulkStatusAssignment} 
+                            onValueChange={(value) => {
+                              setBulkStatusAssignment(value);
+                              handleBulkStatusAssignment(value);
+                            }}
+                          >
+                            <SelectTrigger className="w-36">
+                              <SelectValue placeholder="Select status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="available">Available</SelectItem>
+                              <SelectItem value="damaged">Damaged</SelectItem>
+                              <SelectItem value="lost">Lost</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
