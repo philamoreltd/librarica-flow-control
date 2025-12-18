@@ -12,6 +12,7 @@ import AdminPanel from "@/components/AdminPanel";
 import HomePage from "@/components/HomePage";
 import BookManager from "@/components/BookManager";
 import StudentManager from "@/components/StudentManager";
+import LearningPage from "@/components/LearningPage";
 
 const Index = () => {
   const [activeView, setActiveView] = useState("home");
@@ -88,14 +89,12 @@ const Index = () => {
         return <AdminPanel />;
       case "scanner":
         return <BarcodeScanner />;
-      case "elearning":
-        return (
-          <div className="container mx-auto px-4 py-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">eLearning</h1>
-            <p className="text-gray-600">Interactive learning modules coming soon...</p>
-          </div>
-        );
+      case "learning":
+        return <LearningPage />;
       default:
+        return <HomePage />;
+    }
+  };
         return <HomePage />;
     }
   };
