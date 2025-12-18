@@ -95,9 +95,6 @@ const Index = () => {
         return <HomePage />;
     }
   };
-        return <HomePage />;
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gray-50">
