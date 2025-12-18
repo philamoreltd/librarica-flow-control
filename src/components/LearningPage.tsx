@@ -2,16 +2,35 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, Play, BookOpen, FlaskConical, Atom, Calculator } from "lucide-react";
+import { 
+  ExternalLink, 
+  Play, 
+  BookOpen, 
+  FlaskConical, 
+  Atom, 
+  Calculator,
+  FileText,
+  ClipboardList,
+  GraduationCap,
+  Video,
+  Globe,
+  BookMarked,
+  Briefcase,
+  Monitor,
+  Home,
+  Palette,
+  Music,
+  Cross
+} from "lucide-react";
 
-interface VideoLink {
+interface ResourceLink {
   title: string;
   url: string;
 }
 
 interface FormContent {
   form: string;
-  videos: VideoLink[];
+  resources: ResourceLink[];
 }
 
 interface SubjectData {
@@ -21,7 +40,8 @@ interface SubjectData {
   forms: FormContent[];
 }
 
-const subjectsData: SubjectData[] = [
+// Videos Data
+const videosData: SubjectData[] = [
   {
     name: "Mathematics",
     icon: <Calculator className="h-5 w-5" />,
@@ -29,7 +49,7 @@ const subjectsData: SubjectData[] = [
     forms: [
       {
         form: "Form One",
-        videos: [
+        resources: [
           { title: "Natural Numbers", url: "https://drive.google.com/file/d/1CunbXX7ZoOzq-OkGxCZxMJ7UdzoBYoX2/view?usp=drive_link" },
           { title: "Factors & Multiples", url: "https://drive.google.com/file/d/1Q5d94TexuBE44xVSaGaYJZcj0qjWGZiZ/view?usp=drive_link" },
           { title: "Integers", url: "https://drive.google.com/file/d/1-7QY9CXN6r79m2yvzCi6beCkHZMhJw_2/view?usp=drive_link" },
@@ -45,73 +65,42 @@ const subjectsData: SubjectData[] = [
           { title: "Coordinates & Graphs", url: "https://drive.google.com/file/d/10SMZH-EnWfYFuLKE2Y2bofnHQ_xWruTG/view?usp=drive_link" },
           { title: "Volume & Capacity", url: "https://drive.google.com/file/d/1NqIeaUAqDjF-4UEic7ZwasCUY3K23cCd/view?usp=drive_link" },
           { title: "Mass, Weight & Density", url: "https://drive.google.com/file/d/1s1zh1yudoT35nSDkHlka5A6UVroKFmM1/view?usp=drive_link" },
-          { title: "Ratios & Rates", url: "https://drive.google.com/file/d/1D-Ow9sZOCby5dIba-Ji-88Fg4E1MJqOg/view?usp=drive_link" },
-          { title: "Area", url: "https://drive.google.com/file/d/1-PavUjnbHOlZVQ8BC6HFoVqDY8smqVNE/view?usp=drive_link" },
-          { title: "Scale Drawing and Angles", url: "https://drive.google.com/file/d/1lUy4FOiVFNVZrEIQGkfjLPtqcnG3Jtdm/view?usp=drive_link" },
-          { title: "Bearing & Surveying", url: "https://drive.google.com/file/d/1RVtQslFnMyTgB3DwtLX3xAbS36ed7vlb/view?usp=drive_link" },
-          { title: "Common Solids", url: "https://drive.google.com/file/d/16YsgxQXlsqlWfmGx0qWsrP9k8wWnGRoZ/view?usp=drive_link" },
-          { title: "Commercial Arithmetic", url: "https://drive.google.com/file/d/1YYjHzzAnKqQTgUOd2CSz32LFZLZ5l1Nu/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Two",
-        videos: [
+        resources: [
           { title: "Cubes & Cube Roots", url: "https://drive.google.com/file/d/1cOHFZwydEWmc3OKKlmVIeyO8MOZOSLEv/view?usp=drive_link" },
           { title: "Reciprocals", url: "https://drive.google.com/file/d/1M1mBBoOFpXFTmvqZetNHG2-HRp31g3fj/view?usp=drive_link" },
           { title: "Indices", url: "https://drive.google.com/file/d/1YROPYw-nkPQIBAAhj_D--86nnLxP6FA6/view?usp=drive_link" },
           { title: "Common Logarithms", url: "https://drive.google.com/file/d/1ey4y_4g0f9t8LZrFKL4REMkyUmy6jGtS/view?usp=drive_link" },
           { title: "Equations of Straight Line", url: "https://drive.google.com/file/d/17o22I7XlhDjpge2FW3b4renEmgrmpgMm/view?usp=drive_link" },
-          { title: "Equation & Congruence", url: "https://drive.google.com/file/d/1F96LCZXOWwx38lScmmIyfKEL6gKCjE5f/view?usp=drive_link" },
-          { title: "Rotation", url: "https://drive.google.com/file/d/1m2jn1kSbGSaFeTel3ytcSSDPCc_mN-b0/view?usp=drive_link" },
-          { title: "Similarities and Enlargement", url: "https://drive.google.com/file/d/1ChLeDvuMGYgsoCIWkSO3R2x5vRbl3qJ7/view?usp=drive_link" },
-          { title: "The Pythagoras' Theorem", url: "https://drive.google.com/file/d/1M5jlUQxFomUqNWGcGej2aVvfzGA2Mqby/view?usp=drive_link" },
+          { title: "The Pythagoras Theorem", url: "https://drive.google.com/file/d/1M5jlUQxFomUqNWGcGej2aVvfzGA2Mqby/view?usp=drive_link" },
           { title: "Trigonometric Ratios", url: "https://drive.google.com/file/d/15OecR2vJtJpcWeO1ihIJB9xhFxW6UrgJ/view?usp=drive_link" },
-          { title: "Area of a Triangle", url: "https://drive.google.com/file/d/1VQumZkOKKd9p8cWR5AVjsW-qn040GMX3/view?usp=drive_link" },
-          { title: "Area of Polygons", url: "https://drive.google.com/file/d/1mC_G4pJQWAO-8HGipZFPrYaDA1D4C2y4/view?usp=drive_link" },
-          { title: "Area of Part of a Circle", url: "https://drive.google.com/file/d/1XEeDQ8zc7xsW4PskwmhL7Yy_fHLMok_E/view?usp=drive_link" },
-          { title: "Surface Area of Solids", url: "https://drive.google.com/file/d/1iULN4_xP2FKQZikXhkIK1FAu3AUwkHkf/view?usp=drive_link" },
-          { title: "Volume of Solids", url: "https://drive.google.com/file/d/1RKQ1glhQqpUY91rj5w3DsPBXJmYCg_18/view?usp=drive_link" },
-          { title: "Quadratic Expressions and Equations", url: "https://drive.google.com/file/d/1gr2uJGvQLjPojGchsw8FKNFaWt1vKnsS/view?usp=drive_link" },
-          { title: "Linear Inequalities", url: "https://drive.google.com/file/d/1mDQsfNx1V6lOwqU5ElLnSU-KFF8bpdq-/view?usp=drive_link" },
-          { title: "Angle Properties of a Circle", url: "https://drive.google.com/file/d/1ddhtUCU6EvhI5pqRI8YHi3vr_WB3lB2I/view?usp=drive_link" },
-          { title: "Vectors", url: "https://drive.google.com/file/d/16wwcOW3ulo21HUcARco9WxkMW5CWX-xg/view?usp=drive_link" },
-          { title: "Representation of Data", url: "https://drive.google.com/file/d/1VoKyqRXIMdHQm1noX1jFCUSHT-26U0m6/view?usp=drive_link" },
-          { title: "Measures of Central Tendency", url: "https://drive.google.com/file/d/1j1WxbJB63dxTggm47ZOc2aR8a0W5x-Ck/view?usp=drive_link" },
+          { title: "Quadratic Expressions", url: "https://drive.google.com/file/d/1gr2uJGvQLjPojGchsw8FKNFaWt1vKnsS/view?usp=drive_link" },
           { title: "Linear Motion", url: "https://drive.google.com/file/d/1eNlNQbIXc2GG0fwXGur_ovUOc-CDMmYy/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Three",
-        videos: [
+        resources: [
           { title: "Quadratic Expressions & Equations", url: "https://drive.google.com/file/d/1Xsg2r4HqvdB31jTzjVG55cVrHW-RbuC7/view?usp=drive_link" },
           { title: "Approximation & Errors", url: "https://drive.google.com/file/d/19za6IYAJ9cprzMhrJv2k_V18-miO60MY/view?usp=drive_link" },
           { title: "Trigonometric Ratios", url: "https://drive.google.com/file/d/1ffvyMwIHPBQMCy7MhJSpnxBxeHxuuZGY/view?usp=drive_link" },
           { title: "Surds", url: "https://drive.google.com/file/d/1lVsmB4kzmfjQMSeyAmOSyjh07G9qaXME/view?usp=drive_link" },
           { title: "Logarithms", url: "https://drive.google.com/file/d/11cqtpo34H3whKTuxlqpH-CAhpaEJUDeL/view?usp=drive_link" },
-          { title: "Commercial Arithmetic", url: "https://drive.google.com/file/d/1NRK-iPZpZqgfbS6lF-QrBiyvBr6GWbcT/view?usp=drive_link" },
-          { title: "Circles, Chords & Tangents", url: "https://drive.google.com/file/d/1Teutnk1AHcYnc65ydb5qNR4UXC0EQ8SL/view?usp=drive_link" },
           { title: "Matrices", url: "https://drive.google.com/file/d/1hVWnCKxHy1UU7isUSjuUVw9tBupVu97b/view?usp=drive_link" },
-          { title: "Formula and Variation", url: "https://drive.google.com/file/d/12l3iqzbRWyVmRiw98u0NCYR7_OUaD3-3/view?usp=drive_link" },
-          { title: "Sequences and Series", url: "https://drive.google.com/file/d/165sFk9NbSaLe-iQhaYfMq0kRuJ6zgYkV/view?usp=drive_link" },
-          { title: "Vectors", url: "https://drive.google.com/file/d/1Yhf57I-vZjdoXQdSljMtrECFXono2H4c/view?usp=drive_link" },
-          { title: "Binomial Expansion", url: "https://drive.google.com/file/d/13uW6mn1g4na7bsHBmYcRMY5DPfTcbOwl/view?usp=drive_link" },
           { title: "Probability", url: "https://drive.google.com/file/d/1U9oML_gkGqIyhH_e6RF5b7cGxDJ0h_9p/view?usp=drive_link" },
-          { title: "Compound Proportion & Rate of Work", url: "https://drive.google.com/file/d/1vdpWkQBLdtdZPOqUn7CmDUckEXU7h0pc/view?usp=drive_link" },
-          { title: "Graphical Methods", url: "https://drive.google.com/file/d/1JAbdji26XogVUB1pfbM7rLX37gU7Sf3R/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Four",
-        videos: [
+        resources: [
           { title: "Matrices & Transformation", url: "https://drive.google.com/file/d/1WPu2BUI6JUh7yXO9kKtcBPy-wUe78PqQ/view?usp=drive_link" },
           { title: "Statistics", url: "https://drive.google.com/file/d/1KQFMCg0ylfuaHV9OyThUspXdLAwqsZyQ/view?usp=drive_link" },
           { title: "Locus", url: "https://drive.google.com/file/d/1fKlfjif9vyFJz6Ook32CGDbre4WgsCOa/view?usp=drive_link" },
-          { title: "Trigonometric Ratios", url: "https://drive.google.com/file/d/1DQs5NxnAC300P6wKeWKZrM0vzDw-94vr/view?usp=drive_link" },
-          { title: "Three Dimensional Geometry", url: "https://drive.google.com/file/d/1Y441bBW4tXFyFYRypbQc8pB1DxvtZ_p4/view?usp=drive_link" },
-          { title: "Latitudes and Longitudes", url: "https://drive.google.com/file/d/1hiX8l5lZcobdeHil5zwAN7TIp6cNMzwd/view?usp=drive_link" },
           { title: "Linear Programming", url: "https://drive.google.com/file/d/1owRWi7bR6TUIF_p-CTfiYiR9OoOGBMOV/view?usp=drive_link" },
           { title: "Differentiation", url: "https://drive.google.com/file/d/1GWTqXwXw5Nx_J3SedxV1NfoW1u0fZ8tG/view?usp=drive_link" },
-          { title: "Approximation of Area", url: "https://drive.google.com/file/d/1kUOb5XwDMXJVrfh83RjNpIRrN1MKWFt1/view?usp=drive_link" },
           { title: "Integration", url: "https://drive.google.com/file/d/1HNhwlUfn5OcVBCyfEn6b_vntEOBmWDH3/view?usp=drive_link" },
         ],
       },
@@ -124,10 +113,9 @@ const subjectsData: SubjectData[] = [
     forms: [
       {
         form: "Form One",
-        videos: [
+        resources: [
           { title: "Introduction to Chemistry", url: "https://drive.google.com/file/d/1lIE_tU12NgCNetKKNsok666kl4dfvwHv/view?usp=drive_link" },
           { title: "Simple Classification of Substance", url: "https://drive.google.com/file/d/1__NiJoColLbdzWyHDGbXxg9Q17lF9vbG/view?usp=drive_link" },
-          { title: "Effect of Heat on Substance", url: "https://drive.google.com/file/d/1GIdhzhosOiIXearigkxr5kRzkPUwvVxZ/view?usp=drive_link" },
           { title: "Acids, Bases & Indicators", url: "https://drive.google.com/file/d/1U-7zaaLa2oodfbmp0eHnEtG4qQXC5gRj/view?usp=drive_link" },
           { title: "Air & Combustion", url: "https://drive.google.com/file/d/1VIkwunwMiApixJYtDH__UbIVQ8bD_khT/view?usp=drive_link" },
           { title: "Water & Hydrogen", url: "https://drive.google.com/file/d/1oJzvpIBUEQ8neOcNUiYBG3vE4oSp-7u2/view?usp=drive_link" },
@@ -135,18 +123,17 @@ const subjectsData: SubjectData[] = [
       },
       {
         form: "Form Two",
-        videos: [
-          { title: "Atomic Structure & The Periodic Table", url: "https://drive.google.com/file/d/1TmH8J7kjAFZj3YZC8IGCNX-GeEUgrsiH/view?usp=drive_link" },
+        resources: [
+          { title: "Atomic Structure & Periodic Table", url: "https://drive.google.com/file/d/1TmH8J7kjAFZj3YZC8IGCNX-GeEUgrsiH/view?usp=drive_link" },
           { title: "Chemical Families", url: "https://drive.google.com/file/d/1lKnMQV0njZ7qmJOWxKd7iUkJhkWMI8-H/view?usp=drive_link" },
           { title: "Structure & Bonding", url: "https://drive.google.com/file/d/1G5YaLOGAtew-N5AsZxFzO3mpxzLS0pON/view?usp=drive_link" },
           { title: "Salts", url: "https://drive.google.com/file/d/1gymzZS1O7ZIAkzEetWN89lucnrBqG_8b/view?usp=drive_link" },
-          { title: "Effect of Electric Current on Substances", url: "https://drive.google.com/file/d/1qzF4tAYyASIseY_Vb-nNCLbuB2B4lDsF/view?usp=drive_link" },
-          { title: "Carbon & Some of Its Compounds", url: "https://drive.google.com/file/d/1uEQaewKXS2qmzWpPmTvMdhC5hjaLWTyK/view?usp=drive_link" },
+          { title: "Carbon & Its Compounds", url: "https://drive.google.com/file/d/1uEQaewKXS2qmzWpPmTvMdhC5hjaLWTyK/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Three",
-        videos: [
+        resources: [
           { title: "Gas Laws", url: "https://drive.google.com/file/d/1GsNjRwMjRR6KdMGkt8hWTEZqN--V4i-5/view?usp=drive_link" },
           { title: "The Mole", url: "https://drive.google.com/file/d/1zGPtetoYx-wTE2qT21xk-11ZQfA-BYI5/view?usp=drive_link" },
           { title: "Volumetric Analysis", url: "https://drive.google.com/file/d/1koCWq2d6PPuEAOLaDMFBV0-YbqmVFl2G/view?usp=drive_link" },
@@ -156,11 +143,9 @@ const subjectsData: SubjectData[] = [
       },
       {
         form: "Form Four",
-        videos: [
+        resources: [
           { title: "Organic Chemistry II", url: "#" },
           { title: "Acid, Bases & Salts", url: "#" },
-          { title: "Energy Changes in Chemical and Physics Processes", url: "#" },
-          { title: "Reaction Chemistry", url: "#" },
           { title: "Radioactivity", url: "#" },
         ],
       },
@@ -173,44 +158,34 @@ const subjectsData: SubjectData[] = [
     forms: [
       {
         form: "Form One",
-        videos: [
+        resources: [
           { title: "Introduction to Biology", url: "https://drive.google.com/file/d/1lIE_tU12NgCNetKKNsok666kl4dfvwHv/view?usp=drive_link" },
-          { title: "Simple Classification of Substance", url: "https://drive.google.com/file/d/1__NiJoColLbdzWyHDGbXxg9Q17lF9vbG/view?usp=drive_link" },
-          { title: "Effect of Heat on Substance", url: "https://drive.google.com/file/d/1GIdhzhosOiIXearigkxr5kRzkPUwvVxZ/view?usp=drive_link" },
-          { title: "Acids, Bases & Indicators", url: "https://drive.google.com/file/d/1U-7zaaLa2oodfbmp0eHnEtG4qQXC5gRj/view?usp=drive_link" },
-          { title: "Air & Combustion", url: "https://drive.google.com/file/d/1VIkwunwMiApixJYtDH__UbIVQ8bD_khT/view?usp=drive_link" },
-          { title: "Water & Hydrogen", url: "https://drive.google.com/file/d/1oJzvpIBUEQ8neOcNUiYBG3vE4oSp-7u2/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Two",
-        videos: [
+        resources: [
           { title: "Transport in Plants and Animals", url: "#" },
           { title: "Respiration", url: "#" },
-          { title: "Gaseous Exchange in Plants and Animals", url: "#" },
-          { title: "Excretion and Homeostasis", url: "#" },
+          { title: "Gaseous Exchange", url: "#" },
         ],
       },
       {
         form: "Form Three",
-        videos: [
+        resources: [
           { title: "Classification of Living Things (I)", url: "https://drive.google.com/file/d/1EYrXsZeHeq1mTXnxp0EL7Fk0Es0Os2e_/view?usp=drive_link" },
           { title: "Classification of Living Things (II)", url: "https://drive.google.com/file/d/1deblKcy30SgaBoLsQmw1UbwI9d6DhqrR/view?usp=drive_link" },
           { title: "Ecology", url: "https://drive.google.com/file/d/1dQLgj5OaJ3GEa2ZJs1qVoDk6vydFJA0c/view?usp=drive_link" },
           { title: "The Cell Division", url: "https://drive.google.com/file/d/1gF7E6rtjLo-iTqkBFKlb_f2RTsCT3V5J/view?usp=drive_link" },
-          { title: "Reproduction I", url: "https://drive.google.com/file/d/1vHB1gd8sbbY_MY_1m9WxcsCclLW222DY/view?usp=drive_link" },
-          { title: "Reproduction II", url: "https://drive.google.com/file/d/1OfW0lfpg2AnSMAmeaoo-5ntQVIcR8j_e/view?usp=drive_link" },
-          { title: "Growth and Development", url: "https://drive.google.com/file/d/1gBecj4W0lXu0ioRdq3EWWyyiyNoxR_d7/view?usp=drive_link" },
+          { title: "Reproduction", url: "https://drive.google.com/file/d/1vHB1gd8sbbY_MY_1m9WxcsCclLW222DY/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Four",
-        videos: [
+        resources: [
           { title: "Genetics (Variation)", url: "https://drive.google.com/file/d/1j5lcISdf8RoRoB_O-sKTd5IYlu-LPyAG/view?usp=drive_link" },
           { title: "Genetics (Heredity)", url: "https://drive.google.com/file/d/1JnyLh4A6p6dp-3nXzc2rVKzKGvGXcy1x/view?usp=drive_link" },
           { title: "Evolution", url: "https://drive.google.com/file/d/1UyMcVJNPGY6toYVQ9pT8TWrhL37M0rur/view?usp=drive_link" },
-          { title: "Reception, Response and Coordination in Plants", url: "https://drive.google.com/file/d/1BNeyEq8uFsKqdQC2-9zivNoLDAzxlyQ3/view?usp=drive_link" },
-          { title: "Reception, Response and Coordination in Animals", url: "https://drive.google.com/file/d/1LYgH1MeaqSF6hECopnJmFqJZMjw3m85k/view?usp=drive_link" },
           { title: "Support & Movement", url: "https://drive.google.com/file/d/1lEh-tNGnX38DR9OPAqAug30OpUOsApD4/view?usp=drive_link" },
         ],
       },
@@ -223,62 +198,42 @@ const subjectsData: SubjectData[] = [
     forms: [
       {
         form: "Form One",
-        videos: [
+        resources: [
           { title: "Introduction to Physics", url: "https://drive.google.com/file/d/1QjjMnsqGApC6MCObDaK95R7_9F80Bh2E/view?usp=drive_link" },
           { title: "Measurement", url: "https://drive.google.com/file/d/150ZxwPxtmKaJTDyLXSMjYLIS24C7J1Qr/view?usp=drive_link" },
           { title: "Force", url: "https://drive.google.com/file/d/17868Tedr0C_sr-6SWF0dhHtN9mNeug3k/view?usp=drive_link" },
           { title: "Pressure", url: "https://drive.google.com/file/d/1LtD1hnxG6XSIiLzuEYqLZQCTBVgExtUy/view?usp=drive_link" },
-          { title: "The Particulate Nature of Matter", url: "https://drive.google.com/file/d/1KL3ZZaAmqFXggTrmLPKD7nyWgUxF4ZYU/view?usp=drive_link" },
-          { title: "Thermal Expansion", url: "https://drive.google.com/file/d/1PpZT1NJiFe-gW7qdijYZW4UwadCwr0Av/view?usp=drive_link" },
           { title: "Heat Transfer", url: "https://drive.google.com/file/d/1cO6Xktli94zFO-JK6YxeRq2Rtv8R6Oya/view?usp=drive_link" },
-          { title: "Rectilinear Propagation of Light", url: "https://drive.google.com/file/d/1R230b44AwVIol5njwg_C8Hw6sqIaP-1q/view?usp=drive_link" },
           { title: "Electrostatics I", url: "https://drive.google.com/file/d/1SxEZFb1T3RYE-Cko-BGvY9WFB1PcusV7/view?usp=drive_link" },
-          { title: "Cell & Simple Circuits", url: "https://drive.google.com/file/d/1hJKN_dndFr1OYdRf6mcelnihpaC0dGJQ/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Two",
-        videos: [
+        resources: [
           { title: "Magnetism", url: "https://drive.google.com/file/d/1BKCYZQuMzOUqvgZhq4_SJReHdxl_35jP/view?usp=drive_link" },
-          { title: "Measurement II", url: "https://drive.google.com/file/d/1uvjtteBnFA7mGlbrrHmjXnm1WTBfP0kj/view?usp=drive_link" },
           { title: "Turning Effect of a Force", url: "https://drive.google.com/file/d/1DEc_P7u8KQMNW2pUWmMNx1l3lQAUZQ01/view?usp=drive_link" },
-          { title: "Equilibrium & Center of Gravity", url: "https://drive.google.com/file/d/1u7nRyVSqez_5bPd_pM6RhHw-Ta9UmfNe/view?usp=drive_link" },
-          { title: "Reflection on Curved Surfaces", url: "https://drive.google.com/file/d/1YGykzWvugO1b1rMtdwNctC-ZJtwnzIoW/view?usp=drive_link" },
-          { title: "Magnetic Effect of an Electric Current", url: "https://drive.google.com/file/d/1jgDrgVCImhywNUdy40de1gdm1CZfnLDc/view?usp=drive_link" },
-          { title: "Hooke's Law", url: "https://drive.google.com/file/d/1r2HEn61nw4Q5v8alM4MgYYbGiTGz7nFv/view?usp=drive_link" },
+          { title: "Hookes Law", url: "https://drive.google.com/file/d/1r2HEn61nw4Q5v8alM4MgYYbGiTGz7nFv/view?usp=drive_link" },
           { title: "Waves", url: "https://drive.google.com/file/d/1fpRVrHO4aqQVzCeb_bF43_G6aCBvTlHF/view?usp=drive_link" },
           { title: "Sound", url: "https://drive.google.com/file/d/1HLLLJRsZfGLFQEjwTN4x0l7X94FKrHRy/view?usp=drive_link" },
-          { title: "Fluid Flow", url: "https://drive.google.com/file/d/1ylyawzOrRObroFZirDD0N8tSaQGFuX16/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Three",
-        videos: [
-          { title: "Linear Motion I", url: "https://drive.google.com/file/d/1vvv9DsglvfZsnNDu63iQ9gyomY_1B-dp/view?usp=drive_link" },
-          { title: "Linear Motion II", url: "https://drive.google.com/file/d/1b237L6-U0iyk5SDa3EbO1ibmKkeNP44z/view?usp=drive_link" },
-          { title: "Refraction of Light", url: "https://drive.google.com/file/d/1p8-_-wBvDCjx8o2YyDG-jFRA0c6FB1e6/view?usp=drive_link" },
-          { title: "Newton's Laws of Motion", url: "https://drive.google.com/file/d/1B3wnYaesgr12PLzSmBelobpIB-Fl7g1Y/view?usp=drive_link" },
+        resources: [
+          { title: "Linear Motion", url: "https://drive.google.com/file/d/1vvv9DsglvfZsnNDu63iQ9gyomY_1B-dp/view?usp=drive_link" },
+          { title: "Newtons Laws of Motion", url: "https://drive.google.com/file/d/1B3wnYaesgr12PLzSmBelobpIB-Fl7g1Y/view?usp=drive_link" },
           { title: "Work, Energy, Power & Machines", url: "https://drive.google.com/file/d/1dCAqKvkpBJeMEv-XnSGX7qSF8r8dgtuQ/view?usp=drive_link" },
           { title: "Current Electricity", url: "https://drive.google.com/file/d/1th5LXnxEevUK2CJMD5s7B6eDWe0c3myt/view?usp=drive_link" },
-          { title: "Waves II", url: "https://drive.google.com/file/d/1rLgQS5_gi26OlNiW69kTe3cGlJMelETS/view?usp=drive_link" },
-          { title: "Electrostatics", url: "https://drive.google.com/file/d/1YisEu9RmNsBZJA_G6-6rwRNJ59puaEdS/view?usp=drive_link" },
-          { title: "Heating Effect of an Electric Current", url: "https://drive.google.com/file/d/1YisEu9RmNsBZJA_G6-6rwRNJ59puaEdS/view?usp=drive_link" },
-          { title: "Quantity of Heat", url: "https://drive.google.com/file/d/1RsAwhraTLWXJpJo2N3-STqP4_HaK_2TS/view?usp=drive_link" },
           { title: "Gas Laws", url: "https://drive.google.com/file/d/1byJNsT-e_k2SYg_1M8V5hivb8ykHmxom/view?usp=drive_link" },
         ],
       },
       {
         form: "Form Four",
-        videos: [
+        resources: [
           { title: "Thin Lenses", url: "https://drive.google.com/file/d/1mM6uLiSHE-NxNg8GQJif2eHtMp62Rv7D/view?usp=drive_link" },
-          { title: "Uniform Circular Motion", url: "https://drive.google.com/file/d/1tY48sRjoaecSekz-nyn452cNY4T3lYmw/view?usp=drive_link" },
-          { title: "Floatation & Sinking", url: "https://drive.google.com/file/d/1xBq7oP1vtF_xm2jizV9YzbruRMRe1L0Z/view?usp=drive_link" },
           { title: "Electromagnetic Spectrum", url: "https://drive.google.com/file/d/1W2P_h5HwCUJqXh3dq3sU1s1jCpJwvDEE/view?usp=drive_link" },
           { title: "Electromagnetic Induction", url: "https://drive.google.com/file/d/1wiKzjINnuazH7HufQ1RCI6Nr1hiB8-ex/view?usp=drive_link" },
-          { title: "Mains Electricity", url: "https://drive.google.com/file/d/10DUA0QkKugEVxqh5CH5tFrx39P8Optym/view?usp=drive_link" },
-          { title: "Cathode Rays & Cathode Ray Tube", url: "https://drive.google.com/file/d/1thFuzPV4U84krsvSBjOmjs1VObqyHRed/view?usp=drive_link" },
           { title: "X-Rays", url: "https://drive.google.com/file/d/1uuzWLQfIGN70iD7oZ6HluA1fbM6g976P/view?usp=drive_link" },
-          { title: "Photoelectric Effect", url: "https://drive.google.com/file/d/12ESyJVwEpj00-jumMk1PL6i7GQnFCUYY/view?usp=drive_link" },
           { title: "Radioactivity", url: "https://drive.google.com/file/d/1yoyq1LdEnU9cn_HckoVaAWqsc9fUsOck/view?usp=drive_link" },
           { title: "Electronics", url: "https://drive.google.com/file/d/16JJtTLoW2vn8wUvRb5rTW-ijdX781gEr/view?usp=drive_link" },
         ],
@@ -287,12 +242,311 @@ const subjectsData: SubjectData[] = [
   },
 ];
 
+// Summary Notes Data
+const summaryNotesData: SubjectData[] = [
+  {
+    name: "Mathematics",
+    icon: <Calculator className="h-5 w-5" />,
+    color: "bg-blue-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1FpVWfecDNam4b6F_J_5LiU38GyNOC3_B/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1YiHGMRwHEFi6uAZUNe5WpTaQRBYNh2oo/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1cxogWBdrJBfGEiOvCgcmJag_JcMNNu4R/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1ToBUh-2a5C2Nown6ywRslLs4nk8hq-jx/view" }] },
+    ],
+  },
+  {
+    name: "Chemistry",
+    icon: <FlaskConical className="h-5 w-5" />,
+    color: "bg-green-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1XRE2-c7BT5wl83Zc2AH9IuWf49rsHoja/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1JR2_8LlUoRn1dsF07GXnTaTrSAzk7NY9/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1pQTEX2Z-ZDBUpnS1RxhECzUrVZpm4U4v/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1qYsneZ7Hysed20Muz3gRssIpS2mJasM4/view" }] },
+      { form: "Practical Guide", resources: [{ title: "Chemistry Practical Guide", url: "https://drive.google.com/file/d/12hyMD8UiDUjbwSYFb7sYJnWSoswE4WGo/view" }] },
+    ],
+  },
+  {
+    name: "Biology",
+    icon: <BookOpen className="h-5 w-5" />,
+    color: "bg-emerald-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1TXLQEgRK_KoYAmk-BUojcFxvs_a3tdAr/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1qCPYo7v_LYIxFIrFsjeElqzNvgio7Umm/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1pzrzWpoHISOBluC3e-r0-JRcBArI8isF/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/10sKQ5B-9IPmdA4DfKEMr9t4KUX2pi8wL/view" }] },
+      { form: "Essays", resources: [{ title: "Essays & Expected Responses", url: "https://drive.google.com/file/d/1deNof72UAAjIk6fh49D0chGJWlZ-3IAf/view" }] },
+    ],
+  },
+  {
+    name: "Physics",
+    icon: <Atom className="h-5 w-5" />,
+    color: "bg-purple-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1_JknCKoVudh65vlruFmvgzWwQTG6I_MG/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1urzsCdvDLSIbQo_CCiKYrIwTBbF7Den5/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/10u7FAY5Fu1RPhu0GMSbK7kxuhxUIrVrP/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1J4xg-B1325F5GxIayEw61oAYQmGthR32/view" }] },
+    ],
+  },
+  {
+    name: "English",
+    icon: <BookMarked className="h-5 w-5" />,
+    color: "bg-red-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1lvvtEpjIBIeXhFjmsZB47uCju6YZL-cR/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1w2o_oCTqmDU3UBiaIlHbBgGNZTrcFc5j/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1MQIN0f53Kra7XqZgxkPgcDGNeivcVrLV/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1jv9ag5qb87rjVCmyjgh070lBMdTvRS88/view" }] },
+      { form: "Writing Guides", resources: [
+        { title: "Functional Writing Notes", url: "https://drive.google.com/file/d/11cO16HoWq-Bumm4t2p1CRbwhz15pxdok/view" },
+        { title: "Composition Writing Guide", url: "https://drive.google.com/file/d/1aIT9A8kZAxDuK6Wsnni1QWgg6upkfElr/view" },
+        { title: "Oral Literature Notes", url: "https://drive.google.com/file/d/1hC9IOxuIVD4_c0xwb-0ZQu_feNlS5CFB/view" },
+      ]},
+    ],
+  },
+  {
+    name: "Kiswahili",
+    icon: <Globe className="h-5 w-5" />,
+    color: "bg-orange-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1VU567B62NaoxZO5vGSOFCC8qE3eUFiCk/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1rlwjKaQ0pSev48RNdCylU4mpX1xTx6qU/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/10RAsCbkKn0SBohE6pxMXpXRCldnWaJuz/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1FDHpzQbnEFFwhQP0g1LP5NuNEd9Deob3/view" }] },
+    ],
+  },
+  {
+    name: "Geography",
+    icon: <Globe className="h-5 w-5" />,
+    color: "bg-teal-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1Mwdnf-CQUEUFe-3oaTs7g16rQEDb9ntF/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1-9_9w56LlFEDx39Gh4BH0VUr41epTvCj/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1qJ7_Xmm5srUnrtknkjIgL_LwR6CAb8Wl/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1gLXKamW5kL1hP8Wm4U-z_GF3XB6FD4iE/view" }] },
+    ],
+  },
+  {
+    name: "History",
+    icon: <BookMarked className="h-5 w-5" />,
+    color: "bg-amber-600",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/13PL8hW0BNZ9_kBEzcjY3XlFUbrQguY93/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/11W-TqH5jCBqgA8t-BdsBmaCkz_ZBZiSY/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1vD66OhWHBC42W0CisCu5vjsCoLmRxwvb/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1Q_A2zjBhlsekMLXjPNSNm1tE0ZJEwP2Y/view" }] },
+    ],
+  },
+  {
+    name: "CRE",
+    icon: <Cross className="h-5 w-5" />,
+    color: "bg-indigo-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1uNuBR6CzVhpDoFc_Sm3YPUwwy-nH6Gc4/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/1zw-MOazJJNt_N_CoLAJZaEg3kXAcGLi5/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1d5pKm70qGjTrkbo7fnCrrULd_JwGDAW8/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1tDcTcEY4YdQRIhuqM4MBTvvYLJCeudBh/view" }] },
+    ],
+  },
+  {
+    name: "Computer Studies",
+    icon: <Monitor className="h-5 w-5" />,
+    color: "bg-cyan-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One PPT", url: "https://drive.google.com/file/d/1pA57H7BCTCXOe5F_w1Sun2y5-2FNQCR6/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two PPT", url: "https://drive.google.com/file/d/1uC17l_Wc938J78H9io0dNUdMQvc7kbh7/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three PPT", url: "https://drive.google.com/file/d/1szoUVl_0ppQo3Yb21xB28TgP9BzAiw_N/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four PPT", url: "https://drive.google.com/file/d/18e0GpvvzhKZ0_SXGxf9iKv380yWXNw7m/view" }] },
+    ],
+  },
+  {
+    name: "Home Science",
+    icon: <Home className="h-5 w-5" />,
+    color: "bg-pink-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Notes", url: "https://drive.google.com/file/d/1WN98RTUydOe1UGPwVzTAcDBSAtWly857/view" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Notes", url: "https://drive.google.com/file/d/17f0qdEgLXHR2yMHtiZi05w5GpqCIJt21/view" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Notes", url: "https://drive.google.com/file/d/1gWWirLCSVfSrTtrItGxQ2pe1zmAiN7um/view" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Notes", url: "https://drive.google.com/file/d/1gB-6DM58esKnJr4sLAxjgDbJcy4UCSU0/view" }] },
+    ],
+  },
+];
+
+// Topical Tests Data
+const topicalTestsData: SubjectData[] = [
+  {
+    name: "Mathematics",
+    icon: <Calculator className="h-5 w-5" />,
+    color: "bg-blue-500",
+    forms: [
+      {
+        form: "Form One",
+        resources: [
+          { title: "Numbers (Questions)", url: "https://drive.google.com/file/d/1l_xAJykFPzEeflhGX-8uM3N_KbQ-pGWy/view" },
+          { title: "Numbers (Marking Scheme)", url: "https://drive.google.com/file/d/1JQVtfs9PS_5ALJ8xzZH0S9D9TFSjWS5O/view" },
+          { title: "Integers (Q)", url: "https://drive.google.com/file/d/1dXqdTWrzrbTCU_REZRxAS__yly8rO965/view" },
+          { title: "Integers (A)", url: "https://drive.google.com/file/d/1Ds_zzT83k6oUEZmU7DKMRfN6o7OAM7s1/view" },
+          { title: "Fractions (Q)", url: "https://drive.google.com/file/d/1eACXDfOHSunc8ZNgU7q5WIt7QELn9mpr/view" },
+          { title: "Fractions (A)", url: "https://drive.google.com/file/d/1gadp5BO7HlKzs-pCVVNNi0teBvSz0RNU/view" },
+          { title: "Decimals (Q)", url: "https://drive.google.com/file/d/1L_S56t9hjYNWmMWRs7zhhrl1EwKUZLEO/view" },
+          { title: "Decimals (A)", url: "https://drive.google.com/file/d/12WKrkLtzvZwK_FNSTRdDnHOTN7hbdvE0/view" },
+          { title: "Algebraic Expressions (Q)", url: "https://drive.google.com/file/d/1HBvQIFxPNKSbB30OGwhu3pPIncN8-Ker/view" },
+          { title: "Algebraic Expressions (A)", url: "https://drive.google.com/file/d/1OqNxxHlsaimnrnb5hL50k9CDmMUv2Ceo/view" },
+        ],
+      },
+      {
+        form: "Form Two",
+        resources: [
+          { title: "Logarithmic Equations", url: "https://drive.google.com/file/d/1Il5K63N1RR0sc3DiLMAXkqusmzKzQzGk/view" },
+          { title: "Trigonometry (Q)", url: "https://drive.google.com/file/d/1AbnmzZXoRiKLfT3QckplKSlNPDAnqh98/view" },
+          { title: "Trigonometry (A)", url: "https://drive.google.com/file/d/1UaBP5cilr0xU6-8A7m1nRa_8YtgUYrDV/view" },
+          { title: "Quadratic Equations (Q)", url: "https://drive.google.com/file/d/14iWW8Q1qOlt1Xv7U8KfhmsHYLti96ds7/view" },
+          { title: "Quadratic Equations (A)", url: "https://drive.google.com/file/d/1sd_QxpabHKZg_lEh21mKFtEfaEks8iuu/view" },
+          { title: "Vectors (Q)", url: "https://drive.google.com/file/d/1kHyGNAIRQNJ6e035ePL4PsvhAZwhPW3r/view" },
+          { title: "Vectors (A)", url: "https://drive.google.com/file/d/1k9r1gJw9BRr7Y2FO5yT1usPqsIe1vEev/view" },
+        ],
+      },
+      {
+        form: "Form Three",
+        resources: [
+          { title: "Quadratic Equations (Q)", url: "https://drive.google.com/file/d/1Whtas48vMZUoeini9IDS7E6BpJOdnNwa/view" },
+          { title: "Quadratic Equations (A)", url: "https://drive.google.com/file/d/1hUrEti5t-IK84vPlnM_XtK8B4x6NM7pE/view" },
+          { title: "Surds (Q)", url: "https://drive.google.com/file/d/10ocoymZMADHaq9RUDcdwhlSv-E4jkglZ/view" },
+          { title: "Surds (A)", url: "https://drive.google.com/file/d/15k6zNQD7H0iBUJ2TYosifUGKBySkJTlC/view" },
+          { title: "Matrices (Q)", url: "https://drive.google.com/file/d/1_s2SMCVah3AaGnYVXziE5o64pJ65zVI_/view" },
+          { title: "Matrices (A)", url: "https://drive.google.com/file/d/1hSDm5bLBsTz7ClsAfzOE7maIKa_Vr8l0/view" },
+          { title: "Probability (Q)", url: "https://drive.google.com/file/d/1v5Xgti8is8x-BSPteTZnl_tyYkbBn9y_/view" },
+          { title: "Probability (A)", url: "https://drive.google.com/file/d/1zfcTtV8cSx6G95QMvgeIjoij38PbnU8b/view" },
+        ],
+      },
+      {
+        form: "Form Four",
+        resources: [
+          { title: "Matrices & Transformations (Q)", url: "https://drive.google.com/file/d/1SsZ5b8UbsqKQGQVnvyjrICyfuIRRINQ6/view" },
+          { title: "Matrices & Transformations (A)", url: "https://drive.google.com/file/d/1OWmxg0BwFahKZb4Vk6sCtXjeGxeQxktk/view" },
+          { title: "Statistics (Q)", url: "https://drive.google.com/file/d/1q_ezQn0glDA3PMjJzyk_tDn6EHUqG2C6/view" },
+          { title: "Statistics (A)", url: "https://drive.google.com/file/d/1kQsb_Gd7WBtuGSOLgoSXScmvAqrhBYsE/view" },
+          { title: "Integration (Q)", url: "https://drive.google.com/file/d/1XDPuHsoa8p7F4k_qs3Q-K--Q1tmZ_D1y/view" },
+          { title: "Integration (A)", url: "https://drive.google.com/file/d/1e-tzyzlzGrszT3lFkpkrkRXsb5NLomSl/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Chemistry",
+    icon: <FlaskConical className="h-5 w-5" />,
+    color: "bg-green-500",
+    forms: [
+      {
+        form: "Form One",
+        resources: [
+          { title: "Introduction to Chemistry (Q)", url: "https://drive.google.com/file/d/1a0cKb3W_kSVJEsI-KB4jx7DCOR8W9fRU/view" },
+          { title: "Introduction to Chemistry (A)", url: "https://drive.google.com/file/d/1VCYbqw7HZn6ZNkXtvlBSddvWUlq4xRuQ/view" },
+          { title: "Acid, Bases And Indicators (Q)", url: "https://drive.google.com/file/d/1q2Kx5j6_N3CoVU31eBG2ZjvDyjovDSDl/view" },
+          { title: "Acid, Bases And Indicators (A)", url: "https://drive.google.com/file/d/1Im0kFFVq9k4wpMKW1y59PunIDjrZV2Z8/view" },
+          { title: "Air and Combustion (Q)", url: "https://drive.google.com/file/d/1zlc3UyFkaMUPRJ8tosOtosdFieQ0WS2S/view" },
+          { title: "Air and Combustion (A)", url: "https://drive.google.com/file/d/13EtY6wf3g_rHbIsSL_nhWgblUngo4jYU/view" },
+        ],
+      },
+      {
+        form: "Form Two",
+        resources: [
+          { title: "Atomic Structure (Q)", url: "https://drive.google.com/file/d/14_qRVEFDICRb-KmBuE2g2PmAfMWnBFvJ/view" },
+          { title: "Atomic Structure (A)", url: "https://drive.google.com/file/d/1cTrEHaugj3CwBuowXJAmP9xdByrD6uiB/view" },
+          { title: "Chemical Families (Q)", url: "https://drive.google.com/file/d/1OBf0OTIwFnD4GO6O1npaqUpLPNgB2Atd/view" },
+          { title: "Chemical Families (A)", url: "https://drive.google.com/file/d/1A2d3lw0cqPM_3fDtMX0mPt0u3cR5RvUg/view" },
+          { title: "Structure and Bonding (Q)", url: "https://drive.google.com/file/d/1JJ_b1YOHHA1ulyhLaLhyWgmj22FyiNDy/view" },
+          { title: "Structure and Bonding (A)", url: "https://drive.google.com/file/d/1iHMHBnZX1cig2bayMg9shQXocrzVF88N/view" },
+        ],
+      },
+      {
+        form: "Form Three",
+        resources: [
+          { title: "Gas Laws (Q)", url: "https://drive.google.com/file/d/1SzqlvNmqr464zdKdTVkWyFwJoF0APK5o/view" },
+          { title: "Gas Laws (A)", url: "https://drive.google.com/file/d/1kepwj-tcb2m4Gu22VY3jmRp1vw0bAu21/view" },
+          { title: "The Mole (Q)", url: "https://drive.google.com/file/d/1gampTa89bn5GDFdChKTKZ9gUWKXINcg1/view" },
+          { title: "The Mole (A)", url: "https://drive.google.com/file/d/1_vFqPq3a2BOFGQH5n2NlMuoSnNNZldx_/view" },
+          { title: "Organic Chemistry (Q)", url: "https://drive.google.com/file/d/1fHqw4LD2gVnA_vI3ybekGYJJlB77LDnp/view" },
+          { title: "Organic Chemistry (A)", url: "https://drive.google.com/file/d/1g8V9UO_oxUG4u5J7uBwJCgTB919XMncj/view" },
+        ],
+      },
+      {
+        form: "Form Four",
+        resources: [
+          { title: "Acids, Bases and Salts (Q)", url: "https://drive.google.com/file/d/1dy-RNqjVvCuWbEN-PCcApIlD7wjAS4T_/view" },
+          { title: "Acids, Bases and Salts (A)", url: "https://drive.google.com/file/d/1WzYmMfOvdWbwbuaSVSzsHjJq5LJw0Oqi/view" },
+          { title: "Electrochemistry (Q)", url: "https://drive.google.com/file/d/1EAzXNou72sajJWW2uRqRGecIQTPCQJve/view" },
+          { title: "Electrochemistry (A)", url: "https://drive.google.com/file/d/1sTRq8Wi4j-FJ8Nn4iOrwmubQAKw4Dz9i/view" },
+          { title: "Radioactivity (Q)", url: "https://drive.google.com/file/d/1HFfBp2TeHp8Io0aSQOZp7AqqF0JFfD5U/view" },
+          { title: "Radioactivity (A)", url: "https://drive.google.com/file/d/19I3uWMrR3_pyeSOKUN3CEjDlH5dwUzpY/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Biology",
+    icon: <BookOpen className="h-5 w-5" />,
+    color: "bg-emerald-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Tests (Coming Soon)", url: "#" }] },
+    ],
+  },
+  {
+    name: "Physics",
+    icon: <Atom className="h-5 w-5" />,
+    color: "bg-purple-500",
+    forms: [
+      { form: "Form One", resources: [{ title: "Form One Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Two", resources: [{ title: "Form Two Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Three", resources: [{ title: "Form Three Tests (Coming Soon)", url: "#" }] },
+      { form: "Form Four", resources: [{ title: "Form Four Tests (Coming Soon)", url: "#" }] },
+    ],
+  },
+];
+
+// Content Categories
+const contentCategories = [
+  { id: "videos", label: "Video Lessons", icon: <Video className="h-4 w-4" />, data: videosData },
+  { id: "notes", label: "Summary Notes", icon: <FileText className="h-4 w-4" />, data: summaryNotesData },
+  { id: "tests", label: "Topical Tests", icon: <ClipboardList className="h-4 w-4" />, data: topicalTestsData },
+];
+
 const LearningPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState("videos");
   const [selectedSubject, setSelectedSubject] = useState("Mathematics");
   const [selectedForm, setSelectedForm] = useState("Form One");
 
-  const currentSubject = subjectsData.find((s) => s.name === selectedSubject);
+  const currentCategory = contentCategories.find((c) => c.id === selectedCategory);
+  const currentData = currentCategory?.data || videosData;
+  const currentSubject = currentData.find((s) => s.name === selectedSubject);
   const currentForm = currentSubject?.forms.find((f) => f.form === selectedForm);
+
+  // Reset subject when category changes if current subject doesn't exist in new category
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    const newData = contentCategories.find((c) => c.id === category)?.data || [];
+    if (!newData.find((s) => s.name === selectedSubject)) {
+      setSelectedSubject(newData[0]?.name || "Mathematics");
+    }
+  };
+
+  const getResourceIcon = () => {
+    switch (selectedCategory) {
+      case "videos":
+        return <Play className="h-4 w-4" />;
+      case "notes":
+        return <FileText className="h-4 w-4" />;
+      case "tests":
+        return <ClipboardList className="h-4 w-4" />;
+      default:
+        return <BookOpen className="h-4 w-4" />;
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -300,28 +554,48 @@ const LearningPage = () => {
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Learning Center</h1>
         <p className="text-gray-600">
-          Access video lessons and animations for Mathematics, Chemistry, Biology, and Physics
+          Access video lessons, summary notes, topical tests, and KCSE past papers
         </p>
+      </div>
+
+      {/* Content Category Tabs */}
+      <div className="mb-6">
+        <div className="flex flex-wrap gap-2 p-1 bg-gray-100 rounded-lg w-fit">
+          {contentCategories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => handleCategoryChange(category.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                selectedCategory === category.id
+                  ? "bg-white text-blue-600 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {category.icon}
+              {category.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Subject Tabs */}
       <Tabs value={selectedSubject} onValueChange={setSelectedSubject} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 h-auto gap-2 bg-transparent p-0">
-          {subjectsData.map((subject) => (
+        <TabsList className="flex flex-wrap h-auto gap-2 bg-transparent p-0 justify-start">
+          {currentData.map((subject) => (
             <TabsTrigger
               key={subject.name}
               value={subject.name}
-              className={`flex items-center gap-2 py-3 px-4 rounded-lg border-2 data-[state=active]:border-blue-500 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 bg-white border-gray-200 hover:border-gray-300 transition-all`}
+              className={`flex items-center gap-2 py-2 px-3 rounded-lg border-2 data-[state=active]:border-blue-500 data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 bg-white border-gray-200 hover:border-gray-300 transition-all`}
             >
-              <span className={`p-1.5 rounded-md text-white ${subject.color}`}>
+              <span className={`p-1 rounded-md text-white ${subject.color}`}>
                 {subject.icon}
               </span>
-              <span className="font-medium">{subject.name}</span>
+              <span className="font-medium text-sm">{subject.name}</span>
             </TabsTrigger>
           ))}
         </TabsList>
 
-        {subjectsData.map((subject) => (
+        {currentData.map((subject) => (
           <TabsContent key={subject.name} value={subject.name} className="space-y-6">
             {/* Form Selection */}
             <div className="flex flex-wrap gap-2">
@@ -338,37 +612,37 @@ const LearningPage = () => {
                 >
                   {form.form}
                   <span className="ml-2 text-xs opacity-75">
-                    ({form.videos.length} videos)
+                    ({form.resources.length})
                   </span>
                 </Badge>
               ))}
             </div>
 
-            {/* Video Grid */}
+            {/* Resources Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {currentForm?.videos.map((video, index) => (
+              {currentForm?.resources.map((resource, index) => (
                 <Card
                   key={index}
                   className="group hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer"
-                  onClick={() => video.url !== "#" && window.open(video.url, "_blank")}
+                  onClick={() => resource.url !== "#" && window.open(resource.url, "_blank")}
                 >
                   <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
                       <div
                         className={`p-2 rounded-lg text-white ${subject.color} opacity-90`}
                       >
-                        <Play className="h-4 w-4" />
+                        {getResourceIcon()}
                       </div>
-                      {video.url !== "#" && (
+                      {resource.url !== "#" && (
                         <ExternalLink className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
                       )}
                     </div>
                   </CardHeader>
                   <CardContent>
                     <CardTitle className="text-sm font-medium text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {video.title}
+                      {resource.title}
                     </CardTitle>
-                    {video.url === "#" && (
+                    {resource.url === "#" && (
                       <Badge variant="secondary" className="mt-2 text-xs">
                         Coming Soon
                       </Badge>
@@ -378,10 +652,10 @@ const LearningPage = () => {
               ))}
             </div>
 
-            {currentForm?.videos.length === 0 && (
+            {(!currentForm || currentForm.resources.length === 0) && (
               <div className="text-center py-12 text-gray-500">
-                <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No videos available for this form yet.</p>
+                <GraduationCap className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No resources available for this selection yet.</p>
               </div>
             )}
           </TabsContent>
