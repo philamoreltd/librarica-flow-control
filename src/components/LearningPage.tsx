@@ -501,10 +501,372 @@ const topicalTestsData: SubjectData[] = [
     icon: <Atom className="h-5 w-5" />,
     color: "bg-purple-500",
     forms: [
-      { form: "Form One", resources: [{ title: "Form One Tests (Coming Soon)", url: "#" }] },
+  { form: "Form One", resources: [{ title: "Form One Tests (Coming Soon)", url: "#" }] },
       { form: "Form Two", resources: [{ title: "Form Two Tests (Coming Soon)", url: "#" }] },
       { form: "Form Three", resources: [{ title: "Form Three Tests (Coming Soon)", url: "#" }] },
       { form: "Form Four", resources: [{ title: "Form Four Tests (Coming Soon)", url: "#" }] },
+    ],
+  },
+];
+
+// KCSE Past Papers Data
+const kcsePastPapersData: SubjectData[] = [
+  {
+    name: "Mathematics",
+    icon: <Calculator className="h-5 w-5" />,
+    color: "bg-blue-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2023p2ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2021p2ms/view" },
+        ],
+      },
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2020p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2020p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2020p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2020p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Chemistry",
+    icon: <FlaskConical className="h-5 w-5" />,
+    color: "bg-green-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1chem2023p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p3ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1chem2022p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p3ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2021p2ms/view" },
+        ],
+      },
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2020p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2020p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2020p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2020p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Biology",
+    icon: <BookOpen className="h-5 w-5" />,
+    color: "bg-emerald-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1bio2023p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p3ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1bio2022p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p3ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2021p2ms/view" },
+        ],
+      },
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2020p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2020p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2020p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2020p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Physics",
+    icon: <Atom className="h-5 w-5" />,
+    color: "bg-purple-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1phys2023p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p3ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p2ms/view" },
+          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1phys2022p3/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p3ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2021p2ms/view" },
+        ],
+      },
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2020p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2020p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2020p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2020p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "English",
+    icon: <BookMarked className="h-5 w-5" />,
+    color: "bg-red-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p2ms/view" },
+          { title: "Paper 3 Questions", url: "https://drive.google.com/file/d/1eng2023p3q/view" },
+          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p3ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2021p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Kiswahili",
+    icon: <Globe className="h-5 w-5" />,
+    color: "bg-orange-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2023p1q/view" },
+          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2023p1ms/view" },
+          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2023p2q/view" },
+          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2023p2ms/view" },
+          { title: "Karatasi 3 Maswali", url: "https://drive.google.com/file/d/1kis2023p3q/view" },
+          { title: "Karatasi 3 Majibu", url: "https://drive.google.com/file/d/1kis2023p3ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2022p1q/view" },
+          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2022p1ms/view" },
+          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2022p2q/view" },
+          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2021p1q/view" },
+          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2021p1ms/view" },
+          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2021p2q/view" },
+          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2021p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Geography",
+    icon: <Globe className="h-5 w-5" />,
+    color: "bg-teal-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2023p2ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2021p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "History",
+    icon: <BookMarked className="h-5 w-5" />,
+    color: "bg-amber-600",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2023p2ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2021p2ms/view" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "CRE",
+    icon: <Cross className="h-5 w-5" />,
+    color: "bg-indigo-500",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2023p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2023p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2023p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2023p2ms/view" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2022p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2022p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2022p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2022p2ms/view" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2021p1q/view" },
+          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2021p1ms/view" },
+          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2021p2q/view" },
+          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2021p2ms/view" },
+        ],
+      },
     ],
   },
 ];
@@ -514,6 +876,7 @@ const contentCategories = [
   { id: "videos", label: "Video Lessons", icon: <Video className="h-4 w-4" />, data: videosData },
   { id: "notes", label: "Summary Notes", icon: <FileText className="h-4 w-4" />, data: summaryNotesData },
   { id: "tests", label: "Topical Tests", icon: <ClipboardList className="h-4 w-4" />, data: topicalTestsData },
+  { id: "kcse", label: "KCSE Past Papers", icon: <GraduationCap className="h-4 w-4" />, data: kcsePastPapersData },
 ];
 
 const LearningPage = () => {
@@ -526,12 +889,18 @@ const LearningPage = () => {
   const currentSubject = currentData.find((s) => s.name === selectedSubject);
   const currentForm = currentSubject?.forms.find((f) => f.form === selectedForm);
 
-  // Reset subject when category changes if current subject doesn't exist in new category
+  // Reset subject and form when category changes
   const handleCategoryChange = (category: string) => {
     setSelectedCategory(category);
     const newData = contentCategories.find((c) => c.id === category)?.data || [];
     if (!newData.find((s) => s.name === selectedSubject)) {
       setSelectedSubject(newData[0]?.name || "Mathematics");
+    }
+    // Reset form/year based on category
+    if (category === "kcse") {
+      setSelectedForm("2023");
+    } else {
+      setSelectedForm("Form One");
     }
   };
 
@@ -543,6 +912,8 @@ const LearningPage = () => {
         return <FileText className="h-4 w-4" />;
       case "tests":
         return <ClipboardList className="h-4 w-4" />;
+      case "kcse":
+        return <GraduationCap className="h-4 w-4" />;
       default:
         return <BookOpen className="h-4 w-4" />;
     }
