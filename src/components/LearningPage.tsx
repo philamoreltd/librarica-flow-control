@@ -509,7 +509,7 @@ const topicalTestsData: SubjectData[] = [
   },
 ];
 
-// KCSE Past Papers Data - Actual links from elimucentre.co.ke
+// KCSE Past Papers Data - Actual links from elimucentre.co.ke and teacher.co.ke
 const kcsePastPapersData: SubjectData[] = [
   {
     name: "Mathematics",
@@ -523,6 +523,22 @@ const kcsePastPapersData: SubjectData[] = [
           { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-1-KCSE-1.pdf" },
           { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-2-KCSE.pdf" },
           { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-2-KCSE-1.pdf" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Mathematics-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Mathematics-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Mathematics-Paper-1.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Mathematics-Paper-1-Marking-Scheme-Teacher_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Mathematics-Paper-2.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Mathematics-Paper-2-Marking-Scheme-Teacher_ke.pdf" },
         ],
       },
       {
@@ -551,6 +567,25 @@ const kcsePastPapersData: SubjectData[] = [
         ],
       },
       {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Chemistry-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Chemistry-Paper-2-Teacher_co_ke.pdf" },
+          { title: "Paper 3 Practical", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Chemistry-Paper-3-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-1.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-1-Marking-Scheme-Teacher_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-2.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-2-Marking-Scheme-Teacher_ke.pdf" },
+          { title: "Paper 3 Practical", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-3.pdf" },
+          { title: "Paper 3 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Chemistry-Paper-3-Marking-Scheme-Teacher_ke.pdf" },
+        ],
+      },
+      {
         form: "2020",
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
@@ -576,6 +611,23 @@ const kcsePastPapersData: SubjectData[] = [
         ],
       },
       {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Biology-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 3 Practical", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Biology-Paper-3-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Biology-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Biology-Paper-2.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Biology-Paper-2-Marking-Scheme-Teacher_ke.pdf" },
+          { title: "Paper 3 Practical", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Biology-Paper-3.pdf" },
+          { title: "Paper 3 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Biology-Paper-3-Marking-Scheme-Teacher_ke.pdf" },
+        ],
+      },
+      {
         form: "2020",
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
@@ -592,6 +644,23 @@ const kcsePastPapersData: SubjectData[] = [
     icon: <Atom className="h-5 w-5" />,
     color: "bg-purple-500",
     forms: [
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Physics-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Physics-Paper-2-Teacher_co_ke.pdf" },
+          { title: "Paper 3 Practical", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Physics-Paper-3-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Physics-Paper-1.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Physics-Paper-1-Marking-Scheme-Teacher_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Physics-Paper-2.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Physics-Paper-2-Marking-Scheme-Teacher_ke.pdf" },
+        ],
+      },
       {
         form: "2020",
         resources: [
@@ -618,6 +687,22 @@ const kcsePastPapersData: SubjectData[] = [
         ],
       },
       {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-English-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Language", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-English-language-Teacher_co_ke.pdf" },
+          { title: "Paper 3 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-English-Paper-3-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-English-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-English-Paper-2.pdf" },
+          { title: "Paper 3 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-English-Paper-3.pdf" },
+        ],
+      },
+      {
         form: "2020",
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
@@ -635,6 +720,22 @@ const kcsePastPapersData: SubjectData[] = [
     icon: <Globe className="h-5 w-5" />,
     color: "bg-orange-500",
     forms: [
+      {
+        form: "2022",
+        resources: [
+          { title: "Karatasi 1 Maswali", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Kiswahili-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Karatasi 2 Lugha", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Kiswahili-Lugha-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Karatasi 1 Maswali", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Kiswahili-Paper-1.pdf" },
+          { title: "Karatasi 2 Maswali", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Kiswahili-Karatasi-Ya-2.pdf" },
+          { title: "Karatasi 2 Majibu", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Kiswahili-Paper-2-Mwongozo-wa-Kusahihisha-Teacher_ke.pdf" },
+          { title: "Karatasi 3 Maswali", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Kiswahili-Karatasi-ya-3.pdf" },
+        ],
+      },
       {
         form: "2020",
         resources: [
@@ -654,6 +755,20 @@ const kcsePastPapersData: SubjectData[] = [
     color: "bg-teal-500",
     forms: [
       {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Geography-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Geography-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Geography-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Geography-Paper-2.pdf" },
+        ],
+      },
+      {
         form: "2020",
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/GEOGRAPHY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
@@ -669,6 +784,20 @@ const kcsePastPapersData: SubjectData[] = [
     icon: <BookMarked className="h-5 w-5" />,
     color: "bg-amber-600",
     forms: [
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-History-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-History-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-History-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-History-Paper-2.pdf" },
+        ],
+      },
       {
         form: "2020",
         resources: [
@@ -690,6 +819,20 @@ const kcsePastPapersData: SubjectData[] = [
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CRE-PAPER-1-.pdf" },
           { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CRE-PAPER-1-1-1.pdf" },
+        ],
+      },
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-CRE-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-CRE-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Christian-Religious-Education-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Christian-Religious-Education-Paper-2.pdf" },
         ],
       },
       {
@@ -716,6 +859,20 @@ const kcsePastPapersData: SubjectData[] = [
         ],
       },
       {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Agriculture-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Agriculture-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Agriculture-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Agriculture-Paper-2.pdf" },
+        ],
+      },
+      {
         form: "2020",
         resources: [
           { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/AGRICULTURE-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
@@ -731,6 +888,20 @@ const kcsePastPapersData: SubjectData[] = [
     icon: <Briefcase className="h-5 w-5" />,
     color: "bg-cyan-600",
     forms: [
+      {
+        form: "2022",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Business-Studies-Paper-1-Teacher_co_ke.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2023/03/2022-KCSE-Business-Studies-Paper-2-Teacher_co_ke.pdf" },
+        ],
+      },
+      {
+        form: "2021",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Business-Studies-Paper-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://teacher.co.ke/wp-content/uploads/bsk-pdf-manager/2022/04/KCSE-2021-Business-Studies-Paper-2.pdf" },
+        ],
+      },
       {
         form: "2020",
         resources: [
