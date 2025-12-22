@@ -509,7 +509,7 @@ const topicalTestsData: SubjectData[] = [
   },
 ];
 
-// KCSE Past Papers Data
+// KCSE Past Papers Data - Actual links from elimucentre.co.ke
 const kcsePastPapersData: SubjectData[] = [
   {
     name: "Mathematics",
@@ -519,37 +519,19 @@ const kcsePastPapersData: SubjectData[] = [
       {
         form: "2023",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2023p2ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2022p2ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-1-KCSE.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-1-KCSE-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-2-KCSE.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-MATHEMATICS-PAPER-2-KCSE-1.pdf" },
         ],
       },
       {
         form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1math2020p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1math2020p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1math2020p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1math2020p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/MATHEMATICS-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/MATHEMATICS-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/MATHEMATICS-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/MATHEMATICS-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -562,41 +544,21 @@ const kcsePastPapersData: SubjectData[] = [
       {
         form: "2023",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1chem2023p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1chem2023p3ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1chem2022p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1chem2022p3ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CHEMISTRY-PAPER-1-KCSE.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CHEMISTRY-PAPER-1-KCSE-1.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-Chem-paper-KCSE-2-2023.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-Chem-paper-KCSE-2-2023-1.pdf" },
         ],
       },
       {
         form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1chem2020p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1chem2020p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1chem2020p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1chem2020p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-3-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHEMISTRY-PAPER-3-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -609,41 +571,18 @@ const kcsePastPapersData: SubjectData[] = [
       {
         form: "2023",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1bio2023p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1bio2023p3ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1bio2022p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1bio2022p3ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-BIOLOGY-PAPER-1-KCSE.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-BIOLOGY-PAPER-1-KCSE-1.pdf" },
         ],
       },
       {
         form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1bio2020p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1bio2020p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1bio2020p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1bio2020p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BIOLOGY-PAPER-3-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -654,43 +593,14 @@ const kcsePastPapersData: SubjectData[] = [
     color: "bg-purple-500",
     forms: [
       {
-        form: "2023",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1phys2023p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1phys2023p3ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p2ms/view" },
-          { title: "Paper 3 Practical", url: "https://drive.google.com/file/d/1phys2022p3/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1phys2022p3ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2021p2ms/view" },
-        ],
-      },
-      {
         form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1phys2020p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1phys2020p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1phys2020p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1phys2020p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-3-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/PHYSICS-PAPER-3-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -703,30 +613,19 @@ const kcsePastPapersData: SubjectData[] = [
       {
         form: "2023",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p2ms/view" },
-          { title: "Paper 3 Questions", url: "https://drive.google.com/file/d/1eng2023p3q/view" },
-          { title: "Paper 3 Marking Scheme", url: "https://drive.google.com/file/d/1eng2023p3ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-ENGLISH-PAPER-1.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-ENGLISH-PAPER-1-1.pdf" },
         ],
       },
       {
-        form: "2022",
+        form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2022p2ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1eng2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1eng2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1eng2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1eng2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-3-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 3 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/ENGLISH-PAPER-3-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -737,32 +636,14 @@ const kcsePastPapersData: SubjectData[] = [
     color: "bg-orange-500",
     forms: [
       {
-        form: "2023",
+        form: "2020",
         resources: [
-          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2023p1q/view" },
-          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2023p1ms/view" },
-          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2023p2q/view" },
-          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2023p2ms/view" },
-          { title: "Karatasi 3 Maswali", url: "https://drive.google.com/file/d/1kis2023p3q/view" },
-          { title: "Karatasi 3 Majibu", url: "https://drive.google.com/file/d/1kis2023p3ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2022p1q/view" },
-          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2022p1ms/view" },
-          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2022p2q/view" },
-          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2022p2ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Karatasi 1 Maswali", url: "https://drive.google.com/file/d/1kis2021p1q/view" },
-          { title: "Karatasi 1 Majibu", url: "https://drive.google.com/file/d/1kis2021p1ms/view" },
-          { title: "Karatasi 2 Maswali", url: "https://drive.google.com/file/d/1kis2021p2q/view" },
-          { title: "Karatasi 2 Majibu", url: "https://drive.google.com/file/d/1kis2021p2ms/view" },
+          { title: "Karatasi 1 Maswali", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Karatasi 1 Majibu", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Karatasi 2 Maswali", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Karatasi 2 Majibu", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Karatasi 3 Maswali", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-3-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Karatasi 3 Majibu", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/KISWAHILI-PAPER-3-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -773,30 +654,12 @@ const kcsePastPapersData: SubjectData[] = [
     color: "bg-teal-500",
     forms: [
       {
-        form: "2023",
+        form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2023p2ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2022p2ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1geo2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1geo2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1geo2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1geo2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/GEOGRAPHY-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/GEOGRAPHY-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/GEOGRAPHY-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/GEOGRAPHY-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -807,30 +670,12 @@ const kcsePastPapersData: SubjectData[] = [
     color: "bg-amber-600",
     forms: [
       {
-        form: "2023",
+        form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2023p2ms/view" },
-        ],
-      },
-      {
-        form: "2022",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2022p2ms/view" },
-        ],
-      },
-      {
-        form: "2021",
-        resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1hist2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1hist2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1hist2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1hist2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/HISTORY-AND-GOVERNMENT-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/HISTORY-AND-GOVERNMENT-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/HISTORY-AND-GOVERNMENT-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/HISTORY-AND-GOVERNMENT-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
         ],
       },
     ],
@@ -843,28 +688,69 @@ const kcsePastPapersData: SubjectData[] = [
       {
         form: "2023",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2023p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2023p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2023p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2023p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CRE-PAPER-1-.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-CRE-PAPER-1-1-1.pdf" },
         ],
       },
       {
-        form: "2022",
+        form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2022p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2022p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2022p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2022p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHRISTIAN-RELIGIOUS-EDUCATION-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CRE-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CHRISTIAN-RELIGIOUS-EDUCATION-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/CRE-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Agriculture",
+    icon: <Home className="h-5 w-5" />,
+    color: "bg-lime-600",
+    forms: [
+      {
+        form: "2023",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-AGRICULTURE-PAPER-1-KCSE.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2023/12/2023-AGRICULTURE-PAPER-1-KCSE-1.pdf" },
         ],
       },
       {
-        form: "2021",
+        form: "2020",
         resources: [
-          { title: "Paper 1 Questions", url: "https://drive.google.com/file/d/1cre2021p1q/view" },
-          { title: "Paper 1 Marking Scheme", url: "https://drive.google.com/file/d/1cre2021p1ms/view" },
-          { title: "Paper 2 Questions", url: "https://drive.google.com/file/d/1cre2021p2q/view" },
-          { title: "Paper 2 Marking Scheme", url: "https://drive.google.com/file/d/1cre2021p2ms/view" },
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/AGRICULTURE-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/AGRICULTURE-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/AGRICULTURE-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/AGRICULTURE-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Business Studies",
+    icon: <Briefcase className="h-5 w-5" />,
+    color: "bg-cyan-600",
+    forms: [
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BUSINESS-STUDIES-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 1 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BUSINESS-STUDIES-PAPER-1-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BUSINESS-STUDIES-PAPER-2-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
+          { title: "Paper 2 Marking Scheme", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/BUSINESS-STUDIES-PAPER-2-KCSE-2020-MARKING-SCHEME-MODEL-23012022001.pdf" },
+        ],
+      },
+    ],
+  },
+  {
+    name: "Computer Studies",
+    icon: <Monitor className="h-5 w-5" />,
+    color: "bg-slate-600",
+    forms: [
+      {
+        form: "2020",
+        resources: [
+          { title: "Paper 1 Questions", url: "https://elimucentre.co.ke/wp-content/uploads/2022/03/COMPUTER-STUDIES-PAPER-1-QUESTION-PAPER-KCSE-2020-IN-PDF-MODEL-23012022001.pdf" },
         ],
       },
     ],
