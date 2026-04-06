@@ -62,6 +62,7 @@ interface StudentActivity {
 
 const StudentManager = () => {
   const [students, setStudents] = useState<Student[]>([]);
+  const [totalUsers, setTotalUsers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedGrade, setSelectedGrade] = useState("all");
