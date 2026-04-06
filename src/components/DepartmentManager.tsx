@@ -315,6 +315,9 @@ export function DepartmentManager() {
                     <Badge variant="outline">{dept.code}</Badge>
                   </TableCell>
                   <TableCell>
+                    <Badge variant="secondary">{usersPerDept[dept.id] || 0} users</Badge>
+                  </TableCell>
+                  <TableCell>
                     <div className="text-sm">
                       {dept.phone && <div>{dept.phone}</div>}
                       {dept.email && <div className="text-muted-foreground">{dept.email}</div>}
