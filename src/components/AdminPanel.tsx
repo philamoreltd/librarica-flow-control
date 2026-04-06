@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,10 @@ import {
   Shield,
   ShieldCheck,
   ShieldAlert,
-  User
+  User,
+  GraduationCap,
+  Building2,
+  UserCheck
 } from "lucide-react";
 import { BulkImport } from "./BulkImport";
 import BookManager from "./BookManager";
@@ -30,6 +33,7 @@ import { DepartmentManager } from "./DepartmentManager";
 import { StaffManagement } from "./StaffManagement";
 import { usePermissions } from "@/hooks/usePermissions";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const getRoleBadgeConfig = (role: string | null | undefined) => {
   switch (role) {
@@ -71,21 +75,75 @@ const getRoleBadgeConfig = (role: string | null | undefined) => {
   }
 };
 
+interface RealTimeStats {
+  totalUsers: number;
+  totalStudents: number;
+  totalBooks: number;
+  totalDepartments: number;
+  booksBorrowed: number;
+  overdueItems: number;
+  studentsByGrade: Record<string, number>;
+}
+
 const AdminPanel = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const permissions = usePermissions();
   const { profile } = useAuth();
   const roleBadge = getRoleBadgeConfig(profile?.role);
+  const [realStats, setRealStats] = useState<RealTimeStats>({
+    totalUsers: 0,
+    totalStudents: 0,
+    totalBooks: 0,
+    totalDepartments: 0,
+    booksBorrowed: 0,
+    overdueItems: 0,
+    studentsByGrade: {},
+  });
 
-  // Sample data for admin dashboard
-  const stats = [
-    { label: "Total Books", value: "15,247", change: "+2.5%", icon: BookOpen, color: "bg-blue-500" },
-    { label: "Active Members", value: "2,847", change: "+5.2%", icon: Users, color: "bg-green-500" },
-    { label: "Books Checked Out", value: "1,456", change: "-1.2%", icon: Calendar, color: "bg-purple-500" },
-    { label: "Overdue Items", value: "23", change: "-15.3%", icon: AlertTriangle, color: "bg-red-500" },
-    { label: "Monthly Revenue", value: "$4,250", change: "+8.7%", icon: DollarSign, color: "bg-yellow-500" },
-    { label: "Avg. Checkout Time", value: "14 days", change: "+0.5%", icon: Clock, color: "bg-indigo-500" },
-  ];
+  const fetchRealStats = async () => {
+    try {
+      const [usersRes, studentsRes, booksRes, deptsRes, borrowedRes, overdueRes] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('grade_level').eq('role', 'student'),
+        supabase.from('books').select('*', { count: 'exact', head: true }),
+        supabase.from('departments').select('*', { count: 'exact', head: true }),
+        supabase.from('borrowing_records').select('*', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('borrowing_records').select('*', { count: 'exact', head: true }).eq('status', 'active').lt('due_date', new Date().toISOString()),
+      ]);
+
+      const studentsByGrade: Record<string, number> = {};
+      (studentsRes.data || []).forEach((s: any) => {
+        const grade = s.grade_level || 'Unassigned';
+        studentsByGrade[grade] = (studentsByGrade[grade] || 0) + 1;
+      });
+
+      setRealStats({
+        totalUsers: usersRes.count || 0,
+        totalStudents: studentsRes.data?.length || 0,
+        totalBooks: booksRes.count || 0,
+        totalDepartments: deptsRes.count || 0,
+        booksBorrowed: borrowedRes.count || 0,
+        overdueItems: overdueRes.count || 0,
+        studentsByGrade,
+      });
+    } catch (error) {
+      console.error('Error fetching real stats:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRealStats();
+
+    const channel = supabase
+      .channel('admin-stats')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchRealStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'books' }, () => fetchRealStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'borrowing_records' }, () => fetchRealStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'departments' }, () => fetchRealStats())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const recentTransactions = [
     {
@@ -195,28 +253,94 @@ const AdminPanel = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <Card key={index} className="hover:shadow-lg transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm text-gray-600">{stat.label}</p>
-                  <div className="flex items-center mt-1">
-                    <TrendingUp className="h-3 w-3 text-green-500 mr-1" />
-                    <span className="text-xs text-green-600">{stat.change}</span>
-                  </div>
-                </div>
-                <div className={`p-3 rounded-lg ${stat.color} text-white`}>
-                  <stat.icon className="h-6 w-6" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Real-Time Stats Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.totalUsers}</p>
+              <p className="text-xs text-muted-foreground">Total Users</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-accent/50">
+              <GraduationCap className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.totalStudents}</p>
+              <p className="text-xs text-muted-foreground">Total Students</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-secondary">
+              <BookOpen className="h-5 w-5 text-secondary-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.totalBooks}</p>
+              <p className="text-xs text-muted-foreground">Total Books</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-primary/10">
+              <Building2 className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.totalDepartments}</p>
+              <p className="text-xs text-muted-foreground">Schools</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-accent/50">
+              <Calendar className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.booksBorrowed}</p>
+              <p className="text-xs text-muted-foreground">Books Out</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="p-2 rounded-full bg-destructive/10">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            </div>
+            <div>
+              <p className="text-2xl font-bold">{realStats.overdueItems}</p>
+              <p className="text-xs text-muted-foreground">Overdue</p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Per-Class Breakdown */}
+      {Object.keys(realStats.studentsByGrade).length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-8">
+          {Object.entries(realStats.studentsByGrade)
+            .sort(([a], [b]) => a === 'Unassigned' ? 1 : b === 'Unassigned' ? -1 : a.localeCompare(b))
+            .map(([grade, count]) => (
+              <Card key={grade}>
+                <CardContent className="p-3 flex items-center gap-2">
+                  <UserCheck className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-lg font-bold">{count}</p>
+                    <p className="text-xs text-muted-foreground">{grade}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+        </div>
+      )}
 
       {/* Main Content Tabs */}
       <Tabs defaultValue="overview" className="space-y-6">

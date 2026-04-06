@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Plus, Edit, Trash2, Building2, Mail } from 'lucide-react';
+import { Plus, Edit, Trash2, Building2, Mail, Users, GraduationCap } from 'lucide-react';
 import { useDepartments } from '@/hooks/useDepartments';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DepartmentFormData {
   name: string;
@@ -26,6 +27,9 @@ export function DepartmentManager() {
   const { departments, loading, createDepartment, updateDepartment, deleteDepartment, resendInvitation } = useDepartments();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingDepartment, setEditingDepartment] = useState<any>(null);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalStudents, setTotalStudents] = useState(0);
+  const [usersPerDept, setUsersPerDept] = useState<Record<string, number>>({});
   const [formData, setFormData] = useState<DepartmentFormData>({
     name: '',
     code: '',
@@ -35,6 +39,40 @@ export function DepartmentManager() {
     email: '',
     is_active: true,
   });
+
+  const fetchDeptStats = async () => {
+    try {
+      const [usersRes, studentsRes, deptUsersRes] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+        supabase.from('profiles').select('department_id'),
+      ]);
+      setTotalUsers(usersRes.count || 0);
+      setTotalStudents(studentsRes.count || 0);
+      
+      const counts: Record<string, number> = {};
+      (deptUsersRes.data || []).forEach((p: any) => {
+        if (p.department_id) {
+          counts[p.department_id] = (counts[p.department_id] || 0) + 1;
+        }
+      });
+      setUsersPerDept(counts);
+    } catch (e) {
+      console.error('Fetch dept stats error:', e);
+    }
+  };
+
+  useEffect(() => {
+    fetchDeptStats();
+
+    const channel = supabase
+      .channel('dept-stats')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => fetchDeptStats())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'departments' }, () => fetchDeptStats())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +127,55 @@ export function DepartmentManager() {
   }
 
   return (
+    <div className="space-y-4">
+      {/* Real-time Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-primary/10">
+              <Building2 className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{departments.length}</p>
+              <p className="text-xs text-muted-foreground">Total Schools</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-accent/50">
+              <Users className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalUsers}</p>
+              <p className="text-xs text-muted-foreground">Total Users</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-secondary">
+              <GraduationCap className="h-4 w-4 text-secondary-foreground" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalStudents}</p>
+              <p className="text-xs text-muted-foreground">Total Students</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-primary/10">
+              <Building2 className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{departments.filter(d => d.is_active).length}</p>
+              <p className="text-xs text-muted-foreground">Active Schools</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
