@@ -377,5 +377,6 @@ export function DepartmentManager() {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }
