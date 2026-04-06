@@ -19,7 +19,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, UserPlus, Shield, Trash2, RefreshCw } from "lucide-react";
+import { Search, UserPlus, Shield, Trash2, RefreshCw, Users, UserCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,6 +43,8 @@ export const StaffManagement = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState("");
   const [newUserRole, setNewUserRole] = useState<string>("librarian");
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalStudents, setTotalStudents] = useState(0);
   const { toast } = useToast();
 
   const fetchUsers = async () => {
@@ -79,8 +81,32 @@ export const StaffManagement = () => {
     }
   };
 
+  const fetchCounts = async () => {
+    try {
+      const [usersRes, studentsRes] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student'),
+      ]);
+      setTotalUsers(usersRes.count || 0);
+      setTotalStudents(studentsRes.count || 0);
+    } catch (e) {
+      console.error('Fetch counts error:', e);
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
+    fetchCounts();
+
+    const channel = supabase
+      .channel('staff-stats')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchUsers();
+        fetchCounts();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const handleUpdateRole = async (userId: string, newRole: string) => {
@@ -215,6 +241,55 @@ export const StaffManagement = () => {
   );
 
   return (
+    <div className="space-y-4">
+      {/* Real-time Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-primary/10">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalUsers}</p>
+              <p className="text-xs text-muted-foreground">Total Users</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-accent/50">
+              <UserCheck className="h-4 w-4 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalStudents}</p>
+              <p className="text-xs text-muted-foreground">Total Students</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-secondary">
+              <Shield className="h-4 w-4 text-secondary-foreground" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{staffUsers.length}</p>
+              <p className="text-xs text-muted-foreground">Staff Members</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-3 flex items-center gap-2">
+            <div className="rounded-full p-2 bg-primary/10">
+              <Users className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <p className="text-lg font-bold">{totalUsers - totalStudents - staffUsers.length}</p>
+              <p className="text-xs text-muted-foreground">Other Accounts</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="flex items-center">
@@ -351,5 +426,6 @@ export const StaffManagement = () => {
         )}
       </CardContent>
     </Card>
+    </div>
   );
 };
