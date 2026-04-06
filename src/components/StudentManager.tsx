@@ -767,6 +767,45 @@ const StudentManager = () => {
         </div>
       </div>
 
+      {/* Real-time Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="rounded-full p-2 bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Users</p>
+              <p className="text-2xl font-bold">{totalUsers}</p>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 flex items-center gap-3">
+            <div className="rounded-full p-2 bg-accent/50">
+              <GraduationCap className="h-5 w-5 text-accent-foreground" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Students</p>
+              <p className="text-2xl font-bold">{students.length}</p>
+            </div>
+          </CardContent>
+        </Card>
+        {sortedGrades.map((grade) => (
+          <Card key={`stat-${grade}`}>
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="rounded-full p-2 bg-secondary">
+                <UserCheck className="h-5 w-5 text-secondary-foreground" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">{grade}</p>
+                <p className="text-2xl font-bold">{groupedStudents[grade].length}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       {/* Search and Filters */}
       <div className="flex gap-4">
         <div className="relative flex-1">
