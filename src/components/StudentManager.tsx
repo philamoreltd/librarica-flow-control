@@ -102,8 +102,20 @@ const StudentManager = () => {
 
   const gradeLevels = ["Grade 10", "Form 2", "Form 3", "Form 4"];
 
+  const fetchTotalUsers = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      if (!error) setTotalUsers(count || 0);
+    } catch (e) {
+      console.error('Fetch total users error:', e);
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
+    fetchTotalUsers();
 
     // Subscribe to real-time updates
     const studentsChannel = supabase
@@ -117,6 +129,7 @@ const StudentManager = () => {
         },
         () => {
           fetchStudents();
+          fetchTotalUsers();
         }
       )
       .subscribe();
