@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2, Download, Printer } from "lucide-react";
+import { Plus, Edit, UserX, Users, Search, Eye, CheckCircle, XCircle, BookPlus, Building2, Download, Printer, UserCheck, GraduationCap } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import StudentForm from "@/components/StudentForm";
